@@ -36,4 +36,4 @@ cron.schedule('0 0 * * *', () => {
     sendLeaderboard(client);
 });
 
-client.login(DISCORD_TOKEN);
+client.login(token);
