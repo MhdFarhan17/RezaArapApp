@@ -21,7 +21,7 @@ const MAX_WARNINGS = 1; // Maksimal 2 peringatan untuk spam
 function resetVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     fs.writeFileSync(filePath, JSON.stringify({}, null, 4));
-    console.log('voiceTimes.json berhasil direset.');
+    console.log('Data Leaderboard VoiceTimes.json telah direset.');
 }
 
 module.exports = {
@@ -47,6 +47,7 @@ module.exports = {
             }
 
             if (content === 'leaderboard!') {
+                console.log('Leaderboard Terkirim secara manual.');
                 sendLeaderboard(client);
                 return;
             }
