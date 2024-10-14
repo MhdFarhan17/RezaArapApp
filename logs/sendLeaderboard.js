@@ -76,7 +76,7 @@ async function sendLeaderboard(client) {
     }
 
     const embed = new EmbedBuilder()
-        .setTitle('Leaderboard Terlama di Voice Channel')
+        .setTitle('Leaderboard Terlama di Voice Channel GITGUD')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
