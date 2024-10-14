@@ -93,11 +93,11 @@ module.exports = {
 
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             // Handle mute or deafen events
-            if (!newState.selfMute && !newState.selfDeaf && voiceTimes[member.id].joinTime) {
-                // Unmute/undeafen, resume time tracking
+            if (!newState.selfMute && !newState.selfDeaf && !voiceTimes[member.id].joinTime) {
+                // Unmute/undeafen, resume time tracking by restoring the previous joinTime
                 voiceTimes[member.id].joinTime = Date.now();
                 console.log(`Resumed tracking for ${member.user.tag}.`);
-
+        
             } else if ((newState.selfMute || newState.selfDeaf) && voiceTimes[member.id].joinTime) {
                 // Mute or deafen, pause time tracking
                 const sessionTime = Date.now() - voiceTimes[member.id].joinTime;
@@ -105,7 +105,7 @@ module.exports = {
                 console.log(`Paused tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
                 delete voiceTimes[member.id].joinTime;
             }
-        }
+        }        
 
         // Save updated voice times
         saveVoiceTimes();
