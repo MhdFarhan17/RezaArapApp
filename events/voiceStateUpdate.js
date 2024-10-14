@@ -5,6 +5,9 @@ const { logModerationAction } = require('../logs/moderationLog');
 
 let voiceTimes = {};
 
+// Tambahkan nama bot Jockie Music yang ingin dikecualikan
+const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
+
 // Load the saved voice times from a JSON file
 function loadVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
@@ -39,6 +42,12 @@ module.exports = {
         const member = newState.member || oldState.member;
         if (!member || !member.user) {
             console.error('Member or user is undefined in voiceStateUpdate');
+            return;
+        }
+
+        // Mengecualikan bot Jockie Music dari perhitungan leaderboard
+        if (excludedBots.includes(member.user.username)) {
+            console.log(`Bot ${member.user.username} is excluded from tracking.`);
             return;
         }
 
