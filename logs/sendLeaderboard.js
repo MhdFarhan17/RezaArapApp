@@ -39,7 +39,7 @@ function formatTime(ms) {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `    ${hours} jam, ${minutes} menit, ${seconds} detik`;
+    return `      ${hours} jam, ${minutes} menit, ${seconds} detik`;
 }
 
 async function sendLeaderboard(client) {
@@ -72,11 +72,11 @@ async function sendLeaderboard(client) {
     for (let i = 0; i < sortedTimes.length && i < 10; i++) {
         const [userId, { totalTime }] = sortedTimes[i];
         const user = await client.users.fetch(userId);
-        leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+        leaderboardDescription += `**${i + 1}. ${user.tag}**\n  ${formatTime(totalTime)}\n\n=====================\n`;
     }
 
     const embed = new EmbedBuilder()
-        .setTitle('Leaderboard Terlama di Voice Channel')
+        .setTitle('Leaderboard Terlama di Voice Channel\n')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
