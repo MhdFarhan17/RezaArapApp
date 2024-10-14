@@ -72,11 +72,11 @@ async function sendLeaderboard(client) {
     for (let i = 0; i < sortedTimes.length && i < 10; i++) {
         const [userId, { totalTime }] = sortedTimes[i];
         const user = await client.users.fetch(userId);
-        leaderboardDescription += `**${i + 1}. ${user.tag}**\n  ${formatTime(totalTime)}\n\n=====================\n`;
+        leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
     }
 
     const embed = new EmbedBuilder()
-        .setTitle('Leaderboard Terlama di Voice Channel\n')
+        .setTitle('Leaderboard Terlama di Voice Channel')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
