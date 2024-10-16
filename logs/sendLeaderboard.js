@@ -56,7 +56,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
     }
 
     const embed = new EmbedBuilder()
-        .setTitle(`Leaderboard Terlama di Voice Channel (Page ${page} of ${totalPages})`)
+        .setTitle(`𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃`)
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
@@ -72,7 +72,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                 .setDisabled(page === 1),  // Disable button if it's the first page
             new ButtonBuilder()
                 .setCustomId('next')
-                .setLabel('➡️ Selanjutnya')
+                .setLabel(`Selanjutnya ➡️ (Page ${page}/${totalPages})`)
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(page === totalPages)  // Disable button if it's the last page
         );
