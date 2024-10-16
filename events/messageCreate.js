@@ -42,7 +42,7 @@ module.exports = {
         if (message.channel.id === serverConfig.leaderboardChannelId) {  // Gunakan channel khusus leaderboard
             if (content === 'resetdata!') {
                 resetVoiceTimes();
-                message.channel.send('Data Leaderboard Voice telah direset.');
+                message.channel.send('Data Leaderboard Terlama Voice telah direset.');
                 return;
             }
 

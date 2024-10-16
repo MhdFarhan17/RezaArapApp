@@ -17,7 +17,7 @@ module.exports = {
         if (channel.members.size === 0) {
           channel.delete().catch(console.error);
         }
-      }, 10000); // 10 detik delay
+      }, 60000); // 10 detik delay
     }
   },
 };

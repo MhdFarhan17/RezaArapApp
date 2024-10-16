@@ -31,8 +31,8 @@ for (const file of eventFiles) {
     }
 }
 
-cron.schedule('0 0 * * *', () => {
-    console.log('Leaderboard Terkirim setiap pergantian hari ...');
+cron.schedule('0 17 * * *', () => {
+    console.log('Leaderboard Terkirim pada pukul 00.00 WIB...');
     sendLeaderboard(client);
 });
 

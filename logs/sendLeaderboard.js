@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { server1 } = require('../utils/constants');
@@ -39,9 +39,61 @@ function formatTime(ms) {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `      ${hours} jam, ${minutes} menit, ${seconds} detik`;
+    return `${hours} jam, ${minutes} menit, ${seconds} detik`;
 }
 
+// Fungsi untuk mengirimkan leaderboard per halaman
+async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPage = 10) {
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const totalPages = Math.ceil(sortedTimes.length / perPage);
+
+    let leaderboardDescription = '';
+    for (let i = start; i < end && i < sortedTimes.length; i++) {
+        const [userId, { totalTime }] = sortedTimes[i];
+        const user = await client.users.fetch(userId);
+        leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle(`Leaderboard Terlama di Voice Channel (Page ${page} of ${totalPages})`)
+        .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
+        .setColor(0x1abc9c)
+        .setFooter({ text: 'Leaderboard direset setiap bulan.' })
+        .setTimestamp();
+
+    // Button untuk navigasi halaman
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('previous')
+                .setLabel('⬅️ Sebelumnya')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(page === 1),  // Disable button if it's the first page
+            new ButtonBuilder()
+                .setCustomId('next')
+                .setLabel('➡️ Selanjutnya')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(page === totalPages)  // Disable button if it's the last page
+        );
+
+    const sentMessage = await channel.send({ embeds: [embed], components: [row] });
+
+    const filter = (interaction) => interaction.user.id === client.user.id;
+    const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
+
+    collector.on('collect', async (interaction) => {
+        if (interaction.customId === 'previous') {
+            await interaction.deferUpdate();
+            sendLeaderboardPage(client, channel, sortedTimes, page - 1);
+        } else if (interaction.customId === 'next') {
+            await interaction.deferUpdate();
+            sendLeaderboardPage(client, channel, sortedTimes, page + 1);
+        }
+    });
+}
+
+// Fungsi utama untuk mengirimkan leaderboard
 async function sendLeaderboard(client) {
     const voiceTimes = loadVoiceTimes();
 
@@ -54,37 +106,20 @@ async function sendLeaderboard(client) {
 
     // Iterate over the users and calculate the current session time if they're still in voice
     for (const [userId, data] of Object.entries(voiceTimes)) {
-        // Jika user masih berada di voice channel, hitung waktu dari joinTime ke waktu sekarang
         if (data.joinTime) {
-            const currentSessionTime = now - data.joinTime;  // Hitung selisih waktu
-            voiceTimes[userId].totalTime += currentSessionTime; // Tambahkan ke totalTime
-            voiceTimes[userId].joinTime = now; // Update joinTime ke waktu sekarang (untuk sesi berikutnya)
+            const currentSessionTime = now - data.joinTime;
+            voiceTimes[userId].totalTime += currentSessionTime;
+            voiceTimes[userId].joinTime = now;
         }
     }
 
-    // Simpan voiceTimes yang sudah diperbarui
     saveVoiceTimes(voiceTimes);
 
-    // Sort members by total time in descending order
     const sortedTimes = Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime);
-
-    let leaderboardDescription = '';
-    for (let i = 0; i < sortedTimes.length && i < 10; i++) {
-        const [userId, { totalTime }] = sortedTimes[i];
-        const user = await client.users.fetch(userId);
-        leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
-    }
-
-    const embed = new EmbedBuilder()
-        .setTitle('Leaderboard Terlama di Voice Channel GITGUD')
-        .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
-        .setColor(0x1abc9c)
-        .setFooter({ text: 'Leaderboard direset setiap bulan.' })
-        .setTimestamp();
 
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
     if (channel) {
-        channel.send({ embeds: [embed] });
+        sendLeaderboardPage(client, channel, sortedTimes);
     } else {
         console.log('Leaderboard channel not found.');
     }
