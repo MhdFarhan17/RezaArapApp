@@ -3,21 +3,20 @@ const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
 const { logModerationAction } = require('../logs/moderationLog');
-const { sendLeaderboard } = require('../logs/sendLeaderboard');  // Tambah untuk leaderboard
+const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
 const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
 const fs = require('fs');
 const path = require('path');
+const schedule = require('node-schedule');
 
 const userMessages = {};
 const userWarnings = {};
 const LINK_SPAM_THRESHOLD = 2;
 const LINK_SPAM_TIMEFRAME = 10000;
-const SPAM_TIMEFRAME = 10000; // 10 detik
-const SPAM_THRESHOLD = 1; // Maksimal 2 pesan yang sama
-const MAX_WARNINGS = 1; // Maksimal 2 peringatan untuk spam
-
-// Fungsi untuk mereset data voiceTimes.json
+const SPAM_TIMEFRAME = 10000;
+const SPAM_THRESHOLD = 1;
+const MAX_WARNINGS = 1;
 function resetVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     fs.writeFileSync(filePath, JSON.stringify({}, null, 4));
@@ -34,12 +33,10 @@ module.exports = {
         const guildId = message.guild.id;
         const now = Date.now();
 
-        // Tentukan konfigurasi server
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
         if (!serverConfig) return;
 
-        // Logika untuk command `reset!` dan `leaderboard!`
-        if (message.channel.id === serverConfig.leaderboardChannelId) {  // Gunakan channel khusus leaderboard
+        if (message.channel.id === serverConfig.leaderboardChannelId) {
             if (content === 'resetdata!') {
                 resetVoiceTimes();
                 message.channel.send('Data Leaderboard Terlama Voice telah direset.');
@@ -53,10 +50,8 @@ module.exports = {
             }
         }
 
-        // Pengecekan khusus untuk channel command createvoice
         if (message.channel.id === serverConfig.commandChannelId) {
             if (!(content.startsWith('cv!') || content.startsWith('createvoice!') || content.startsWith('lock!') || content.startsWith('unlock!'))) {
-                // Hapus pesan dan beri peringatan jika pesan bukan perintah yang diizinkan
                 message.delete().catch(console.error);
                 return message.reply(`Channel ini hanya untuk menggunakan perintah \`createvoice!\`, \`lock!\`, atau \`unlock!\`.`)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000)) // Hapus peringatan setelah 1 menit
@@ -64,7 +59,6 @@ module.exports = {
             }
         }
 
-        // Logika untuk create voice channel dengan "!createvoice"
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             if (message.channel.id !== serverConfig.commandChannelId) {
                 return message.reply(`Perintah ini hanya dapat digunakan di channel khusus: <#${serverConfig.commandChannelId}>.`)
@@ -73,7 +67,7 @@ module.exports = {
             }
 
             let args = message.content.trim().split(' ');
-            args.shift(); // Menghapus perintah dari argumen
+            args.shift();
             let channelName = args[0];
             let maxMembers = parseInt(args[1]);
 
@@ -103,12 +97,10 @@ module.exports = {
                     ],
                 });
 
-                // Mengirim pesan konfirmasi setelah channel berhasil dibuat
                 const memberLimitMessage = maxMembers ? `dengan batasan maksimal ${maxMembers} anggota` : 'tanpa batasan anggota';
                 message.reply(`Voice Channel dengan nama **${channelName}** berhasil dibuat ${memberLimitMessage}! Ayo join ke kamar tersebut.`)
                     .catch(console.error);
 
-                // Memindahkan pengguna ke voice channel yang baru dibuat
                 const member = message.guild.members.cache.get(message.author.id);
                 if (member && member.voice.channel) {
                     await member.voice.setChannel(channel);
@@ -119,10 +111,9 @@ module.exports = {
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
-            return; // Setelah memproses perintah `sewa!`, hentikan eksekusi.
+            return;
         }
 
-        // Logika untuk mengunci voice channel dengan "lock!"
         if (content.startsWith('lock!')) {
             if (!message.member.voice.channel) {
                 return message.reply('Kamu harus berada di dalam Voice Channel yang ingin kamu kunci.')
@@ -147,7 +138,6 @@ module.exports = {
             return;
         }
 
-        // Logika untuk membuka kembali voice channel dengan "unlock!"
         if (content.startsWith('unlock!')) {
             if (!message.member.voice.channel) {
                 return message.reply('Kamu harus berada di dalam voice channel yang ingin kamu buka.')
@@ -172,14 +162,12 @@ module.exports = {
             return;
         }
 
-        // Logika untuk Channel Khusus Share Link
         if (serverConfig.linkOnlyChannelIds.includes(message.channel.id)) {
             console.log("Handling link channels");
             handleLinkChannels(client, message);
             return;
         }
 
-        // Logika untuk Mendeteksi dan Menangani Spam
         if (!userMessages[userId]) {
             userMessages[userId] = [];
         }
@@ -190,7 +178,6 @@ module.exports = {
         const identicalMessages = userMessages[userId].filter(msg => msg.content === content);
 
         if (identicalMessages.length > SPAM_THRESHOLD) {
-            // Hapus semua pesan kecuali 2 pesan terakhir
             const messagesToDelete = identicalMessages.slice(0, -SPAM_THRESHOLD);
             messagesToDelete.forEach(msg => {
                 message.channel.messages.fetch(msg.messageId)
@@ -198,7 +185,6 @@ module.exports = {
                     .catch(console.error);
             });
 
-            // Beri peringatan jika pengguna belum mencapai batas peringatan
             if (!userWarnings[userId]) {
                 userWarnings[userId] = 0;
             }
@@ -209,13 +195,11 @@ module.exports = {
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
 
-                // Tambahkan peringatan ke pengguna
                 userWarnings[userId]++;
                 logModerationAction(client, guildId, 'Penghapusan Pesan Spam', message.author.tag, message.author.id, message.channel.name, content);
             }
         }
 
-        // Logika Auto-Delete Link Spam
         const containsLink = youtubeRegex.test(content) || spotifyRegex.test(content) || tiktokRegex.test(content) || twitchRegex.test(content);
 
         if (containsLink) {
@@ -239,7 +223,6 @@ module.exports = {
             }
         }
 
-        // Logika untuk Menghapus Pesan yang Mengandung Kata Terlarang
         const containsBannedWord = bannedWords.some(word => content.includes(word));
         if (containsBannedWord) {
             message.delete().then(() => {
@@ -252,17 +235,34 @@ module.exports = {
             return;
         }
 
-        // Logika untuk Channel Khusus Request Musik
         if (serverConfig.musicRequestChannelIds.includes(message.channel.id)) {
             console.log("Handling music request channels");
             handleMusicRequest(client, message);
             return;
         }
 
-        // Logika untuk Quotes
         handleQuotes(message);
 
-        // Logika untuk Balasan Gambar atau Teks Otomatis
         handleResponses(message);
+
+        schedule.scheduleJob('0 19 * * 0', async () => {
+            const guild = client.guilds.cache.get(serverConfig.guildId);
+            const channel = guild.channels.cache.get(serverConfig.commandChannelId);
+            if (channel) {
+                const message = "Selamat Malam Minggu! 🌙✨\n" +
+                    "Untuk yang sudah punya pasangan, nikmati waktunya bersama pasanganmu! 💖\n" +
+                    "Untuk yang belum punya pasangan, tetap semangat! Malam Minggu bukan berarti harus bersedih. Kamu keren walau jomblo! 💪✨";
+                await channel.send(message);
+            }
+        });
+
+        schedule.scheduleJob('30 11 * * 5', async () => {
+            const guild = client.guilds.cache.get(serverConfig.guildId);
+            const channel = guild.channels.cache.get(serverConfig.commandChannelId);
+            if (channel) {
+                const message = "Hai bro! Sudah waktunya persiapan Sholat Jumat. Jangan lupa mandi, pakai pakaian rapi dan wangi, dan segera berangkat ke masjid! 🙏✨";
+                await channel.send(message);
+            }
+        });
     }
 };

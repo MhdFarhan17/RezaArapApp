@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const { server1 } = require('../utils/constants');
 
-// Load voice times from file
 function loadVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     if (fs.existsSync(filePath)) {
@@ -19,7 +18,6 @@ function loadVoiceTimes() {
     }
 }
 
-// Save the voice times to a JSON file with pretty formatting and sorted order
 function saveVoiceTimes(voiceTimes) {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     try {
@@ -33,7 +31,6 @@ function saveVoiceTimes(voiceTimes) {
     }
 }
 
-// Format time in hours, minutes, and seconds (in Indonesian)
 function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -42,7 +39,6 @@ function formatTime(ms) {
     return `${hours} jam, ${minutes} menit, ${seconds} detik`;
 }
 
-// Fungsi untuk mengirimkan leaderboard per halaman
 async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPage = 10) {
     const start = (page - 1) * perPage;
     const end = start + perPage;
@@ -62,38 +58,46 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    // Button untuk navigasi halaman
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('previous')
-                .setLabel('⬅️ Sebelumnya')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(page === 1),  // Disable button if it's the first page
-            new ButtonBuilder()
-                .setCustomId('next')
-                .setLabel(`Selanjutnya ➡️ (Page ${page}/${totalPages})`)
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(page === totalPages)  // Disable button if it's the last page
-        );
+    let components = [];
+    if (sortedTimes.length > 10) {
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('previous')
+                    .setLabel('⬅️ Sebelumnya')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(page === 1),
+                new ButtonBuilder()
+                    .setLabel(`Halaman ${page} dari ${totalPages}`) 
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setCustomId('next')
+                    .setLabel('Selanjutnya ➡️')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(page === totalPages)
+            );
+        components = [row];
+    }
 
-    const sentMessage = await channel.send({ embeds: [embed], components: [row] });
+    const sentMessage = await channel.send({ embeds: [embed], components });
 
-    const filter = (interaction) => interaction.user.id === client.user.id;
-    const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
+    if (sortedTimes.length > 10) {
+        const filter = (interaction) => interaction.isButton();
+        const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
 
-    collector.on('collect', async (interaction) => {
-        if (interaction.customId === 'previous') {
-            await interaction.deferUpdate();
-            sendLeaderboardPage(client, channel, sortedTimes, page - 1);
-        } else if (interaction.customId === 'next') {
-            await interaction.deferUpdate();
-            sendLeaderboardPage(client, channel, sortedTimes, page + 1);
-        }
-    });
+        collector.on('collect', async (interaction) => {
+            if (interaction.customId === 'previous') {
+                await interaction.deferUpdate();
+                sendLeaderboardPage(client, channel, sortedTimes, page - 1);
+            } else if (interaction.customId === 'next') {
+                await interaction.deferUpdate();
+                sendLeaderboardPage(client, channel, sortedTimes, page + 1);
+            }
+        });
+    }
 }
 
-// Fungsi utama untuk mengirimkan leaderboard
 async function sendLeaderboard(client) {
     const voiceTimes = loadVoiceTimes();
 
@@ -104,7 +108,6 @@ async function sendLeaderboard(client) {
 
     const now = Date.now();
 
-    // Iterate over the users and calculate the current session time if they're still in voice
     for (const [userId, data] of Object.entries(voiceTimes)) {
         if (data.joinTime) {
             const currentSessionTime = now - data.joinTime;

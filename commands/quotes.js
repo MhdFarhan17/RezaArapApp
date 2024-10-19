@@ -45,14 +45,11 @@ module.exports = {
     handleQuotes(message) {
         const content = message.content.toLowerCase();
 
-        // Mengecek apakah pesan mengandung kata trigger "quotes!"
         if (content === "quotes!") {
             if (quotes.length === 0) {
-                // Jika tidak ada quotes yang tersedia
                 message.channel.send("Maaf, tidak ada quotes yang tersedia saat ini.")
                     .catch(console.error);
             } else {
-                // Mengambil random quote dari daftar quotes
                 const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
                 message.channel.send(randomQuote)
                     .then(() => {

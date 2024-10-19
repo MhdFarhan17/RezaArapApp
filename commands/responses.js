@@ -21,7 +21,6 @@ module.exports = {
                 }, RESET_TIME);
             }
 
-            // Definisikan logika untuk respon gambar atau teks
             switch (content) {
                 case 'gg':
                     message.channel.send({
@@ -100,18 +99,18 @@ module.exports = {
                     break;
 
                 case 'valo':
-                    const valoRoleId = '1236564378585661441'; // Ganti dengan ID role yang diinginkan
+                    const valoRoleId = '1236564378585661441';
                     message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
                     break;
 
                 case 'roblox':
-                    const robloxRoleId = '1236563915497013318'; // Ganti dengan ID role yang diinginkan
+                    const robloxRoleId = '1236563915497013318';
                     message.channel.send(`Ayo main Roblox gess <@&${robloxRoleId}>`).catch(console.error);
                     break;
                 
                 case 'egrol':
                 case 'egirl':
-                    const targetMemberId = '707278921757884439'; // Ganti dengan ID member yang ingin Anda mention
+                    const targetMemberId = '707278921757884439';
                     const targetMember = message.guild.members.cache.get(targetMemberId);
                     if (targetMember) {
                         message.channel.send(`Seseorang memanggil kamu ${targetMember}, karena kamu adalah seorang "Boosted Egg Roll"`).catch(console.error);
@@ -121,7 +120,7 @@ module.exports = {
                     break;
 
                 case 'eboy':
-                    const targetMemberId2 = '439407175555612680'; // Ganti dengan ID member yang ingin Anda mention
+                    const targetMemberId2 = '439407175555612680';
                     const targetMember2 = message.guild.members.cache.get(targetMemberId2);
                     if (targetMember2) {
                         message.channel.send(`Seseorang memanggil kamu ${targetMember2}, karena kamu adalah seorang "Eboy" yang sudah terverified GitGud.`).catch(console.error);
@@ -131,7 +130,7 @@ module.exports = {
                     break;
                 
                 case 'titit':
-                    const targetMemberId3 = '835177633569964092'; // Ganti dengan ID member yang ingin Anda mention
+                    const targetMemberId3 = '835177633569964092';
                     const targetMember3 = message.guild.members.cache.get(targetMemberId3);
                     if (targetMember3) {
                         message.channel.send(`Seseorang memanggil kamu ${targetMember3}, karena muka kamu mirip titit kuda.`).catch(console.error);
@@ -139,7 +138,6 @@ module.exports = {
                         message.channel.send('Suryaaaaaaaaa, aku gabisa tag kamu 😭😭😭').catch(console.error);
                     }
                     break;
-                // Jika tidak ada kata yang cocok, tidak ada tindakan
                 default:
                     break;
             }

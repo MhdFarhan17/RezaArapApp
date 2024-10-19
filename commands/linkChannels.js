@@ -6,15 +6,12 @@ module.exports = {
         const guildId = message.guild.id;
         const content = message.content.toLowerCase();
 
-        // Cek apakah pesan berasal dari Server 1 atau Server 2
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
         if (serverConfig && serverConfig.linkOnlyChannelIds.includes(message.channel.id)) {
-            // Cek apakah link yang dikirim adalah dari YouTube, TikTok, atau Twitch
             const isValidLink = youtubeRegex.test(content) || tiktokRegex.test(content) || twitchRegex.test(content);
 
             if (!isValidLink) {
-                // Hapus pesan jika bukan link yang diizinkan
                 message.delete().then(() => {
                     console.log(`Pesan dari ${message.author.tag} di channel khusus link telah dihapus karena bukan link yang diizinkan.`);
                     logModerationAction(client, guildId, 'Penghapusan Pesan di Channel Khusus Link', message.author.tag, message.author.id, message.channel.name, content);
