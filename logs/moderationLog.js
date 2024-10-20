@@ -36,11 +36,12 @@ module.exports = {
             .setColor(color)
             .setTitle('Moderation Action')
             .setDescription(`
-                **Action** : ${action}
-                **User** : ${userTag} (${userId})
-                **Channel** : ${channelDisplay}
-                **Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message** : ${messageContent || 'N/A'}
+                **Action**	: ${action}
+                **User**	: ${userTag} (${userId})
+                **Channel**	: ${channelDisplay}
+                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Message**	: ${messageContent || 'N/A'}
+
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -79,11 +80,12 @@ module.exports = {
             .setColor(Colors.Green)  // Hijau untuk edit pesan
             .setTitle('Message Edited')
             .setDescription(`
-                **User** : ${userTag} (${userId})
-                **Channel** : ${channelDisplay}
-                **Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Old Message** : ${oldContent || 'N/A'}
-                **New Message** : ${newContent || 'N/A'}
+                **User**	: ${userTag} (${userId})
+                **Channel**	: ${channelDisplay}
+                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **OldText**	: ${oldContent || 'N/A'}
+                **NewText**	: ${newContent || 'N/A'}
+
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -122,10 +124,11 @@ module.exports = {
             .setColor(Colors.Red)  // Merah untuk delete pesan
             .setTitle('Message Deleted')
             .setDescription(`
-                **User** : ${userTag} (${userId})
-                **Channel** : ${channelDisplay}
-                **Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message** : ${messageContent || 'N/A'}
+                **User**	: ${userTag} (${userId})
+                **Channel**	: ${channelDisplay}
+                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Message**	: ${messageContent || 'N/A'}
+
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -174,10 +177,10 @@ module.exports = {
             .setColor(color)
             .setTitle('Voice Channel Activity')
             .setDescription(`
-                **Action** : ${action}
-                **User** : ${userTag} (${userId})
-                **Channel** : ${channelInfo || 'N/A'}
-                **Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Action**	: ${action}
+                **User**	: ${userTag} (${userId})
+                **Channel**	: ${channelInfo || 'N/A'}
+                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
