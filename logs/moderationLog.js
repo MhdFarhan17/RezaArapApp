@@ -22,18 +22,18 @@ module.exports = {
             return;
         }
 
+        const channelDisplay = channelNameFrom ? `<#${channelNameFrom}>` : 'N/A';
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Moderation Action')
-            .addFields(
-                { name: 'Action', value: action, inline: true },
-                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
-                { name: 'Channel', value: channelNameFrom || 'N/A', inline: true }
-            )
-            .addFields(
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
-                { name: 'Message', value: messageContent || 'N/A', inline: true }
-            )
+            .setDescription(`
+                **Action**: ${action}
+                **User**: ${userTag} (${userId})
+                **Channel**: ${channelDisplay}
+                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Message**: ${messageContent || 'N/A'}
+            `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -65,18 +65,18 @@ module.exports = {
             return;
         }
 
+        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('Message Edited')
-            .addFields(
-                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
-                { name: 'Channel', value: channelName, inline: true },
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
-            )
-            .addFields(
-                { name: 'Old Content', value: oldContent || 'N/A', inline: false },
-                { name: 'New Content', value: newContent || 'N/A', inline: false }
-            )
+            .setDescription(`
+                **User**: ${userTag} (${userId})
+                **Channel**: ${channelDisplay}
+                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Old Content**: ${oldContent || 'N/A'}
+                **New Content**: ${newContent || 'N/A'}
+            `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -108,17 +108,17 @@ module.exports = {
             return;
         }
 
+        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Message Deleted')
-            .addFields(
-                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
-                { name: 'Channel', value: channelName, inline: true },
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
-            )
-            .addFields(
-                { name: 'Message', value: messageContent || 'N/A', inline: false }
-            )
+            .setDescription(`
+                **User**: ${userTag} (${userId})
+                **Channel**: ${channelDisplay}
+                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
+                **Message**: ${messageContent || 'N/A'}
+            `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
