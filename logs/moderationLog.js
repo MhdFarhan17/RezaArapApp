@@ -27,13 +27,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Moderation Action')
-            .setDescription(`
-                **Action**: ${action}
-                **User**: ${userTag} (${userId})
-                **Channel**: ${channelDisplay}
-                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message**: ${messageContent || 'N/A'}
-            `)
+            .setDescription(`**Action** : ${action}\n**User** : ${userTag} (${userId})\n**Channel** : ${channelDisplay}\n**Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}\n**Message** : ${messageContent || 'N/A'}`)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -70,13 +64,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('Message Edited')
-            .setDescription(`
-                **User**: ${userTag} (${userId})
-                **Channel**: ${channelDisplay}
-                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Old Content**: ${oldContent || 'N/A'}
-                **New Content**: ${newContent || 'N/A'}
-            `)
+            .setDescription(`**User** : ${userTag} (${userId})\n**Channel** : ${channelDisplay}\n**Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}\n**Old Content** : ${oldContent || 'N/A'}\n**New Content** : ${newContent || 'N/A'}`)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -113,12 +101,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Message Deleted')
-            .setDescription(`
-                **User**: ${userTag} (${userId})
-                **Channel**: ${channelDisplay}
-                **Time**: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message**: ${messageContent || 'N/A'}
-            `)
+            .setDescription(`**User** : ${userTag} (${userId})\n**Channel** : ${channelDisplay}\n**Time** : ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}\n**Message** : ${messageContent || 'N/A'}`)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
