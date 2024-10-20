@@ -14,6 +14,8 @@ function loadVoiceTimes() {
             return {};
         }
     } else {
+        // Jika file tidak ada, buat file kosong
+        fs.writeFileSync(filePath, JSON.stringify({}));
         return {};
     }
 }
@@ -47,12 +49,17 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
     let leaderboardDescription = '';
     for (let i = start; i < end && i < sortedTimes.length; i++) {
         const [userId, { totalTime }] = sortedTimes[i];
-        const user = await client.users.fetch(userId);
-        leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+        try {
+            const user = await client.users.fetch(userId);
+            leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+        } catch (error) {
+            console.error(`Failed to fetch user ${userId}:`, error);
+            leaderboardDescription += `**${i + 1}. [User not found]** ${formatTime(totalTime)}\n`;
+        }
     }
 
     const embed = new EmbedBuilder()
-        .setTitle(`𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃`)
+        .setTitle(`Leaderboard Terlama di Voice-Channel GITGUD`)
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
@@ -68,7 +75,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
                 new ButtonBuilder()
-                    .setLabel(`Halaman ${page} dari ${totalPages}`) 
+                    .setLabel(`Halaman ${page} dari ${totalPages}`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
@@ -94,6 +101,26 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                 await interaction.deferUpdate();
                 sendLeaderboardPage(client, channel, sortedTimes, page + 1);
             }
+        });
+
+        collector.on('end', () => {
+            const disabledRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('previous')
+                    .setLabel('⬅️ Sebelumnya')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setLabel(`Halaman ${page} dari ${totalPages}`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setCustomId('next')
+                    .setLabel('Selanjutnya ➡️')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true)
+            );
+            sentMessage.edit({ components: [disabledRow] });
         });
     }
 }

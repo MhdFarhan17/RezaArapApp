@@ -8,7 +8,6 @@ const { ChannelType, PermissionsBitField } = require('discord.js');
 const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
 const fs = require('fs');
 const path = require('path');
-const schedule = require('node-schedule');
 
 const userMessages = {};
 const userWarnings = {};
