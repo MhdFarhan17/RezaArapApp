@@ -244,25 +244,5 @@ module.exports = {
         handleQuotes(message);
 
         handleResponses(message);
-
-        schedule.scheduleJob('0 19 * * 0', async () => {
-            const guild = client.guilds.cache.get(serverConfig.guildId);
-            const channel = guild.channels.cache.get(serverConfig.commandChannelId);
-            if (channel) {
-                const message = "Selamat Malam Minggu! 🌙✨\n" +
-                    "Untuk yang sudah punya pasangan, nikmati waktunya bersama pasanganmu! 💖\n" +
-                    "Untuk yang belum punya pasangan, tetap semangat! Malam Minggu bukan berarti harus bersedih. Kamu keren walau jomblo! 💪✨";
-                await channel.send(message);
-            }
-        });
-
-        schedule.scheduleJob('30 11 * * 5', async () => {
-            const guild = client.guilds.cache.get(serverConfig.guildId);
-            const channel = guild.channels.cache.get(serverConfig.commandChannelId);
-            if (channel) {
-                const message = "Hai bro! Sudah waktunya persiapan Sholat Jumat. Jangan lupa mandi, pakai pakaian rapi dan wangi, dan segera berangkat ke masjid! 🙏✨";
-                await channel.send(message);
-            }
-        });
     }
 };

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     logModerationAction(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null, messageContent = null) {
@@ -27,17 +27,19 @@ module.exports = {
             : channelNameFrom || channelNameTo;
         let color = action.includes("keluar") || action.includes("hapus") ? 'RED' : 'GREEN';
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('Moderation Action')
-            .addField('Action', action)
-            .addField('User', `${userTag} (${userId})`)
-            .addField('Channel', channelInfo || 'N/A')
-            .addField('Time', new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }))
+            .addFields([
+                { name: 'Action', value: action },
+                { name: 'User', value: `${userTag} (${userId})` },
+                { name: 'Channel', value: channelInfo || 'N/A' },
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
+            ])
             .setTimestamp();
 
         if (messageContent) {
-            embed.addField('Message', messageContent);
+            embed.addFields({ name: 'Message', value: messageContent });
         }
 
         logChannel.send({ embeds: [embed] }).catch(err => {
@@ -66,14 +68,16 @@ module.exports = {
             return;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor('GREEN')
             .setTitle('Message Edited')
-            .addField('User', `${userTag} (${userId})`)
-            .addField('Channel', channelName)
-            .addField('Old Content', oldContent || 'N/A')
-            .addField('New Content', newContent || 'N/A')
-            .addField('Time', new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }))
+            .addFields([
+                { name: 'User', value: `${userTag} (${userId})` },
+                { name: 'Channel', value: channelName },
+                { name: 'Old Content', value: oldContent || 'N/A' },
+                { name: 'New Content', value: newContent || 'N/A' },
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
+            ])
             .setTimestamp();
 
         logChannel.send({ embeds: [embed] }).catch(err => {
@@ -102,13 +106,15 @@ module.exports = {
             return;
         }
 
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor('RED')
             .setTitle('Message Deleted')
-            .addField('User', `${userTag} (${userId})`)
-            .addField('Channel', channelName)
-            .addField('Message', messageContent || 'N/A')
-            .addField('Time', new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }))
+            .addFields([
+                { name: 'User', value: `${userTag} (${userId})` },
+                { name: 'Channel', value: channelName },
+                { name: 'Message', value: messageContent || 'N/A' },
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
+            ])
             .setTimestamp();
 
         logChannel.send({ embeds: [embed] }).catch(err => {
