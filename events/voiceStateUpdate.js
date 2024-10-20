@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { server1 } = require('../utils/constants');
+const { server1, server2 } = require('../utils/constants');
 const { logModerationAction } = require('../logs/moderationLog');
 
 let voiceTimes = {};
@@ -47,7 +47,13 @@ module.exports = {
         }
 
         const guildId = member.guild.id;
-        if (guildId !== server1.guildId) return;
+        const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
+
+        // Pastikan bahwa server ada di konfigurasi
+        if (!serverConfig) {
+            console.error(`Server dengan ID ${guildId} tidak ditemukan di konfigurasi!`);
+            return;
+        }
 
         loadVoiceTimes();
 
