@@ -30,7 +30,9 @@ module.exports = {
             color = Colors.Green;  // Warna hijau untuk masuk voice, buat channel, edit pesan, dll
         }
 
-        const channelDisplay = channelNameFrom ? `<#${channelNameFrom}>` : 'N/A';
+        let channelInfo = channelNameFrom && channelNameTo
+            ? `${channelNameFrom} ke ${channelNameTo}`
+            : channelNameFrom || channelNameTo;
 
         const embed = new EmbedBuilder()
             .setColor(color)
@@ -38,10 +40,9 @@ module.exports = {
             .setDescription(`
                 **Action**	: ${action}
                 **User**	: ${userTag} (${userId})
-                **Channel**	: ${channelDisplay}
+                **Channel**	: ${channelInfo || 'N/A'}
                 **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
                 **Message**	: ${messageContent || 'N/A'}
-
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -83,9 +84,8 @@ module.exports = {
                 **User**	: ${userTag} (${userId})
                 **Channel**	: ${channelDisplay}
                 **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **OldText**	: ${oldContent || 'N/A'}
-                **NewText**	: ${newContent || 'N/A'}
-
+                **Old Text**	: ${oldContent || 'N/A'}
+                **New Text**	: ${newContent || 'N/A'}
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -128,7 +128,6 @@ module.exports = {
                 **Channel**	: ${channelDisplay}
                 **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
                 **Message**	: ${messageContent || 'N/A'}
-
             `)
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -140,7 +139,7 @@ module.exports = {
         }
     },
 
-    // Tambahan log untuk event lainnya seperti voice channel
+    // Log voice channel join/leave/switch
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
