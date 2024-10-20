@@ -22,29 +22,26 @@ module.exports = {
             return;
         }
 
-        let channelInfo = channelNameFrom && channelNameTo
-            ? `${channelNameFrom} ke ${channelNameTo}`
-            : channelNameFrom || channelNameTo;
-        let color = action.includes("keluar") || action.includes("hapus") ? Colors.Red : Colors.Green;
-
         const embed = new EmbedBuilder()
-            .setColor(color)
+            .setColor(Colors.Red)
             .setTitle('Moderation Action')
-            .addFields([
-                { name: 'Action', value: action },
-                { name: 'User', value: `${userTag} (${userId})` },
-                { name: 'Channel', value: channelInfo || 'N/A' },
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
-            ])
+            .addFields(
+                { name: 'Action', value: action, inline: true },
+                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
+                { name: 'Channel', value: channelNameFrom || 'N/A', inline: true }
+            )
+            .addFields(
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: 'Message', value: messageContent || 'N/A', inline: true }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        if (messageContent) {
-            embed.addFields({ name: 'Message', value: messageContent });
-        }
-
-        logChannel.send({ embeds: [embed] }).catch(err => {
+        try {
+            logChannel.send({ embeds: [embed] });
+        } catch (err) {
             console.error(`Gagal mengirim log ke channel moderation-log: ${err.message}`);
-        });
+        }
     },
 
     logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
@@ -71,18 +68,23 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('Message Edited')
-            .addFields([
-                { name: 'User', value: `${userTag} (${userId})` },
-                { name: 'Channel', value: channelName },
-                { name: 'Old Content', value: oldContent || 'N/A' },
-                { name: 'New Content', value: newContent || 'N/A' },
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
-            ])
+            .addFields(
+                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
+                { name: 'Channel', value: channelName, inline: true },
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
+            )
+            .addFields(
+                { name: 'Old Content', value: oldContent || 'N/A', inline: false },
+                { name: 'New Content', value: newContent || 'N/A', inline: false }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        logChannel.send({ embeds: [embed] }).catch(err => {
+        try {
+            logChannel.send({ embeds: [embed] });
+        } catch (err) {
             console.error(`Gagal mengirim log edit ke channel moderation-log: ${err.message}`);
-        });
+        }
     },
 
     logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
@@ -109,16 +111,21 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Message Deleted')
-            .addFields([
-                { name: 'User', value: `${userTag} (${userId})` },
-                { name: 'Channel', value: channelName },
-                { name: 'Message', value: messageContent || 'N/A' },
-                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }
-            ])
+            .addFields(
+                { name: 'User', value: `${userTag} (${userId})`, inline: true },  // Menampilkan nama pengguna dan ID tanpa mention
+                { name: 'Channel', value: channelName, inline: true },
+                { name: 'Time', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
+            )
+            .addFields(
+                { name: 'Message', value: messageContent || 'N/A', inline: false }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        logChannel.send({ embeds: [embed] }).catch(err => {
+        try {
+            logChannel.send({ embeds: [embed] });
+        } catch (err) {
             console.error(`Gagal mengirim log pesan dihapus ke channel moderation-log: ${err.message}`);
-        });
+        }
     }
 };
