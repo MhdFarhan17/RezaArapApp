@@ -87,41 +87,47 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         components = [row];
     }
 
-    const sentMessage = await channel.send({ embeds: [embed], components });
+    try {
+        const sentMessage = await channel.send({ embeds: [embed], components });
 
-    if (sortedTimes.length > 10) {
-        const filter = (interaction) => interaction.isButton();
-        const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
+        if (sortedTimes.length > 10) {
+            const filter = (interaction) => interaction.isButton();
+            const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
 
-        collector.on('collect', async (interaction) => {
-            if (interaction.customId === 'previous') {
-                await interaction.deferUpdate();
-                sendLeaderboardPage(client, channel, sortedTimes, page - 1);
-            } else if (interaction.customId === 'next') {
-                await interaction.deferUpdate();
-                sendLeaderboardPage(client, channel, sortedTimes, page + 1);
-            }
-        });
+            collector.on('collect', async (interaction) => {
+                if (interaction.customId === 'previous') {
+                    await interaction.deferUpdate();
+                    sendLeaderboardPage(client, channel, sortedTimes, page - 1);
+                } else if (interaction.customId === 'next') {
+                    await interaction.deferUpdate();
+                    sendLeaderboardPage(client, channel, sortedTimes, page + 1);
+                }
+            });
 
-        collector.on('end', () => {
-            const disabledRow = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId('previous')
-                    .setLabel('⬅️ Sebelumnya')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setLabel(`Halaman ${page} dari ${totalPages}`)
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setCustomId('next')
-                    .setLabel('Selanjutnya ➡️')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(true)
-            );
-            sentMessage.edit({ components: [disabledRow] });
-        });
+            collector.on('end', () => {
+                const disabledRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('previous')
+                        .setLabel('⬅️ Sebelumnya')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setLabel(`Halaman ${page} dari ${totalPages}`)
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId('next')
+                        .setLabel('Selanjutnya ➡️')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true)
+                );
+                sentMessage.edit({ components: [disabledRow] }).catch(error => {
+                    console.error('Failed to disable buttons:', error);
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Error sending leaderboard message:', error);
     }
 }
 
@@ -149,7 +155,11 @@ async function sendLeaderboard(client) {
 
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
     if (channel) {
-        sendLeaderboardPage(client, channel, sortedTimes);
+        try {
+            await sendLeaderboardPage(client, channel, sortedTimes);
+        } catch (error) {
+            console.error('Error sending leaderboard:', error);
+        }
     } else {
         console.log('Leaderboard channel not found.');
     }
