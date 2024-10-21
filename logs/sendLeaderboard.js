@@ -59,7 +59,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
     }
 
     const embed = new EmbedBuilder()
-        .setTitle(`𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃`)
+        .setTitle('𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
@@ -70,16 +70,17 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('previous')
+                    .setCustomId('previous') // Required custom_id
                     .setLabel('⬅️ Sebelumnya')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
                 new ButtonBuilder()
+                    .setCustomId('page-indicator') // Required custom_id, but disabled and not interactive
                     .setLabel(`Halaman ${page} dari ${totalPages}`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
-                    .setCustomId('next')
+                    .setCustomId('next') // Required custom_id
                     .setLabel('Selanjutnya ➡️')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === totalPages)
@@ -112,6 +113,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                         .setStyle(ButtonStyle.Primary)
                         .setDisabled(true),
                     new ButtonBuilder()
+                        .setCustomId('page-indicator')
                         .setLabel(`Halaman ${page} dari ${totalPages}`)
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled(true),

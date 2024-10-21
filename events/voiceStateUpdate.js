@@ -15,17 +15,23 @@ function loadVoiceTimes() {
             console.error('Error parsing voiceTimes.json:', error);
             voiceTimes = {};
         }
+    } else {
+        // Ensure that the file exists by creating an empty object
+        fs.writeFileSync(filePath, JSON.stringify({}));
     }
 }
 
 function saveVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
+    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
     try {
         const sortedVoiceTimes = Object.fromEntries(
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        console.log(`voiceTimes.json updated and saved.`);
+        // Create a backup
+        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4));
+        console.log(`voiceTimes.json updated and saved with a backup.`);
     } catch (error) {
         console.error('Error saving voiceTimes.json:', error);
     }
@@ -49,58 +55,58 @@ module.exports = {
         const guildId = member.guild.id;
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
-        // Pastikan bahwa server ada di konfigurasi
+        // Ensure server configuration exists
         if (!serverConfig) {
-            console.error(`Server dengan ID ${guildId} tidak ditemukan di konfigurasi!`);
+            console.error(`Server with ID ${guildId} not found in configuration!`);
             return;
         }
 
         loadVoiceTimes();
 
+        // Initialize user voice tracking data if not present
         if (!voiceTimes[member.id]) {
             voiceTimes[member.id] = { totalTime: 0 };
         }
 
+        const now = Date.now();
         const channelNameOld = oldState.channel ? oldState.channel.name : null;
         const channelNameNew = newState.channel ? newState.channel.name : null;
 
-        // User joins voice channel
+        // Logging voice channel join/leave/switch
         if (!oldState.channel && newState.channel) {
             logModerationAction(client, guildId, 'User Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
-        }
-
-        // User leaves voice channel
-        else if (oldState.channel && !newState.channel) {
+        } else if (oldState.channel && !newState.channel) {
             logModerationAction(client, guildId, 'User Left Voice Channel', member.user.tag, member.user.id, channelNameOld, null);
-        }
-
-        // User switches voice channel
-        else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
+        } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             logModerationAction(client, guildId, 'User Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
         }
 
-        // Tracking user time in voice channel
+        // Tracking user voice time
         if (!oldState.channelId && newState.channelId) {
-            voiceTimes[member.id].joinTime = Date.now();
+            voiceTimes[member.id].joinTime = now;
             console.log(`Started tracking time for ${member.user.tag}.`);
         } else if (oldState.channelId && !newState.channelId) {
             if (voiceTimes[member.id].joinTime) {
-                const sessionTime = Date.now() - voiceTimes[member.id].joinTime;
+                const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;
                 console.log(`Finished tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
                 delete voiceTimes[member.id].joinTime;
             }
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (!newState.selfMute && !newState.selfDeaf && !voiceTimes[member.id].joinTime) {
-                voiceTimes[member.id].joinTime = Date.now();
+                // Resumed tracking when unmute/undeafen
+                voiceTimes[member.id].joinTime = now;
                 console.log(`Resumed tracking for ${member.user.tag}.`);
             } else if ((newState.selfMute || newState.selfDeaf) && voiceTimes[member.id].joinTime) {
-                const sessionTime = Date.now() - voiceTimes[member.id].joinTime;
+                // Paused tracking when mute/deafen
+                const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;
                 console.log(`Paused tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
                 delete voiceTimes[member.id].joinTime;
             }
         }
+
+        // Always save the latest voiceTimes data
         saveVoiceTimes();
     }
 };

@@ -22,19 +22,11 @@ module.exports = {
             return;
         }
 
-        // Tentukan warna berdasarkan jenis aksi
-        let color;
-        if (action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete")) {
-            color = Colors.Red;  // Warna merah untuk keluar voice, hapus pesan, keluar server, dll
-        } else {
-            color = Colors.Green;  // Warna hijau untuk masuk voice, buat channel, edit pesan, dll
-        }
+        // Set color based on action type
+        let color = action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete") ? Colors.Red : Colors.Green;
 
-        let channelInfo = channelNameFrom && channelNameTo
-            ? `${channelNameFrom} ke ${channelNameTo}`
-            : channelNameFrom || channelNameTo;
+        let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
-        // Penggunaan embed dengan struktur yang lebih rapi dan mudah dibaca
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('📌 Moderation Action')
@@ -43,7 +35,7 @@ module.exports = {
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
                 { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: true },
                 { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
-                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: true }
+                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -85,8 +77,8 @@ module.exports = {
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
                 { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
-                { name: '📥 **Old Text**', value: `${oldContent || 'N/A'}`, inline: true },
-                { name: '📤 **New Text**', value: `${newContent || 'N/A'}`, inline: true }
+                { name: '📥 **Old Text**', value: `${oldContent || 'N/A'}`, inline: false },
+                { name: '📤 **New Text**', value: `${newContent || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -128,7 +120,7 @@ module.exports = {
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
                 { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
-                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: true }
+                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -162,16 +154,9 @@ module.exports = {
             return;
         }
 
-        let color;
-        if (action.includes("keluar") || action.includes("leave")) {
-            color = Colors.Red;  // Merah untuk keluar voice channel
-        } else {
-            color = Colors.Green;  // Hijau untuk masuk voice channel
-        }
+        let color = action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
 
-        let channelInfo = channelNameFrom && channelNameTo
-            ? `${channelNameFrom} ke ${channelNameTo}`
-            : channelNameFrom || channelNameTo;
+        let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
         const embed = new EmbedBuilder()
             .setColor(color)

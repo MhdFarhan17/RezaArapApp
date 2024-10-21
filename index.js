@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
+const moment = require('moment-timezone');
 require('dotenv').config();
 const token = process.env.DISCORD_TOKEN;
 const { server1 } = require('./utils/constants');
@@ -105,11 +106,14 @@ client.once('ready', () => {
 // Schedule untuk pengiriman leaderboard setiap hari pukul 00:00 WIB
 cron.schedule('0 0 * * *', () => {
     try {
-        console.log('Leaderboard Terkirim pada pukul 00:00 WIB...');
+        const currentTime = moment().tz('Asia/Jakarta').format('HH:mm');
+        console.log(`Leaderboard Terkirim pada pukul ${currentTime} WIB...`);
         sendLeaderboard(client);
     } catch (error) {
         console.error(`Gagal mengirim leaderboard: ${error.message}`);
     }
+}, {
+    timezone: "Asia/Jakarta"  // Set timezone ke WIB (Asia/Jakarta)
 });
 
 // Login bot ke Discord
