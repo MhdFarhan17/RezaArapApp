@@ -34,16 +34,17 @@ module.exports = {
             ? `${channelNameFrom} ke ${channelNameTo}`
             : channelNameFrom || channelNameTo;
 
+        // Penggunaan embed dengan struktur yang lebih rapi dan mudah dibaca
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle('Moderation Action')
-            .setDescription(`
-                **Action**	: ${action}
-                **User**	: ${userTag} (${userId})
-                **Channel**	: ${channelInfo || 'N/A'}
-                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message**	: ${messageContent || 'N/A'}
-            `)
+            .setTitle('📌 Moderation Action')
+            .addFields(
+                { name: '🛠 **Action**', value: `${action}`, inline: true },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: true },
+                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: true }
+            )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -79,14 +80,14 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)  // Hijau untuk edit pesan
-            .setTitle('Message Edited')
-            .setDescription(`
-                **User**	: ${userTag} (${userId})
-                **Channel**	: ${channelDisplay}
-                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Old Text**	: ${oldContent || 'N/A'}
-                **New Text**	: ${newContent || 'N/A'}
-            `)
+            .setTitle('✏️ Message Edited')
+            .addFields(
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
+                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
+                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '📥 **Old Text**', value: `${oldContent || 'N/A'}`, inline: true },
+                { name: '📤 **New Text**', value: `${newContent || 'N/A'}`, inline: true }
+            )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -122,13 +123,13 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)  // Merah untuk delete pesan
-            .setTitle('Message Deleted')
-            .setDescription(`
-                **User**	: ${userTag} (${userId})
-                **Channel**	: ${channelDisplay}
-                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-                **Message**	: ${messageContent || 'N/A'}
-            `)
+            .setTitle('🗑️ Message Deleted')
+            .addFields(
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
+                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
+                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: true }
+            )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
@@ -174,13 +175,13 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle('Voice Channel Activity')
-            .setDescription(`
-                **Action**	: ${action}
-                **User**	: ${userTag} (${userId})
-                **Channel**	: ${channelInfo || 'N/A'}
-                **Time**	: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}
-            `)
+            .setTitle('🎙️ Voice Channel Activity')
+            .addFields(
+                { name: '🛠 **Action**', value: `${action}`, inline: true },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: true },
+                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
+            )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
