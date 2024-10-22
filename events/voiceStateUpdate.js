@@ -16,7 +16,6 @@ function loadVoiceTimes() {
             voiceTimes = {};
         }
     } else {
-        // Ensure that the file exists by creating an empty object
         fs.writeFileSync(filePath, JSON.stringify({}));
     }
 }
@@ -55,7 +54,6 @@ module.exports = {
         const guildId = member.guild.id;
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
-        // Ensure server configuration exists
         if (!serverConfig) {
             console.error(`Server with ID ${guildId} not found in configuration!`);
             return;
@@ -63,7 +61,6 @@ module.exports = {
 
         loadVoiceTimes();
 
-        // Initialize user voice tracking data if not present
         if (!voiceTimes[member.id]) {
             voiceTimes[member.id] = { totalTime: 0 };
         }
@@ -72,7 +69,6 @@ module.exports = {
         const channelNameOld = oldState.channel ? oldState.channel.name : null;
         const channelNameNew = newState.channel ? newState.channel.name : null;
 
-        // Logging voice channel join/leave/switch
         if (!oldState.channel && newState.channel) {
             logModerationAction(client, guildId, 'User Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
         } else if (oldState.channel && !newState.channel) {
@@ -81,7 +77,6 @@ module.exports = {
             logModerationAction(client, guildId, 'User Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
         }
 
-        // Tracking user voice time
         if (!oldState.channelId && newState.channelId) {
             voiceTimes[member.id].joinTime = now;
             console.log(`Started tracking time for ${member.user.tag}.`);
@@ -94,11 +89,9 @@ module.exports = {
             }
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (!newState.selfMute && !newState.selfDeaf && !voiceTimes[member.id].joinTime) {
-                // Resumed tracking when unmute/undeafen
                 voiceTimes[member.id].joinTime = now;
                 console.log(`Resumed tracking for ${member.user.tag}.`);
             } else if ((newState.selfMute || newState.selfDeaf) && voiceTimes[member.id].joinTime) {
-                // Paused tracking when mute/deafen
                 const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;
                 console.log(`Paused tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
@@ -106,7 +99,6 @@ module.exports = {
             }
         }
 
-        // Always save the latest voiceTimes data
         saveVoiceTimes();
     }
 };

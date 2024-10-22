@@ -18,7 +18,6 @@ const client = new Client({
     ]
 });
 
-// Load event files dari folder events
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -41,19 +40,16 @@ for (const file of eventFiles) {
     }
 }
 
-// Ketika bot siap (ready)
 client.once('ready', () => {
     console.log('Bot siap dan berjalan!');
 
-    // Ambil guild dan channel yang diizinkan
     const guild = client.guilds.cache.get(server1.guildId);
     if (!guild) {
         console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
         return;
     }
 
-    // Validasi jika channel diizinkan
-    const allowedChannelId = server1.allowedChannelIds[0]; // Ambil channel pertama dari array allowedChannelIds
+    const allowedChannelId = server1.allowedChannelIds[0];
     const allowedChannel = guild.channels.cache.get(allowedChannelId);
 
     if (!allowedChannel) {
@@ -61,7 +57,6 @@ client.once('ready', () => {
         return;
     }
 
-    // Schedule pesan Malam Minggu pukul 19:00 WIB (setiap hari Minggu)
     cron.schedule('0 19 * * 0', async () => {
         try {
             const embed = new EmbedBuilder()
@@ -81,7 +76,6 @@ client.once('ready', () => {
         }
     });
 
-    // Schedule pesan persiapan Sholat Jumat pukul 11:20 WIB (setiap hari Jumat)
     cron.schedule('20 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
@@ -103,7 +97,6 @@ client.once('ready', () => {
     console.log('Penjadwalan pesan otomatis telah disiapkan.');
 });
 
-// Schedule untuk pengiriman leaderboard setiap hari pukul 00:00 WIB
 cron.schedule('0 0 * * *', () => {
     try {
         const currentTime = moment().tz('Asia/Jakarta').format('HH:mm');
@@ -113,8 +106,7 @@ cron.schedule('0 0 * * *', () => {
         console.error(`Gagal mengirim leaderboard: ${error.message}`);
     }
 }, {
-    timezone: "Asia/Jakarta"  // Set timezone ke WIB (Asia/Jakarta)
+    timezone: "Asia/Jakarta"
 });
 
-// Login bot ke Discord
 client.login(token);

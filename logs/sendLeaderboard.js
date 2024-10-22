@@ -14,7 +14,6 @@ function loadVoiceTimes() {
             return {};
         }
     } else {
-        // Jika file tidak ada, buat file kosong
         fs.writeFileSync(filePath, JSON.stringify({}));
         return {};
     }
@@ -70,17 +69,16 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('previous') // Required custom_id
+                    .setCustomId('previous')
                     .setLabel('⬅️ Sebelumnya')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
                 new ButtonBuilder()
-                    .setCustomId('page-indicator') // Required custom_id, but disabled and not interactive
                     .setLabel(`Halaman ${page} dari ${totalPages}`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
-                    .setCustomId('next') // Required custom_id
+                    .setCustomId('next')
                     .setLabel('Selanjutnya ➡️')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === totalPages)
@@ -105,33 +103,35 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                 }
             });
 
-            collector.on('end', () => {
-                const disabledRow = new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('previous')
-                        .setLabel('⬅️ Sebelumnya')
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(true),
-                    new ButtonBuilder()
-                        .setCustomId('page-indicator')
-                        .setLabel(`Halaman ${page} dari ${totalPages}`)
-                        .setStyle(ButtonStyle.Secondary)
-                        .setDisabled(true),
-                    new ButtonBuilder()
-                        .setCustomId('next')
-                        .setLabel('Selanjutnya ➡️')
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(true)
-                );
-                sentMessage.edit({ components: [disabledRow] }).catch(error => {
+            collector.on('end', async () => {
+                try {
+                    const disabledRow = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('previous')
+                            .setLabel('⬅️ Sebelumnya')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setLabel(`Halaman ${page} dari ${totalPages}`)
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId('next')
+                            .setLabel('Selanjutnya ➡️')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(true)
+                    );
+                    await sentMessage.edit({ components: [disabledRow] });
+                } catch (error) {
                     console.error('Failed to disable buttons:', error);
-                });
+                }
             });
         }
     } catch (error) {
         console.error('Error sending leaderboard message:', error);
     }
 }
+
 
 async function sendLeaderboard(client) {
     const voiceTimes = loadVoiceTimes();

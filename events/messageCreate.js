@@ -53,7 +53,7 @@ module.exports = {
             if (!(content.startsWith('cv!') || content.startsWith('createvoice!') || content.startsWith('lock!') || content.startsWith('unlock!'))) {
                 message.delete().catch(console.error);
                 return message.reply(`Channel ini hanya untuk menggunakan perintah \`createvoice!\`, \`lock!\`, atau \`unlock!\`.`)
-                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000)) // Hapus peringatan setelah 1 menit
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
         }
@@ -61,7 +61,7 @@ module.exports = {
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             if (message.channel.id !== serverConfig.commandChannelId) {
                 return message.reply(`Perintah ini hanya dapat digunakan di channel khusus: <#${serverConfig.commandChannelId}>.`)
-                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000)) // Hapus pesan setelah 60 detik
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
@@ -97,7 +97,7 @@ module.exports = {
                 });
 
                 const memberLimitMessage = maxMembers ? `dengan batasan maksimal ${maxMembers} anggota` : 'tanpa batasan anggota';
-                message.reply(`Voice Channel dengan nama **${channelName}** berhasil dibuat ${memberLimitMessage}! Ayo join ke kamar tersebut.`)
+                message.reply(`Voice Channel dengan nama **${channelName}** berhasil dibuat ${memberLimitMessage}! Ayo join ke Voice tersebut.`)
                     .catch(console.error);
 
                 const member = message.guild.members.cache.get(message.author.id);
@@ -225,7 +225,7 @@ module.exports = {
         const containsBannedWord = bannedWords.some(word => content.includes(word));
         if (containsBannedWord) {
             message.delete().then(() => {
-                const warningMessage = `${message.author}, Pesan kamu mengandung kata yang tidak diperbolehkan dan telah dihapus. Mohon untuk menjaga tutur kata di server ini ya todd!.`;
+                const warningMessage = `${message.author}, Pesan kamu mengandung kata yang tidak diperbolehkan dan telah dihapus. Mohon untuk menjaga tutur kata di server ini ya!.`;
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
@@ -240,8 +240,9 @@ module.exports = {
             return;
         }
 
-        handleQuotes(message);
-
-        handleResponses(message);
+        if (serverConfig.allowedChannelIds.includes(message.channel.id)) {
+            handleQuotes(message);
+            handleResponses(message);
+        }
     }
 };

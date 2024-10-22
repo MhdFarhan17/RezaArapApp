@@ -31,10 +31,9 @@ module.exports = {
             .setColor(color)
             .setTitle('📌 Moderation Action')
             .addFields(
-                { name: '🛠 **Action**', value: `${action}`, inline: true },
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: true },
-                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '🛠 **Action**', value: `${action}`, inline: false },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false },
                 { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -74,9 +73,8 @@ module.exports = {
             .setColor(Colors.Green)  // Hijau untuk edit pesan
             .setTitle('✏️ Message Edited')
             .addFields(
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
-                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
-                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📥 **Old Text**', value: `${oldContent || 'N/A'}`, inline: false },
                 { name: '📤 **New Text**', value: `${newContent || 'N/A'}`, inline: false }
             )
@@ -117,9 +115,8 @@ module.exports = {
             .setColor(Colors.Red)  // Merah untuk delete pesan
             .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
-                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: true },
-                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -162,10 +159,9 @@ module.exports = {
             .setColor(color)
             .setTitle('🎙️ Voice Channel Activity')
             .addFields(
-                { name: '🛠 **Action**', value: `${action}`, inline: true },
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: true },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: true },
-                { name: '🕒 **Time**', value: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }), inline: true }
+                { name: '🛠 **Action**', value: `${action}`, inline: false },
+                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false },
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
