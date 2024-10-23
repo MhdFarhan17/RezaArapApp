@@ -41,7 +41,7 @@ for (const file of eventFiles) {
 }
 
 client.once('ready', () => {
-    console.log('Bot siap dan berjalan!');
+    console.log('Bot Discord YB sudah ready!');
 
     const guild = client.guilds.cache.get(server1.guildId);
     if (!guild) {
@@ -94,7 +94,7 @@ client.once('ready', () => {
         }
     });
 
-    console.log('Penjadwalan pesan otomatis telah disiapkan.');
+    console.log('Penjadwalan pesan otomatis hari minggu dan jumat telah disiapkan.');
 });
 
 cron.schedule('0 0 * * *', () => {
