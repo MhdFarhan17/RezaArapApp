@@ -22,8 +22,7 @@ module.exports = {
             return;
         }
 
-        // Determine color based on the action type (red for deletes, green for joins, etc.)
-        let color = action.includes("keluar") || action.includes("left") || action.includes("hapus") || action.includes("leave") || action.includes("delete") ? Colors.Red : Colors.Green;
+        let color = action.includes("left") || action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete") || action.includes("Left Voice Channel") || action.includes(oldState.channel && !newState.channel) ? Colors.Red : Colors.Green;
 
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
@@ -38,7 +37,6 @@ module.exports = {
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        // Only add the "Message" field if it's a message-related action (e.g., delete or edit)
         if (messageContent) {
             embed.addFields({ name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false });
         }
@@ -74,7 +72,7 @@ module.exports = {
         const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
 
         const embed = new EmbedBuilder()
-            .setColor(Colors.Green)  // Green for message edits
+            .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
@@ -121,7 +119,7 @@ module.exports = {
             .addFields(
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
-                { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }  // Show deleted message content
+                { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -136,28 +134,34 @@ module.exports = {
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
-
+    
         if (!serverConfig) {
             console.error(`Server config untuk guildId ${guildId} tidak ditemukan.`);
             return;
         }
-
+    
         const logChannelId = serverConfig.moderationLogChannelId;
         if (!logChannelId) {
             console.error(`ID channel moderasi tidak ditemukan untuk server ${guildId}.`);
             return;
         }
-
+    
         const logChannel = client.channels.cache.get(logChannelId);
         if (!logChannel) {
             console.error(`Log channel dengan ID ${logChannelId} tidak ditemukan.`);
             return;
         }
-
-        let color = action.includes("keluar") || action.includes("leave") || action.includes("left") ? Colors.Red : Colors.Green;
-
+    
+        // Ubah logika warna di sini
+        let color;
+        if (action.includes("left") || action.includes("keluar") || action.includes("leave") || action.includes("Left Voice Channel")) {
+            color = Colors.Red; // Merah untuk left/keluar voice channel
+        } else {
+            color = Colors.Green; // Hijau untuk join voice channel
+        }
+    
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
-
+    
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('🎙️ Voice Channel Activity')
@@ -168,11 +172,12 @@ module.exports = {
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-
+    
         try {
             logChannel.send({ embeds: [embed] });
         } catch (err) {
             console.error(`Gagal mengirim log voice channel ke channel moderation-log: ${err.message}`);
         }
     }
+    
 };

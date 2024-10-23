@@ -45,7 +45,6 @@ module.exports = {
             return;
         }
 
-        // Exclude bots from tracking
         if (excludedBots.includes(member.user.username)) {
             console.log(`Bot ${member.user.username} is excluded from tracking.`);
             return;
