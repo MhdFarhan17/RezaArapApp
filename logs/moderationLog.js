@@ -1,7 +1,7 @@
 const { EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
-    logModerationAction(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null, messageContent = null) {
+    logModerationAction(client, guildId, action, userTag, userId, channelIdFrom, channelIdTo = null, messageContent = null) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -24,15 +24,25 @@ module.exports = {
 
         let color = action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
 
-        let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
+        const userMention = `<@${userId}>`;
+        let channelInfo = '';
+        if (channelIdFrom && channelIdTo) {
+            channelInfo = `<#${channelIdFrom}> to <#${channelIdTo}>`;
+        } else if (channelIdFrom) {
+            channelInfo = `<#${channelIdFrom}>`;
+        } else if (channelIdTo) {
+            channelInfo = `<#${channelIdTo}>`;
+        } else {
+            channelInfo = 'N/A';
+        }
 
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('Moderation Action')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
-                { name: '👤 **User**', value: `@${userTag}`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
+                { name: '👤 **User**', value: userMention, inline: false },
+                { name: '🔊 **Channel**', value: channelInfo || 'N/A', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -75,7 +85,7 @@ module.exports = {
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
-                { name: '👤 **User**', value: `@${userTag}`, inline: false },
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },  // Old message content
                 { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }  // New message content
@@ -117,7 +127,7 @@ module.exports = {
             .setColor(Colors.Red)  // Red for message deletions
             .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '👤 **User**', value: `@${userTag}`, inline: false },
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
@@ -152,22 +162,21 @@ module.exports = {
             return;
         }
     
-        // Ubah logika warna di sini
         let color;
         if (action.includes("left") || action.includes("keluar") || action.includes("leave") || action.includes("Left Voice Channel")) {
-            color = Colors.Red; // Merah untuk left/keluar voice channel
+            color = Colors.Red; // Red for left/keluar voice channel
         } else {
-            color = Colors.Green; // Hijau untuk join voice channel
+            color = Colors.Green; // Green for join voice channel
         }
     
-        let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
+        let channelInfo = channelNameFrom && channelNameTo ? `<#${channelNameFrom}> to <#${channelNameTo}>` : `<#${channelNameFrom}>` || `<#${channelNameTo}>`;
     
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('🎙️ Voice Channel Activity')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
-                { name: '👤 **User**', value: `@${userTag}`, inline: false },
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })

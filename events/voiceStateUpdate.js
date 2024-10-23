@@ -28,7 +28,6 @@ function saveVoiceTimes() {
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        // Create a backup
         fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4));
         console.log(`voiceTimes.json updated and saved with a backup.`);
     } catch (error) {
