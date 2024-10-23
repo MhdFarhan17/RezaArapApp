@@ -230,7 +230,8 @@ module.exports = {
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
-                logModerationAction(client, guildId, 'Penghapusan Pesan Kata Terlarang', message.author.tag, message.author.id, message.channel.name, content);
+                // Menghapus log ini untuk menghindari duplikasi
+                // logModerationAction(client, guildId, 'Penghapusan Pesan Kata Terlarang', message.author.tag, message.author.id, message.channel.name, content);
             }).catch(console.error);
             return;
         }
