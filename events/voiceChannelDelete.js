@@ -14,7 +14,7 @@ module.exports = {
           channel.delete().catch(console.error);
           console.log(`Temporary voice channel '${channel.name}' has been deleted due to inactivity.`);
         }
-      }, 120000);
+      }, 300000);
     }
   },
 };

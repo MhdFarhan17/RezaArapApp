@@ -28,7 +28,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle('📌 Moderation Action')
+            .setTitle('Moderation Action')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },

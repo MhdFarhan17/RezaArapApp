@@ -70,16 +70,16 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId(`previous_page_${page}`)
-                    .setLabel('⬅️ Sebelumnya')
+                    .setLabel('⬅️ Previous')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
                 new ButtonBuilder()
-                    .setLabel(`Halaman ${page} dari ${totalPages}`)
+                    .setLabel(`Page ${page} of ${totalPages}`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
                     .setCustomId(`next_page_${page}`)
-                    .setLabel('Selanjutnya ➡️')
+                    .setLabel('Next ➡️')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === totalPages)
             );
@@ -108,16 +108,16 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                     const disabledRow = new ActionRowBuilder().addComponents(
                         new ButtonBuilder()
                             .setCustomId('previous')
-                            .setLabel('⬅️ Sebelumnya')
+                            .setLabel('⬅️ Previous')
                             .setStyle(ButtonStyle.Primary)
                             .setDisabled(true),
                         new ButtonBuilder()
-                            .setLabel(`Halaman ${page} dari ${totalPages}`)
+                            .setLabel(`Page ${page} of ${totalPages}`)
                             .setStyle(ButtonStyle.Secondary)
                             .setDisabled(true),
                         new ButtonBuilder()
                             .setCustomId('next')
-                            .setLabel('Selanjutnya ➡️')
+                            .setLabel('Next ➡️')
                             .setStyle(ButtonStyle.Primary)
                             .setDisabled(true)
                     );
