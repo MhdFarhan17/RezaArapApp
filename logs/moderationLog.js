@@ -23,7 +23,7 @@ module.exports = {
         }
 
         // Determine color based on the action type (red for deletes, green for joins, etc.)
-        let color = action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete") ? Colors.Red : Colors.Green;
+        let color = action.includes("keluar") || action.includes("left") || action.includes("hapus") || action.includes("leave") || action.includes("delete") ? Colors.Red : Colors.Green;
 
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
@@ -154,7 +154,7 @@ module.exports = {
             return;
         }
 
-        let color = action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
+        let color = action.includes("keluar") || action.includes("leave") || action.includes("left") ? Colors.Red : Colors.Green;
 
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
