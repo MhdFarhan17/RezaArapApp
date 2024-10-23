@@ -68,6 +68,7 @@ module.exports = {
         const channelNameOld = oldState.channel ? oldState.channel.name : null;
         const channelNameNew = newState.channel ? newState.channel.name : null;
 
+        // Logging voice channel activity
         if (!oldState.channel && newState.channel) {
             logModerationAction(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
         } else if (oldState.channel && !newState.channel) {
@@ -76,6 +77,7 @@ module.exports = {
             logModerationAction(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
         }
 
+        // Time tracking logic
         if (!oldState.channelId && newState.channelId) {
             voiceTimes[member.id].joinTime = now;
             console.log(`Started tracking time for ${member.user.tag}.`);

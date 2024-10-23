@@ -6,23 +6,23 @@ module.exports = {
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
         if (!serverConfig) {
-            console.error(`Server config untuk guildId ${guildId} tidak ditemukan.`);
+            console.error(`Server config for guildId ${guildId} not found.`);
             return;
         }
 
         const logChannelId = serverConfig.moderationLogChannelId;
         if (!logChannelId) {
-            console.error(`ID channel moderasi tidak ditemukan untuk server ${guildId}.`);
+            console.error(`Moderation log channel ID not found for guild ${guildId}.`);
             return;
         }
 
         const logChannel = client.channels.cache.get(logChannelId);
         if (!logChannel) {
-            console.error(`Log channel dengan ID ${logChannelId} tidak ditemukan.`);
+            console.error(`Log channel with ID ${logChannelId} not found.`);
             return;
         }
 
-        let color = action.includes("left") || action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete") || action.includes("Left Voice Channel") || action.includes(oldState.channel && !newState.channel) ? Colors.Red : Colors.Green;
+        let color = action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
 
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
 
@@ -31,7 +31,7 @@ module.exports = {
             .setTitle('Moderation Action')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '👤 **User**', value: `@${userTag}`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -44,7 +44,7 @@ module.exports = {
         try {
             logChannel.send({ embeds: [embed] });
         } catch (err) {
-            console.error(`Gagal mengirim log ke channel moderation-log: ${err.message}`);
+            console.error(`Failed to send log to moderation-log channel: ${err.message}`);
         }
     },
 
@@ -75,7 +75,7 @@ module.exports = {
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '👤 **User**', value: `@${userTag}`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },  // Old message content
                 { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }  // New message content
@@ -117,7 +117,7 @@ module.exports = {
             .setColor(Colors.Red)  // Red for message deletions
             .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '👤 **User**', value: `@${userTag}`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
@@ -167,7 +167,7 @@ module.exports = {
             .setTitle('🎙️ Voice Channel Activity')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
-                { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
+                { name: '👤 **User**', value: `@${userTag}`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
