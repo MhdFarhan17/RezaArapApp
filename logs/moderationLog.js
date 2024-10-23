@@ -22,7 +22,7 @@ module.exports = {
             return;
         }
 
-        // Set color based on action type
+        // Determine color based on the action type (red for deletes, green for joins, etc.)
         let color = action.includes("keluar") || action.includes("hapus") || action.includes("leave") || action.includes("delete") ? Colors.Red : Colors.Green;
 
         let channelInfo = channelNameFrom && channelNameTo ? `${channelNameFrom} ke ${channelNameTo}` : channelNameFrom || channelNameTo;
@@ -37,6 +37,11 @@ module.exports = {
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
+
+        // Only add the "Message" field if it's a message-related action (e.g., delete or edit)
+        if (messageContent) {
+            embed.addFields({ name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false });
+        }
 
         try {
             logChannel.send({ embeds: [embed] });
@@ -69,13 +74,13 @@ module.exports = {
         const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
 
         const embed = new EmbedBuilder()
-            .setColor(Colors.Green)  // Hijau untuk edit pesan
+            .setColor(Colors.Green)  // Green for message edits
             .setTitle('✏️ Message Edited')
             .addFields(
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
-                { name: '📥 **Old Text**', value: `${oldContent || 'N/A'}`, inline: false },
-                { name: '📤 **New Text**', value: `${newContent || 'N/A'}`, inline: false }
+                { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },  // Old message content
+                { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }  // New message content
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -111,12 +116,12 @@ module.exports = {
         const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
 
         const embed = new EmbedBuilder()
-            .setColor(Colors.Red)  // Merah untuk delete pesan
+            .setColor(Colors.Red)  // Red for message deletions
             .setTitle('🗑️ Message Deleted')
             .addFields(
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
                 { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
-                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
+                { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }  // Show deleted message content
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -128,7 +133,6 @@ module.exports = {
         }
     },
 
-    // Log voice channel join/leave/switch
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
