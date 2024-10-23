@@ -95,7 +95,7 @@ module.exports = {
                     break;
 
                 case 'main':
-                    message.channel.send(`Ayo main sih ges, jan diem-diem bae! @everyone`).catch(console.error);
+                    message.channel.send(`Ayo main sih guys, jangan diem-diem bae! @everyone`).catch(console.error);
                     break;
 
                 case 'valo':

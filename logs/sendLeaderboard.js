@@ -69,7 +69,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('previous')
+                    .setCustomId(`previous_page_${page}`)
                     .setLabel('⬅️ Sebelumnya')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
@@ -78,7 +78,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
                 new ButtonBuilder()
-                    .setCustomId('next')
+                    .setCustomId(`next_page_${page}`)
                     .setLabel('Selanjutnya ➡️')
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === totalPages)
@@ -94,10 +94,10 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
             const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
 
             collector.on('collect', async (interaction) => {
-                if (interaction.customId === 'previous') {
+                if (interaction.customId === `previous_page_${page}`) {
                     await interaction.deferUpdate();
                     sendLeaderboardPage(client, channel, sortedTimes, page - 1);
-                } else if (interaction.customId === 'next') {
+                } else if (interaction.customId === `next_page_${page}`) {
                     await interaction.deferUpdate();
                     sendLeaderboardPage(client, channel, sortedTimes, page + 1);
                 }
@@ -131,7 +131,6 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         console.error('Error sending leaderboard message:', error);
     }
 }
-
 
 async function sendLeaderboard(client) {
     const voiceTimes = loadVoiceTimes();

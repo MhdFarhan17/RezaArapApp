@@ -16,6 +16,7 @@ const LINK_SPAM_TIMEFRAME = 10000;
 const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 1;
 const MAX_WARNINGS = 1;
+
 function resetVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     fs.writeFileSync(filePath, JSON.stringify({}, null, 4));

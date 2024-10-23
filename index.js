@@ -100,10 +100,10 @@ client.once('ready', () => {
 cron.schedule('0 0 * * *', () => {
     try {
         const currentTime = moment().tz('Asia/Jakarta').format('HH:mm');
-        console.log(`Leaderboard Terkirim pada pukul ${currentTime} WIB...`);
+        console.log(`Leaderboard sent at ${currentTime} WIB...`);
         sendLeaderboard(client);
     } catch (error) {
-        console.error(`Gagal mengirim leaderboard: ${error.message}`);
+        console.error(`Failed to send leaderboard: ${error.message}`);
     }
 }, {
     timezone: "Asia/Jakarta"

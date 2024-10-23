@@ -33,8 +33,7 @@ module.exports = {
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false },
-                { name: '📝 **Message**', value: `${messageContent || 'N/A'}`, inline: false }
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -161,7 +160,7 @@ module.exports = {
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
                 { name: '👤 **User**', value: `${userTag} (${userId})`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false },
+                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();

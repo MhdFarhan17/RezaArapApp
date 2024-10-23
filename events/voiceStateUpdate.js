@@ -70,11 +70,11 @@ module.exports = {
         const channelNameNew = newState.channel ? newState.channel.name : null;
 
         if (!oldState.channel && newState.channel) {
-            logModerationAction(client, guildId, 'User Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
+            logModerationAction(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
         } else if (oldState.channel && !newState.channel) {
-            logModerationAction(client, guildId, 'User Left Voice Channel', member.user.tag, member.user.id, channelNameOld, null);
+            logModerationAction(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, channelNameOld, null);
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
-            logModerationAction(client, guildId, 'User Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
+            logModerationAction(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
         }
 
         if (!oldState.channelId && newState.channelId) {
