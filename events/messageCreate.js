@@ -216,8 +216,7 @@ module.exports = {
                     message.channel.send(warningMessage)
                         .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                         .catch(console.error);
-                    logMessageDelete(client, guildId, 'Penghapusan Pesan SPAM-Link', message.author.tag, message.author.id, message.channel.name, content);
-                }).catch(console.error);
+                    }).catch(console.error);
                 userMessages[userId] = [];
                 return;
             }
@@ -230,9 +229,7 @@ module.exports = {
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
-                // Menghapus log ini untuk menghindari duplikasi
-                logMessageDelete(client, guildId, 'Penghapusan Pesan Kata Terlarang', message.author.tag, message.author.id, message.channel.name, content);
-            }).catch(console.error);
+                }).catch(console.error);
             return;
         }
 
