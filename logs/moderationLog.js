@@ -77,7 +77,7 @@ module.exports = {
         }
 
         const userMention = `<@${userId}>`;
-        const channelMention = `<#${message.channel.id}>`;  // Use the correct channel ID for mention
+        const channelMention = `<#${channelName}>`;
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
@@ -118,8 +118,8 @@ module.exports = {
             return;
         }
 
-        const userMention = `<@${userId}>`;  // Define the user mention here
-        const channelMention = `<#${channelName}>`;  // Format channel as a mention
+        const userMention = `<@${userId}>`;
+        const channelMention = `<#${channelName}>`;
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
