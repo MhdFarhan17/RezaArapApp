@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { server1, server2 } = require('../utils/constants');
-const { logModerationAction } = require('../logs/moderationLog');
+const { logVoiceChannelEvent } = require('../logs/moderationLog');
 
 let voiceTimes = {};
 const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
@@ -64,16 +64,16 @@ module.exports = {
         }
 
         const now = Date.now();
-        const channelNameOld = oldState.channel ? oldState.channel.name : null;
-        const channelNameNew = newState.channel ? newState.channel.name : null;
+        const channelIdOld = oldState.channel ? oldState.channel.id : null;
+        const channelIdNew = newState.channel ? newState.channel.id : null;
 
         // Logging voice channel activity
         if (!oldState.channel && newState.channel) {
-            logModerationAction(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, channelNameNew);
+            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, channelIdNew);
         } else if (oldState.channel && !newState.channel) {
-            logModerationAction(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, channelNameOld, null);
+            logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, channelIdOld, null);
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
-            logModerationAction(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, channelNameOld, channelNameNew);
+            logVoiceChannelEvent(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, channelIdOld, channelIdNew);
         }
 
         // Time tracking logic
