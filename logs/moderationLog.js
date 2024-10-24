@@ -23,7 +23,7 @@ module.exports = {
         }
 
         // Set color based on action
-        let color = action.includes("left") || action.includes("leave") || action.includes("keluar") ? Colors.Red : Colors.Green;
+        let color = action.includes(oldState.channel && !newState.channel) || actionaction.includes("left") || action.includes("leave") || action.includes("keluar") || action.includes("Member Left Voice Channel")  ? Colors.Red : Colors.Green;
 
         const userMention = `<@${userId}>`;
         let channelInfo = '';
@@ -76,8 +76,8 @@ module.exports = {
             return;
         }
 
-        const userMention = `<@${userId}>`;  // Define the user mention here
-        const channelMention = `<#${channelName}>`;  // Format channel as a mention
+        const userMention = `<@${userId}>`;
+        const channelMention = `<#${message.channel.id}>`;  // Use the correct channel ID for mention
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
