@@ -1,4 +1,4 @@
-const { logModerationAction } = require('../logs/moderationLog');
+const { logMessageDelete } = require('../logs/moderationLog');
 
 module.exports = {
     name: 'messageDelete',
@@ -18,6 +18,6 @@ module.exports = {
         const authorId = message.author ? message.author.id : 'Unknown';
         const content = message.content ? message.content : '[Attachment/No Content]';
 
-        logModerationAction(message.client, guildId, 'Pesan Dihapus', authorTag, authorId, channelName, null, content);
+        logMessageDelete(message.client, guildId, 'Pesan Dihapus', authorTag, authorId, channelName, null, content);
     }
 };

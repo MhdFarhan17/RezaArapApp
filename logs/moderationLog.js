@@ -22,7 +22,7 @@ module.exports = {
             return;
         }
 
-        let color = action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
+        let color = action.includes(oldState.channel && !newState.channel) || action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
 
         const userMention = `<@${userId}>`;
         let channelInfo = '';
