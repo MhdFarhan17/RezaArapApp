@@ -22,7 +22,7 @@ module.exports = {
             return;
         }
 
-        let color = action.includes(oldState.channel && !newState.channel) || action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
+        let color = action.includes('Member Left Voice Channel') || action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
 
         const userMention = `<@${userId}>`;
         let channelInfo = '';
@@ -54,7 +54,7 @@ module.exports = {
         }
     },
 
-    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
+    logMessageDelete(client, guildId, userId, channelName, messageContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -81,7 +81,7 @@ module.exports = {
             .setColor(Colors.Red)
             .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
                 { name: '🔊 **Channel**', value: channelDisplay, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
@@ -95,7 +95,7 @@ module.exports = {
         }
     },
 
-    logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
+    logMessageEdit(client, guildId, userId, channelName, oldContent, newContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -122,7 +122,7 @@ module.exports = {
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
                 { name: '🔊 **Channel**', value: channelDisplay, inline: false },
                 { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },
                 { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }
