@@ -22,7 +22,8 @@ module.exports = {
             return;
         }
 
-        let color = action.includes('Member Left Voice Channel') || action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
+        // Set color based on action
+        let color = action.includes("left") || action.includes("leave") || action.includes("keluar") ? Colors.Red : Colors.Green;
 
         const userMention = `<@${userId}>`;
         let channelInfo = '';
@@ -54,7 +55,7 @@ module.exports = {
         }
     },
 
-    logMessageDelete(client, guildId, userId, channelName, messageContent) {
+    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -96,7 +97,7 @@ module.exports = {
         }
     },
 
-    logMessageEdit(client, guildId, userId, channelName, oldContent, newContent) {
+    logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
