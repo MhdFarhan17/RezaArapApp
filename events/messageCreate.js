@@ -2,6 +2,7 @@ const { handleQuotes } = require('../commands/quotes');
 const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
+const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
 const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
@@ -195,7 +196,8 @@ module.exports = {
                     .catch(console.error);
 
                 userWarnings[userId]++;
-                }
+                logMessageDelete(client, guildId, 'Penghapusan Pesan Spam', message.author.tag, message.author.id, message.channel.name, content);
+            }
         }
 
         const containsLink = youtubeRegex.test(content) || spotifyRegex.test(content) || tiktokRegex.test(content) || twitchRegex.test(content);
@@ -214,7 +216,8 @@ module.exports = {
                     message.channel.send(warningMessage)
                         .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                         .catch(console.error);
-                    }).catch(console.error);
+                    logMessageDelete(client, guildId, 'Penghapusan Pesan SPAM-Link', message.author.tag, message.author.id, message.channel.name, content);
+                }).catch(console.error);
                 userMessages[userId] = [];
                 return;
             }
@@ -227,7 +230,9 @@ module.exports = {
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
-                }).catch(console.error);
+                // Menghapus log ini untuk menghindari duplikasi
+                logMessageDelete(client, guildId, 'Penghapusan Pesan Kata Terlarang', message.author.tag, message.author.id, message.channel.name, content);
+            }).catch(console.error);
             return;
         }
 

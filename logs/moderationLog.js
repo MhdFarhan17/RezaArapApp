@@ -75,14 +75,15 @@ module.exports = {
             return;
         }
 
-        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
+        const userMention = `<@${userId}>`;  // Define the user mention here
+        const channelMention = `<#${channelName}>`;  // Format channel as a mention
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('🗑️ Message Deleted')
             .addFields(
                 { name: '👤 **User**', value: userMention, inline: false },
-                { name: '🔊 **Channel**', value: channelDisplay, inline: false },
+                { name: '🔊 **Channel**', value: channelMention, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -116,14 +117,15 @@ module.exports = {
             return;
         }
 
-        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
+        const userMention = `<@${userId}>`;  // Define the user mention here
+        const channelMention = `<#${channelName}>`;  // Format channel as a mention
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
                 { name: '👤 **User**', value: userMention, inline: false },
-                { name: '🔊 **Channel**', value: channelDisplay, inline: false },
+                { name: '🔊 **Channel**', value: channelMention, inline: false },
                 { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },
                 { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }
             )
