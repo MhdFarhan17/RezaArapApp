@@ -23,7 +23,7 @@ module.exports = {
         }
 
         // Set color based on action
-        let color = action.includes(oldState.channel && !newState.channel) || actionaction.includes("left") || action.includes("leave") || action.includes("keluar") || action.includes("Member Left Voice Channel")  ? Colors.Red : Colors.Green;
+        let color = action.includes("left") || action.includes("leave") || action.includes("keluar") || action.includes("Member Left Voice Channel")  ? Colors.Red : Colors.Green;
 
         const userMention = `<@${userId}>`;
         let channelInfo = '';
