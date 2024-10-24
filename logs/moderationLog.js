@@ -1,7 +1,8 @@
 const { EmbedBuilder, Colors } = require('discord.js');
 
 module.exports = {
-    logModerationAction(client, guildId, action, userTag, userId, channelIdFrom, channelIdTo = null, messageContent = null) {
+    // Log message deletions
+    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -22,34 +23,18 @@ module.exports = {
             return;
         }
 
-        let color = action.includes("left") || action.includes("keluar") || action.includes("leave") ? Colors.Red : Colors.Green;
-
-        const userMention = `<@${userId}>`;
-        let channelInfo = '';
-        if (channelIdFrom && channelIdTo) {
-            channelInfo = `<#${channelIdFrom}> to <#${channelIdTo}>`;
-        } else if (channelIdFrom) {
-            channelInfo = `<#${channelIdFrom}>`;
-        } else if (channelIdTo) {
-            channelInfo = `<#${channelIdTo}>`;
-        } else {
-            channelInfo = 'N/A';
-        }
+        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
 
         const embed = new EmbedBuilder()
-            .setColor(color)
-            .setTitle('Moderation Action')
+            .setColor(Colors.Red)
+            .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '🛠 **Action**', value: `${action}`, inline: false },
-                { name: '👤 **User**', value: userMention, inline: false },
-                { name: '🔊 **Channel**', value: channelInfo || 'N/A', inline: false }
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '🔊 **Channel**', value: channelDisplay, inline: false },
+                { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-
-        if (messageContent) {
-            embed.addFields({ name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false });
-        }
 
         try {
             logChannel.send({ embeds: [embed] });
@@ -58,24 +43,25 @@ module.exports = {
         }
     },
 
+    // Log message edits
     logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
         if (!serverConfig) {
-            console.error(`Server config untuk guildId ${guildId} tidak ditemukan.`);
+            console.error(`Server config for guildId ${guildId} not found.`);
             return;
         }
 
         const logChannelId = serverConfig.moderationLogChannelId;
         if (!logChannelId) {
-            console.error(`ID channel moderasi tidak ditemukan untuk server ${guildId}.`);
+            console.error(`Moderation log channel ID not found for guild ${guildId}.`);
             return;
         }
 
         const logChannel = client.channels.cache.get(logChannelId);
         if (!logChannel) {
-            console.error(`Log channel dengan ID ${logChannelId} tidak ditemukan.`);
+            console.error(`Log channel with ID ${logChannelId} not found.`);
             return;
         }
 
@@ -86,9 +72,9 @@ module.exports = {
             .setTitle('✏️ Message Edited')
             .addFields(
                 { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
-                { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },  // Old message content
-                { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }  // New message content
+                { name: '🔊 **Channel**', value: channelDisplay, inline: false },
+                { name: '📥 **Old Text**', value: oldContent ? oldContent : '[Attachment/No Content]', inline: false },
+                { name: '📤 **New Text**', value: newContent ? newContent : '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -96,97 +82,61 @@ module.exports = {
         try {
             logChannel.send({ embeds: [embed] });
         } catch (err) {
-            console.error(`Gagal mengirim log edit ke channel moderation-log: ${err.message}`);
+            console.error(`Failed to send log to moderation-log channel: ${err.message}`);
         }
     },
 
-    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
-        const { server1, server2 } = require('../utils/constants');
-        const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
-
-        if (!serverConfig) {
-            console.error(`Server config untuk guildId ${guildId} tidak ditemukan.`);
-            return;
-        }
-
-        const logChannelId = serverConfig.moderationLogChannelId;
-        if (!logChannelId) {
-            console.error(`ID channel moderasi tidak ditemukan untuk server ${guildId}.`);
-            return;
-        }
-
-        const logChannel = client.channels.cache.get(logChannelId);
-        if (!logChannel) {
-            console.error(`Log channel dengan ID ${logChannelId} tidak ditemukan.`);
-            return;
-        }
-
-        const channelDisplay = channelName ? `<#${channelName}>` : 'N/A';
-
-        const embed = new EmbedBuilder()
-            .setColor(Colors.Red)  // Red for message deletions
-            .setTitle('🗑️ Message Deleted')
-            .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelDisplay}`, inline: false },
-                { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
-            )
-            .setFooter({ text: `User ID: ${userId}` })
-            .setTimestamp();
-
-        try {
-            logChannel.send({ embeds: [embed] });
-        } catch (err) {
-            console.error(`Gagal mengirim log pesan dihapus ke channel moderation-log: ${err.message}`);
-        }
-    },
-
+    // Log voice channel join/leave/switch
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelNameFrom, channelNameTo = null) {
         const { server1, server2 } = require('../utils/constants');
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
-    
+
         if (!serverConfig) {
-            console.error(`Server config untuk guildId ${guildId} tidak ditemukan.`);
+            console.error(`Server config for guildId ${guildId} not found.`);
             return;
         }
-    
+
         const logChannelId = serverConfig.moderationLogChannelId;
         if (!logChannelId) {
-            console.error(`ID channel moderasi tidak ditemukan untuk server ${guildId}.`);
+            console.error(`Moderation log channel ID not found for guild ${guildId}.`);
             return;
         }
-    
+
         const logChannel = client.channels.cache.get(logChannelId);
         if (!logChannel) {
-            console.error(`Log channel dengan ID ${logChannelId} tidak ditemukan.`);
+            console.error(`Log channel with ID ${logChannelId} not found.`);
             return;
         }
-    
-        let color;
-        if (action.includes("left") || action.includes("keluar") || action.includes("leave") || action.includes("Left Voice Channel")) {
-            color = Colors.Red; // Red for left/keluar voice channel
+
+        // Determine color based on action
+        let color = (action.includes(oldState.channel && !newState.channel) || action.includes("left") || action.includes("leave")) ? Colors.Red : Colors.Green;
+
+        let channelInfo = '';
+        if (channelNameFrom && channelNameTo) {
+            channelInfo = `<#${channelNameFrom}> to <#${channelNameTo}>`;
+        } else if (channelNameFrom) {
+            channelInfo = `<#${channelNameFrom}>`;
+        } else if (channelNameTo) {
+            channelInfo = `<#${channelNameTo}>`;
         } else {
-            color = Colors.Green; // Green for join voice channel
+            channelInfo = 'N/A';
         }
-    
-        let channelInfo = channelNameFrom && channelNameTo ? `<#${channelNameFrom}> to <#${channelNameTo}>` : `<#${channelNameFrom}>` || `<#${channelNameTo}>`;
-    
+
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('🎙️ Voice Channel Activity')
             .addFields(
                 { name: '🛠 **Action**', value: `${action}`, inline: false },
                 { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `${channelInfo || 'N/A'}`, inline: false }
+                { name: '🔊 **Channel**', value: channelInfo, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-    
+
         try {
             logChannel.send({ embeds: [embed] });
         } catch (err) {
-            console.error(`Gagal mengirim log voice channel ke channel moderation-log: ${err.message}`);
+            console.error(`Failed to send log to moderation-log channel: ${err.message}`);
         }
     }
-    
 };
