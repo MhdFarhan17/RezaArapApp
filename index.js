@@ -60,16 +60,18 @@ client.once('ready', () => {
     cron.schedule('0 19 * * 0', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0x00AE86)
-                .setTitle('🌙 Selamat Malam Minggu!')
+                .setColor(0xFF69B4)
+                .setTitle('🎉 Malam Minggu Telah Tiba!')
                 .setDescription(
-                    'Untuk yang sudah punya pasangan, nikmati waktunya bersama pasanganmu! 💖\n' +
-                    'Untuk yang belum punya pasangan, tetap semangat! Kamu tetap keren walau jomblo! 💪✨'
+                    '✨ **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! 😘💕\n\n' +
+                    '🚀 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren dengan caramu sendiri! 💪😎\n\n' +
+                    '🤖 **Pro Tip:** Malam Minggu tanpa drama lebih sehat! Jangan lupa, kalian semua luar biasa! 💥🔥'
                 )
-                .setFooter({ text: 'Semoga malam ini menyenangkan!' })
+                .setFooter({ text: 'Malam Minggu seru, apapun statusnya!' })
                 .setTimestamp();
-
-            await allowedChannel.send({ embeds: [embed] });
+    
+            // Mengirimkan tag @Member sebelum embed
+            await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
             console.log('Pesan Malam Minggu terkirim!');
         } catch (error) {
             console.error(`Gagal mengirim pesan Malam Minggu: ${error.message}`);
@@ -79,14 +81,15 @@ client.once('ready', () => {
     cron.schedule('20 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0xFFFF00)
-                .setTitle('🔔 Persiapan Sholat Jumat')
+                .setColor(0x1E90FF)
+                .setTitle('🕌 Persiapan Sholat Jumat')
                 .setDescription(
-                    'Sudah waktunya persiapan Sholat Jumat. Jangan lupa mandi, pakai pakaian rapi, dan segera berangkat ke masjid! 🙏✨'
+                    '📢 **Wahai para ikhwan!** Sudah saatnya mempersiapkan diri untuk menunaikan Sholat Jumat. Jangan lupa mandi sunnah, pakai pakaian terbaikmu, wangi-wangian, dan bergegaslah menuju masjid. 🌿\n\n' +
+                    '🕋 Sholat Jumat adalah momen penuh keberkahan, mari raih pahala yang berlipat dengan hadir tepat waktu dan mendengarkan khotbah dengan khusyuk. Semoga hari ini membawa banyak kebaikan bagi kita semua. 🤲✨'
                 )
-                .setFooter({ text: 'Semoga hari Jumat ini penuh berkah.' })
+                .setFooter({ text: 'Ingat, Sholat Jumat itu wajib bagi kaum laki-laki. Jangan sampai tertinggal!' })
                 .setTimestamp();
-
+    
             await allowedChannel.send({ embeds: [embed] });
             console.log('Pesan persiapan Sholat Jumat terkirim!');
         } catch (error) {
