@@ -5,12 +5,24 @@ const { server1 } = require('../utils/constants');
 
 function loadVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
+    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
+
     if (fs.existsSync(filePath)) {
         try {
             const data = fs.readFileSync(filePath, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
-            console.error('Error reading voiceTimes.json:', error);
+            console.error('Error reading voiceTimes.json, attempting to load backup:', error);
+            // Attempt to load from the backup
+            if (fs.existsSync(backupFilePath)) {
+                try {
+                    const backupData = fs.readFileSync(backupFilePath, 'utf-8');
+                    return JSON.parse(backupData);
+                } catch (backupError) {
+                    console.error('Error reading voiceTimes_backup.json:', backupError);
+                    return {};
+                }
+            }
             return {};
         }
     } else {
@@ -21,12 +33,14 @@ function loadVoiceTimes() {
 
 function saveVoiceTimes(voiceTimes) {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
+    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
     try {
         const sortedVoiceTimes = Object.fromEntries(
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        console.log(`voiceTimes.json updated and saved.`);
+        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4)); // Backup
+        console.log('voiceTimes.json updated and saved, backup created.');
     } catch (error) {
         console.error('Error saving voiceTimes.json:', error);
     }
