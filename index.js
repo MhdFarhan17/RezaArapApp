@@ -5,6 +5,7 @@ const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 require('dotenv').config();
+
 const token = process.env.DISCORD_TOKEN;
 const { server1 } = require('./utils/constants');
 
@@ -24,19 +25,18 @@ const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'
 for (const file of eventFiles) {
     const filePath = path.join(eventsPath, file);
     const event = require(filePath);
-
-    try {
-        if (event.name && event.execute) {
+    if (event.name && event.execute) {
+        try {
             if (event.once) {
                 client.once(event.name, (...args) => event.execute(...args, client));
             } else {
                 client.on(event.name, (...args) => event.execute(...args, client));
             }
-        } else {
-            console.error(`Event ${file} is missing a valid name or execute function.`);
+        } catch (error) {
+            console.error(`Error loading event ${file}: ${error.message}`);
         }
-    } catch (error) {
-        console.error(`Error loading event ${file}: ${error.message}`);
+    } else {
+        console.warn(`Event ${file} is missing a valid name or execute function.`);
     }
 }
 
@@ -61,15 +61,14 @@ client.once('ready', () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0xFF69B4)
-                .setTitle('🎉 Malam Minggu Telah Tiba!')
+                .setTitle('Malam Minggu Telah Tiba!')
                 .setDescription(
                     '💞 **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! Selamat Bucin ... 😘💕\n\n' +
                     '🤡 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren walau kamu jomblo! 💪😎\n\n'
                 )
                 .setFooter({ text: 'Selamat Malam Mingguan guys 🎉' })
                 .setTimestamp();
-    
-            // Mengirimkan tag @Member sebelum embed
+
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
             console.log('Pesan Malam Minggu terkirim!');
         } catch (error) {
@@ -88,7 +87,7 @@ client.once('ready', () => {
                 )
                 .setFooter({ text: 'Ingat, Sholat Jumat itu wajib bagi kaum laki-laki. Jangan sampai tertinggal!' })
                 .setTimestamp();
-    
+
             await allowedChannel.send({ embeds: [embed] });
             console.log('Pesan persiapan Sholat Jumat terkirim!');
         } catch (error) {
@@ -99,11 +98,11 @@ client.once('ready', () => {
     console.log('Penjadwalan pesan otomatis hari minggu dan jumat telah disiapkan.');
 });
 
-cron.schedule('0 0 * * *', () => {
+cron.schedule('0 0 * * *', async () => {
     try {
         const currentTime = moment().tz('Asia/Jakarta').format('HH:mm');
         console.log(`Leaderboard sent at ${currentTime} WIB...`);
-        sendLeaderboard(client);
+        await sendLeaderboard(client);
     } catch (error) {
         console.error(`Failed to send leaderboard: ${error.message}`);
     }

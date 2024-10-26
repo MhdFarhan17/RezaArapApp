@@ -8,28 +8,27 @@ const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
 
 function loadVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    if (fs.existsSync(filePath)) {
-        try {
-            voiceTimes = JSON.parse(fs.readFileSync(filePath));
-        } catch (error) {
-            console.error('Error parsing voiceTimes.json:', error);
-            voiceTimes = {};
-        }
-    } else {
-        fs.writeFileSync(filePath, JSON.stringify({}));
+    const backupData = process.env.VOICETIMES_BACKUP || "{}";
+
+    try {
+        voiceTimes = fs.existsSync(filePath)
+            ? JSON.parse(fs.readFileSync(filePath))
+            : JSON.parse(backupData);
+    } catch (error) {
+        console.error('Error loading voiceTimes:', error);
+        voiceTimes = {};
     }
 }
 
 function saveVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
     try {
         const sortedVoiceTimes = Object.fromEntries(
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        console.log('voiceTimes.json updated and saved with a backup.');
+        process.env.VOICETIMES_BACKUP = JSON.stringify(sortedVoiceTimes);
+        console.log('voiceTimes.json updated and saved with environment backup.');
     } catch (error) {
         console.error('Error saving voiceTimes.json:', error);
     }
@@ -64,38 +63,44 @@ module.exports = {
         }
 
         const now = Date.now();
-        const channelIdOld = oldState.channel ? oldState.channel.id : null;
-        const channelIdNew = newState.channel ? newState.channel.id : null;
+        const isMutedOrDeafened = newState.selfMute || newState.selfDeaf;
 
-        // Logging voice channel activity
-        if (!oldState.channel && newState.channel) {
-            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, channelIdNew);
-        } else if (oldState.channel && !newState.channel) {
-            logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, channelIdOld, null);
-        } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
-            logVoiceChannelEvent(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, channelIdOld, channelIdNew);
-        }
-
-        // Time tracking logic
-        if (!oldState.channelId && newState.channelId) {
+        // Handle different states and actions
+        if (!oldState.channel && newState.channel && !isMutedOrDeafened) {
+            // Member joins a voice channel in active state
             voiceTimes[member.id].joinTime = now;
+            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, newState.channel.id);
             console.log(`Started tracking time for ${member.user.tag}.`);
-        } else if (oldState.channelId && !newState.channelId) {
-            if (voiceTimes[member.id].joinTime) {
+
+        } else if (!oldState.channel && newState.channel && isMutedOrDeafened) {
+            // Member joins a voice channel while muted or deafened
+            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel Muted/Deafened', member.user.tag, member.user.id, null, newState.channel.id);
+            console.log(`${member.user.tag} joined muted/deafened, tracking paused.`);
+
+        } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
+            // Member leaves voice channel
+            const sessionTime = now - voiceTimes[member.id].joinTime;
+            voiceTimes[member.id].totalTime += sessionTime;
+            console.log(`Finished tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
+            delete voiceTimes[member.id].joinTime;
+            logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, oldState.channel.id, null);
+
+        } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
+            // Member switches voice channels
+            logVoiceChannelEvent(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, oldState.channel.id, newState.channel.id);
+
+        } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
+            // Handle mute/deafen changes
+            if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
+                // Member mutes or deafens, pause tracking
                 const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;
-                console.log(`Finished tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
                 delete voiceTimes[member.id].joinTime;
-            }
-        } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
-            if (!newState.selfMute && !newState.selfDeaf && !voiceTimes[member.id].joinTime) {
+                console.log(`Paused tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
+            } else if (!isMutedOrDeafened && !voiceTimes[member.id].joinTime) {
+                // Member unmutes or undeafens, resume tracking
                 voiceTimes[member.id].joinTime = now;
                 console.log(`Resumed tracking for ${member.user.tag}.`);
-            } else if ((newState.selfMute || newState.selfDeaf) && voiceTimes[member.id].joinTime) {
-                const sessionTime = now - voiceTimes[member.id].joinTime;
-                voiceTimes[member.id].totalTime += sessionTime;
-                console.log(`Paused tracking for ${member.user.tag}. Session Time: ${sessionTime / 1000}s, Total Time: ${voiceTimes[member.id].totalTime / 1000}s`);
-                delete voiceTimes[member.id].joinTime;
             }
         }
 

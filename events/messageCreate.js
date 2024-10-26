@@ -9,6 +9,8 @@ const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, 
 const fs = require('fs');
 const path = require('path');
 
+let voiceTimes = {};
+const userCreatedChannels = {};
 const userMessages = {};
 const userWarnings = {};
 const LINK_SPAM_THRESHOLD = 2;
@@ -17,6 +19,7 @@ const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 1;
 const MAX_WARNINGS = 1;
 
+// Fungsi untuk mereset data voiceTimes
 function resetVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
     fs.writeFileSync(filePath, JSON.stringify({}, null, 4));
@@ -29,17 +32,17 @@ module.exports = {
         if (message.author.bot) return;
 
         const content = message.content.toLowerCase();
-        const userId = message.author.id;
-        const guildId = message.guild.id;
+        const { guild, author, channel, member } = message;
+        const serverConfig = guild.id === server1.guildId ? server1 : server2;
         const now = Date.now();
 
-        const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
         if (!serverConfig) return;
 
-        if (message.channel.id === serverConfig.leaderboardChannelId) {
+        // Perintah untuk leaderboard dan backup
+        if (channel.id === serverConfig.leaderboardChannelId) {
             if (content === 'resetdata!') {
                 resetVoiceTimes();
-                message.channel.send('Data Leaderboard Terlama Voice telah direset.');
+                channel.send('Data Leaderboard Voice telah direset.');
                 return;
             }
 
@@ -48,134 +51,174 @@ module.exports = {
                 sendLeaderboard(client);
                 return;
             }
+
+            if (content === 'backupdata!') {
+                process.env.VOICETIMES_BACKUP = JSON.stringify(voiceTimes);
+                channel.send('Data voiceTimes telah di-backup ke environment variable.');
+                return;
+            }
+
+            if (content === 'restoredata!') {
+                const backupData = process.env.VOICETIMES_BACKUP;
+                if (backupData) {
+                    voiceTimes = JSON.parse(backupData);
+                    const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
+                    fs.writeFileSync(filePath, JSON.stringify(voiceTimes, null, 4));
+                    channel.send('Data voiceTimes telah di-restore dari environment variable.');
+                } else {
+                    channel.send('Tidak ada data backup yang tersedia.');
+                }
+                return;
+            }
         }
 
-        if (message.channel.id === serverConfig.commandChannelId) {
-            if (!(content.startsWith('cv!') || content.startsWith('createvoice!') || content.startsWith('lock!') || content.startsWith('unlock!'))) {
-                message.delete().catch(console.error);
-                return message.reply(`Channel ini hanya untuk menggunakan perintah \`createvoice!\`, \`lock!\`, atau \`unlock!\`.`)
+        // Hanya izinkan perintah tertentu di commandChannel
+        if (channel.id === serverConfig.commandChannelId) {
+            if (!['cv!', 'createvoice!', 'lock!', 'unlock!', 'setlimit!', 'setname!'].some(cmd => content.startsWith(cmd))) {
+                await message.delete().catch(console.error);
+                return message.reply('Channel ini hanya untuk perintah khusus: `createvoice!`, `lock!`, `unlock!`, `setlimit!`, dan `setname!`')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
         }
 
+        // Perintah createvoice! untuk membuat channel sementara
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
-            if (message.channel.id !== serverConfig.commandChannelId) {
-                return message.reply(`Perintah ini hanya dapat digunakan di channel khusus: <#${serverConfig.commandChannelId}>.`)
-                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
-                    .catch(console.error);
-            }
-
-            let args = message.content.trim().split(' ');
-            args.shift();
-            let channelName = args[0];
-            let maxMembers = parseInt(args[1]);
-
-            if (!channelName || channelName.trim() === '') {
-                channelName = `${message.author.username}'s Channel`;
-            }
-
-            if (isNaN(maxMembers) || maxMembers <= 0) {
-                maxMembers = null;
-            }
+            let args = content.split(' ').slice(1);
+            let channelName = args.join(' ').trim() || `${author.username}'s Channel`;
+            let maxMembers = parseInt(args[1]) || null;
 
             try {
-                const channel = await message.guild.channels.create({
+                const voiceChannel = await guild.channels.create({
                     name: channelName,
                     type: ChannelType.GuildVoice,
                     parent: serverConfig.tempVoiceCategoryId,
                     userLimit: maxMembers,
                     permissionOverwrites: [
                         {
-                            id: message.author.id,
+                            id: author.id,
                             allow: [PermissionsBitField.Flags.ManageChannels, PermissionsBitField.Flags.Connect],
                         },
                         {
-                            id: message.guild.roles.everyone.id,
+                            id: guild.roles.everyone.id,
                             allow: [PermissionsBitField.Flags.Connect],
                         },
                     ],
                 });
 
-                const memberLimitMessage = maxMembers ? `dengan batasan maksimal ${maxMembers} anggota` : 'tanpa batasan anggota';
-                message.reply(`Voice Channel dengan nama **${channelName}** berhasil dibuat ${memberLimitMessage}! Ayo join ke Voice tersebut.`)
+                userCreatedChannels[author.id] = voiceChannel.id;
+
+                const limitMsg = maxMembers ? ` dengan batas maksimal ${maxMembers} anggota` : ' tanpa batasan anggota';
+                message.reply(`Voice Channel **${channelName}** berhasil dibuat${limitMsg}! Ayo join ke Voice tersebut.`)
                     .catch(console.error);
 
-                const member = message.guild.members.cache.get(message.author.id);
-                if (member && member.voice.channel) {
-                    await member.voice.setChannel(channel);
-                }
+                const member = guild.members.cache.get(author.id);
+                if (member.voice.channel) await member.voice.setChannel(voiceChannel);
             } catch (error) {
-                console.error("Error saat mencoba membuat voice channel:", error);
-                message.reply('Terjadi kesalahan saat mencoba membuat Voice Channel.')
+                console.error('Error saat membuat voice channel:', error);
+                message.reply('Gagal membuat Voice Channel.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
             return;
         }
 
-        if (content.startsWith('lock!')) {
-            if (!message.member.voice.channel) {
-                return message.reply('Kamu harus berada di dalam Voice Channel yang ingin kamu kunci.')
+        // Perintah lock! dan unlock!
+        if (content.startsWith('lock!') || content.startsWith('unlock!')) {
+            const voiceChannel = member.voice.channel;
+            if (!voiceChannel || userCreatedChannels[author.id] !== voiceChannel.id) {
+                return message.reply('Hanya pembuat yang bisa mengunci atau membuka Voice Channel ini.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
-
-            const channel = message.member.voice.channel;
 
             try {
-                await channel.permissionOverwrites.edit(message.guild.roles.everyone, {
-                    Connect: false,
-                });
-                message.reply(`Voice Channel dengan nama **${channel.name}** telah dikunci. Hanya kamu yang bisa mengundang pengguna lain.`)
+                const connectPermission = content.startsWith('unlock!') ? true : false;
+                await voiceChannel.permissionOverwrites.edit(guild.roles.everyone, { Connect: connectPermission });
+                const lockStatus = connectPermission ? 'dibuka' : 'dikunci';
+                message.reply(`Voice Channel **${voiceChannel.name}** telah ${lockStatus}.`)
                     .catch(console.error);
             } catch (error) {
-                console.error('Error saat mencoba mengunci voice channel:', error);
-                message.reply('Terjadi kesalahan saat mencoba mengunci Voice Channel.')
+                console.error('Error saat mencoba mengubah akses voice channel:', error);
+                message.reply(`Gagal ${content.startsWith('unlock!') ? 'membuka' : 'mengunci'} Voice Channel.`)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
             return;
         }
 
-        if (content.startsWith('unlock!')) {
-            if (!message.member.voice.channel) {
-                return message.reply('Kamu harus berada di dalam voice channel yang ingin kamu buka.')
+        // Perintah setlimit!
+        if (content.startsWith('setlimit!')) {
+            const voiceChannel = member.voice.channel;
+            if (!voiceChannel || userCreatedChannels[author.id] !== voiceChannel.id) {
+                return message.reply('Hanya pembuat yang bisa mengatur ulang batas pengguna Voice Channel ini.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
-            const channel = message.member.voice.channel;
+            const limit = parseInt(content.split(' ')[1]);
+            if (isNaN(limit) || limit < 0) {
+                return message.reply('Masukkan batas pengguna yang valid (angka positif atau 0 untuk tidak terbatas).')
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
 
             try {
-                await channel.permissionOverwrites.edit(message.guild.roles.everyone, {
-                    Connect: true,
-                });
-                message.reply(`Voice Channel dengan nama **${channel.name}** telah dibuka kembali. Semua orang dapat bergabung.`)
+                await voiceChannel.edit({ userLimit: limit });
+                message.reply(`Batas pengguna Voice Channel **${voiceChannel.name}** diatur menjadi ${limit > 0 ? limit : 'tidak terbatas'}.`)
                     .catch(console.error);
             } catch (error) {
-                console.error('Error saat mencoba membuka voice channel:', error);
-                message.reply('Terjadi kesalahan saat mencoba membuka Voice Channel.')
+                console.error('Error mengatur ulang batas pengguna:', error);
+                message.reply('Gagal mengatur ulang batas pengguna Voice Channel.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
             return;
         }
 
+        // Perintah setname!
+        if (content.startsWith('setname!')) {
+            const voiceChannel = member.voice.channel;
+            if (!voiceChannel || userCreatedChannels[author.id] !== voiceChannel.id) {
+                return message.reply('Hanya pembuat yang bisa mengubah nama Voice Channel ini.')
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            const newName = content.split(' ').slice(1).join(' ').trim();
+            if (!newName) {
+                return message.reply('Masukkan nama channel yang valid.')
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            try {
+                await voiceChannel.edit({ name: newName });
+                message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`)
+                    .catch(console.error);
+            } catch (error) {
+                console.error('Error mengubah nama Voice Channel:', error);
+                message.reply('Gagal mengubah nama Voice Channel.')
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+        }
+
+        // Cek pesan spam, link, atau kata terlarang
         if (serverConfig.linkOnlyChannelIds.includes(message.channel.id)) {
             console.log("Handling link channels");
             handleLinkChannels(client, message);
             return;
         }
 
-        if (!userMessages[userId]) {
-            userMessages[userId] = [];
+        if (!userMessages[author.id]) {
+            userMessages[author.id] = [];
         }
 
-        userMessages[userId].push({ content, timestamp: now, messageId: message.id });
-        userMessages[userId] = userMessages[userId].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
+        userMessages[author.id].push({ content, timestamp: now, messageId: message.id });
+        userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
-        const identicalMessages = userMessages[userId].filter(msg => msg.content === content);
+        const identicalMessages = userMessages[author.id].filter(msg => msg.content === content);
 
         if (identicalMessages.length > SPAM_THRESHOLD) {
             const messagesToDelete = identicalMessages.slice(0, -SPAM_THRESHOLD);
@@ -185,39 +228,39 @@ module.exports = {
                     .catch(console.error);
             });
 
-            if (!userWarnings[userId]) {
-                userWarnings[userId] = 0;
+            if (!userWarnings[author.id]) {
+                userWarnings[author.id] = 0;
             }
 
-            if (userWarnings[userId] < MAX_WARNINGS) {
-                const warningMessage = `${message.author}, Gausah SPAM ya todd😠, tar gua pukul palalu.`;
+            if (userWarnings[author.id] < MAX_WARNINGS) {
+                const warningMessage = `${author}, Gausah SPAM ya todd😠, tar gua pukul palalu.`;
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
 
-                userWarnings[userId]++;
-                logMessageDelete(client, guildId, 'Penghapusan Pesan Spam', message.author.tag, message.author.id, message.channel.name, content);
+                userWarnings[author.id]++;
+                logMessageDelete(client, guild.id, 'Penghapusan Pesan Spam', author.tag, author.id, channel.name, content);
             }
         }
 
         const containsLink = youtubeRegex.test(content) || spotifyRegex.test(content) || tiktokRegex.test(content) || twitchRegex.test(content);
 
         if (containsLink) {
-            if (!userMessages[userId]) {
-                userMessages[userId] = [];
+            if (!userMessages[author.id]) {
+                userMessages[author.id] = [];
             }
 
-            userMessages[userId].push(now);
-            userMessages[userId] = userMessages[userId].filter(timestamp => now - timestamp < LINK_SPAM_TIMEFRAME);
+            userMessages[author.id].push(now);
+            userMessages[author.id] = userMessages[author.id].filter(timestamp => now - timestamp < LINK_SPAM_TIMEFRAME);
 
-            if (userMessages[userId].length > LINK_SPAM_THRESHOLD) {
+            if (userMessages[author.id].length > LINK_SPAM_THRESHOLD) {
                 message.delete().then(() => {
-                    const warningMessage = `${message.author}, kamu telah mengirim terlalu banyak link dalam waktu singkat. Mohon untuk tidak melakukan SPAM-Link ya todd!.`;
+                    const warningMessage = `${author}, kamu telah mengirim terlalu banyak link dalam waktu singkat. Mohon untuk tidak melakukan SPAM-Link ya todd!.`;
                     message.channel.send(warningMessage)
                         .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                         .catch(console.error);
                     }).catch(console.error);
-                userMessages[userId] = [];
+                userMessages[author.id] = [];
                 return;
             }
         }
@@ -225,7 +268,7 @@ module.exports = {
         const containsBannedWord = bannedWords.some(word => content.includes(word));
         if (containsBannedWord) {
             message.delete().then(() => {
-                const warningMessage = `${message.author}, Pesan kamu mengandung kata yang tidak diperbolehkan dan telah dihapus. Mohon untuk menjaga tutur kata di server ini ya!.`;
+                const warningMessage = `${author}, Pesan kamu mengandung kata yang tidak diperbolehkan dan telah dihapus. Mohon untuk menjaga tutur kata di server ini ya!.`;
                 message.channel.send(warningMessage)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
@@ -233,15 +276,15 @@ module.exports = {
             return;
         }
 
-        if (serverConfig.musicRequestChannelIds.includes(message.channel.id)) {
+        if (serverConfig.musicRequestChannelIds.includes(channel.id)) {
             console.log("Handling music request channels");
             handleMusicRequest(client, message);
             return;
         }
 
-        if (serverConfig.allowedChannelIds.includes(message.channel.id)) {
+        if (serverConfig.allowedChannelIds.includes(channel.id)) {
             handleQuotes(message);
             handleResponses(message);
         }
     }
-};
+}

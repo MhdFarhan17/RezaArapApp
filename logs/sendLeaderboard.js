@@ -5,41 +5,24 @@ const { server1 } = require('../utils/constants');
 
 function loadVoiceTimes() {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
-
-    if (fs.existsSync(filePath)) {
-        try {
-            const data = fs.readFileSync(filePath, 'utf-8');
-            return JSON.parse(data);
-        } catch (error) {
-            console.error('Error reading voiceTimes.json, attempting to load backup:', error);
-            if (fs.existsSync(backupFilePath)) {
-                try {
-                    const backupData = fs.readFileSync(backupFilePath, 'utf-8');
-                    return JSON.parse(backupData);
-                } catch (backupError) {
-                    console.error('Error reading voiceTimes_backup.json:', backupError);
-                    return {};
-                }
-            }
-            return {};
-        }
-    } else {
-        fs.writeFileSync(filePath, JSON.stringify({}));
+    const backupData = process.env.VOICETIMES_BACKUP || "{}";
+    try {
+        return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath)) : JSON.parse(backupData);
+    } catch (error) {
+        console.error('Error loading voiceTimes:', error);
         return {};
     }
 }
 
 function saveVoiceTimes(voiceTimes) {
     const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    const backupFilePath = path.join(__dirname, '..', 'logs', 'voiceTimes_backup.json');
     try {
         const sortedVoiceTimes = Object.fromEntries(
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        console.log('voiceTimes.json updated and saved, backup created.');
+        process.env.VOICETIMES_BACKUP = JSON.stringify(sortedVoiceTimes);
+        console.log('voiceTimes.json updated and saved with environment backup.');
     } catch (error) {
         console.error('Error saving voiceTimes.json:', error);
     }
@@ -53,7 +36,7 @@ function formatTime(ms) {
     return `${hours} jam, ${minutes} menit, ${seconds} detik`;
 }
 
-async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPage = 10) {
+async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes, page = 1, perPage = 10) {
     const start = (page - 1) * perPage;
     const end = start + perPage;
     const totalPages = Math.ceil(sortedTimes.length / perPage);
@@ -77,84 +60,34 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    let components = [];
-    if (sortedTimes.length > 10) {
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`previous_page_${page}`)
-                    .setLabel('⬅️ Previous')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(page === 1),
-                new ButtonBuilder()
-                    .setCustomId(`page_info_${page}`) // Custom_id untuk informasi halaman
-                    .setLabel(`Page ${page} of ${totalPages}`)
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setCustomId(`next_page_${page}`)
-                    .setLabel('Next ➡️')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(page === totalPages)
-            );
-        components = [row];
-    }
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId(`previous_page_${page}`)
+                .setLabel('⬅️ Previous')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(page === 1),
+            new ButtonBuilder()
+                .setCustomId(`page_info_${page}`)
+                .setLabel(`Page ${page} of ${totalPages}`)
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(true),
+            new ButtonBuilder()
+                .setCustomId(`next_page_${page}`)
+                .setLabel('Next ➡️')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(page === totalPages)
+        );
 
-    try {
-        const sentMessage = await channel.send({ embeds: [embed], components });
-
-        if (sortedTimes.length > 10) {
-            const filter = (interaction) => interaction.isButton();
-            const collector = sentMessage.createMessageComponentCollector({ filter, time: 60000 });
-
-            collector.on('collect', async (interaction) => {
-                if (interaction.customId === `previous_page_${page}`) {
-                    await interaction.deferUpdate();
-                    sendLeaderboardPage(client, channel, sortedTimes, page - 1);
-                } else if (interaction.customId === `next_page_${page}`) {
-                    await interaction.deferUpdate();
-                    sendLeaderboardPage(client, channel, sortedTimes, page + 1);
-                }
-            });
-
-            collector.on('end', async () => {
-                try {
-                    const disabledRow = new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('previous_disabled')
-                            .setLabel('⬅️ Previous')
-                            .setStyle(ButtonStyle.Primary)
-                            .setDisabled(true),
-                        new ButtonBuilder()
-                            .setCustomId('page_info_disabled')
-                            .setLabel(`Page ${page} of ${totalPages}`)
-                            .setStyle(ButtonStyle.Secondary)
-                            .setDisabled(true),
-                        new ButtonBuilder()
-                            .setCustomId('next_disabled')
-                            .setLabel('Next ➡️')
-                            .setStyle(ButtonStyle.Primary)
-                            .setDisabled(true)
-                    );
-                    await sentMessage.edit({ components: [disabledRow] });
-                } catch (error) {
-                    console.error('Failed to disable buttons:', error);
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error sending leaderboard message:', error);
+    if (interaction) {
+        await interaction.update({ embeds: [embed], components: [row] });
+    } else {
+        await channel.send({ embeds: [embed], components: [row] });
     }
 }
 
 async function sendLeaderboard(client) {
     const voiceTimes = loadVoiceTimes();
-
-    if (Object.keys(voiceTimes).length === 0) {
-        console.log('No data available for the leaderboard.');
-        return;
-    }
-
     const now = Date.now();
 
     for (const [userId, data] of Object.entries(voiceTimes)) {
@@ -168,11 +101,30 @@ async function sendLeaderboard(client) {
     saveVoiceTimes(voiceTimes);
 
     const sortedTimes = Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime);
-
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
+
     if (channel) {
         try {
-            await sendLeaderboardPage(client, channel, sortedTimes);
+            const message = await channel.send({ content: 'Loading leaderboard...' });
+            const filter = (interaction) => interaction.isButton();
+            const collector = message.createMessageComponentCollector({ filter, time: 300000 });
+
+            collector.on('collect', async (interaction) => {
+                const page = parseInt(interaction.customId.split('_').pop());
+                const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
+                await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
+            });
+
+            collector.on('end', async () => {
+                try {
+                    // Menghapus semua tombol ketika kolektor habis waktu
+                    await message.edit({ components: [] });
+                } catch (error) {
+                    console.error('Failed to remove buttons:', error);
+                }
+            });
+
+            await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
         } catch (error) {
             console.error('Error sending leaderboard:', error);
         }
