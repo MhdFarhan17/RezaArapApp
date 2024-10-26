@@ -60,29 +60,34 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId(`previous_page_${page}`)
-                .setLabel('⬅️ Previous')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(page === 1),
-            new ButtonBuilder()
-                .setCustomId(`page_info_${page}`)
-                .setLabel(`Page ${page} of ${totalPages}`)
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(true),
-            new ButtonBuilder()
-                .setCustomId(`next_page_${page}`)
-                .setLabel('Next ➡️')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(page === totalPages)
-        );
+    // Tampilkan tombol hanya jika data lebih dari 10
+    let components = [];
+    if (sortedTimes.length > perPage) {
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`previous_page_${page}`)
+                    .setLabel('⬅️ Previous')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(page === 1),
+                new ButtonBuilder()
+                    .setCustomId(`page_info_${page}`)
+                    .setLabel(`Page ${page} of ${totalPages}`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setCustomId(`next_page_${page}`)
+                    .setLabel('Next ➡️')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(page === totalPages)
+            );
+        components = [row];
+    }
 
     if (interaction) {
-        await interaction.update({ embeds: [embed], components: [row] });
+        await interaction.update({ embeds: [embed], components });
     } else {
-        await channel.send({ embeds: [embed], components: [row] });
+        await channel.send({ embeds: [embed], components });
     }
 }
 
@@ -105,7 +110,6 @@ async function sendLeaderboard(client) {
 
     if (channel) {
         try {
-            const message = await channel.send({ content: 'Loading leaderboard...' });
             const filter = (interaction) => interaction.isButton();
             const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
@@ -117,7 +121,7 @@ async function sendLeaderboard(client) {
 
             collector.on('end', async () => {
                 try {
-                    // Menghapus semua tombol ketika kolektor habis waktu
+                    // Hapus semua tombol ketika waktu kolektor habis
                     await message.edit({ components: [] });
                 } catch (error) {
                     console.error('Failed to remove buttons:', error);
