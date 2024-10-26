@@ -57,17 +57,16 @@ client.once('ready', () => {
         return;
     }
 
-    cron.schedule('0 19 * * 0', async () => {
+    cron.schedule('0 19 * * 6', async () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0xFF69B4)
                 .setTitle('🎉 Malam Minggu Telah Tiba!')
                 .setDescription(
-                    '✨ **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! 😘💕\n\n' +
-                    '🚀 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren dengan caramu sendiri! 💪😎\n\n' +
-                    '🤖 **Pro Tip:** Malam Minggu tanpa drama lebih sehat! Jangan lupa, kalian semua luar biasa! 💥🔥'
+                    '💞 **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! Selamat Bucin ... 😘💕\n\n' +
+                    '🤡 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren walau kamu jomblo! 💪😎\n\n'
                 )
-                .setFooter({ text: 'Malam Minggu seru, apapun statusnya!' })
+                .setFooter({ text: 'Selamat Malam Mingguan guys 🎉' })
                 .setTimestamp();
     
             // Mengirimkan tag @Member sebelum embed
@@ -78,7 +77,7 @@ client.once('ready', () => {
         }
     });
 
-    cron.schedule('20 11 * * 5', async () => {
+    cron.schedule('30 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0x1E90FF)
