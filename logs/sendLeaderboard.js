@@ -13,7 +13,6 @@ function loadVoiceTimes() {
             return JSON.parse(data);
         } catch (error) {
             console.error('Error reading voiceTimes.json, attempting to load backup:', error);
-            // Attempt to load from the backup
             if (fs.existsSync(backupFilePath)) {
                 try {
                     const backupData = fs.readFileSync(backupFilePath, 'utf-8');
@@ -39,7 +38,7 @@ function saveVoiceTimes(voiceTimes) {
             Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
         );
         fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4)); // Backup
+        fs.writeFileSync(backupFilePath, JSON.stringify(sortedVoiceTimes, null, 4));
         console.log('voiceTimes.json updated and saved, backup created.');
     } catch (error) {
         console.error('Error saving voiceTimes.json:', error);
@@ -88,6 +87,7 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(page === 1),
                 new ButtonBuilder()
+                    .setCustomId(`page_info_${page}`) // Custom_id untuk informasi halaman
                     .setLabel(`Page ${page} of ${totalPages}`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),
@@ -121,16 +121,17 @@ async function sendLeaderboardPage(client, channel, sortedTimes, page = 1, perPa
                 try {
                     const disabledRow = new ActionRowBuilder().addComponents(
                         new ButtonBuilder()
-                            .setCustomId('previous')
+                            .setCustomId('previous_disabled')
                             .setLabel('⬅️ Previous')
                             .setStyle(ButtonStyle.Primary)
                             .setDisabled(true),
                         new ButtonBuilder()
+                            .setCustomId('page_info_disabled')
                             .setLabel(`Page ${page} of ${totalPages}`)
                             .setStyle(ButtonStyle.Secondary)
                             .setDisabled(true),
                         new ButtonBuilder()
-                            .setCustomId('next')
+                            .setCustomId('next_disabled')
                             .setLabel('Next ➡️')
                             .setStyle(ButtonStyle.Primary)
                             .setDisabled(true)
