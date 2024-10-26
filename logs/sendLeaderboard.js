@@ -110,6 +110,7 @@ async function sendLeaderboard(client) {
 
     if (channel) {
         try {
+            const message = await channel.send({ content: 'Loading leaderboard...' });
             const filter = (interaction) => interaction.isButton();
             const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
