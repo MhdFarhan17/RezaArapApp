@@ -1,32 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
+const { loadVoiceTimes } = require('./voiceTimes');
 const { server1 } = require('../utils/constants');
-
-function loadVoiceTimes() {
-    const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    const backupData = process.env.VOICETIMES_BACKUP || "{}";
-    try {
-        return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath)) : JSON.parse(backupData);
-    } catch (error) {
-        console.error('Error loading voiceTimes:', error);
-        return {};
-    }
-}
-
-function saveVoiceTimes(voiceTimes) {
-    const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    try {
-        const sortedVoiceTimes = Object.fromEntries(
-            Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime)
-        );
-        fs.writeFileSync(filePath, JSON.stringify(sortedVoiceTimes, null, 4));
-        process.env.VOICETIMES_BACKUP = JSON.stringify(sortedVoiceTimes);
-        console.log('voiceTimes.json updated and saved with environment backup.');
-    } catch (error) {
-        console.error('Error saving voiceTimes.json:', error);
-    }
-}
 
 function formatTime(ms) {
     const totalSeconds = Math.floor(ms / 1000);
@@ -60,7 +34,6 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    // Tampilkan tombol hanya jika data lebih dari 10
     let components = [];
     if (sortedTimes.length > perPage) {
         const row = new ActionRowBuilder()
@@ -92,47 +65,30 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
 }
 
 async function sendLeaderboard(client) {
-    const voiceTimes = loadVoiceTimes();
-    const now = Date.now();
-
-    for (const [userId, data] of Object.entries(voiceTimes)) {
-        if (data.joinTime) {
-            const currentSessionTime = now - data.joinTime;
-            voiceTimes[userId].totalTime += currentSessionTime;
-            voiceTimes[userId].joinTime = now;
-        }
-    }
-
-    saveVoiceTimes(voiceTimes);
-
+    const voiceTimes = await loadVoiceTimes();
     const sortedTimes = Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime);
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
     if (channel) {
-        try {
-            const message = await channel.send({ content: 'Loading leaderboard...' });
-            const filter = (interaction) => interaction.isButton();
-            const collector = message.createMessageComponentCollector({ filter, time: 300000 });
+        const filter = (interaction) => interaction.isButton();
+        const message = await channel.send({ embeds: [] });
+        const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
-            collector.on('collect', async (interaction) => {
-                const page = parseInt(interaction.customId.split('_').pop());
-                const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
-                await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
-            });
+        collector.on('collect', async (interaction) => {
+            const page = parseInt(interaction.customId.split('_').pop());
+            const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
+            await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
+        });
 
-            collector.on('end', async () => {
-                try {
-                    // Hapus semua tombol ketika waktu kolektor habis
-                    await message.edit({ components: [] });
-                } catch (error) {
-                    console.error('Failed to remove buttons:', error);
-                }
-            });
+        collector.on('end', async () => {
+            try {
+                await message.edit({ components: [] });
+            } catch (error) {
+                console.error('Failed to remove buttons:', error);
+            }
+        });
 
-            await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
-        } catch (error) {
-            console.error('Error sending leaderboard:', error);
-        }
+        await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
     } else {
         console.log('Leaderboard channel not found.');
     }

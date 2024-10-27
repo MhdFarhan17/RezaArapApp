@@ -5,11 +5,9 @@ const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
+const { resetVoiceTimes } = require('../utils/voiceTimes');
 const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
-const fs = require('fs');
-const path = require('path');
 
-let voiceTimes = {};
 const userCreatedChannels = {};
 const userMessages = {};
 const userWarnings = {};
@@ -18,13 +16,6 @@ const LINK_SPAM_TIMEFRAME = 10000;
 const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 1;
 const MAX_WARNINGS = 1;
-
-// Fungsi untuk mereset data voiceTimes
-function resetVoiceTimes() {
-    const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-    fs.writeFileSync(filePath, JSON.stringify({}, null, 4));
-    console.log('Data Leaderboard VoiceTimes.json telah direset.');
-}
 
 module.exports = {
     name: 'messageCreate',
@@ -49,25 +40,6 @@ module.exports = {
             if (content === 'leaderboard!') {
                 console.log('Leaderboard Terkirim secara manual.');
                 sendLeaderboard(client);
-                return;
-            }
-
-            if (content === 'backupdata!') {
-                process.env.VOICETIMES_BACKUP = JSON.stringify(voiceTimes);
-                channel.send('Data voiceTimes telah di-backup ke environment variable.');
-                return;
-            }
-
-            if (content === 'restoredata!') {
-                const backupData = process.env.VOICETIMES_BACKUP;
-                if (backupData) {
-                    voiceTimes = JSON.parse(backupData);
-                    const filePath = path.join(__dirname, '..', 'logs', 'voiceTimes.json');
-                    fs.writeFileSync(filePath, JSON.stringify(voiceTimes, null, 4));
-                    channel.send('Data voiceTimes telah di-restore dari environment variable.');
-                } else {
-                    channel.send('Tidak ada data backup yang tersedia.');
-                }
                 return;
             }
         }
