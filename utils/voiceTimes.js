@@ -1,4 +1,4 @@
-const pool = require('./db');
+const pool = require('../utils/db');
 
 // Load voice times from the database
 async function loadVoiceTimes() {

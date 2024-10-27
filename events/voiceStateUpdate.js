@@ -1,4 +1,4 @@
-const { loadVoiceTimes, saveVoiceTime } = require('./voiceTimes');
+const { loadVoiceTimes, saveVoiceTime } = require('../utils/voiceTimes');
 const { logVoiceChannelEvent } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
 

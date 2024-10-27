@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { loadVoiceTimes } = require('./voiceTimes');
+const { loadVoiceTimes } = require('../utils/voiceTimes');
 const { server1 } = require('../utils/constants');
 
 function formatTime(ms) {
