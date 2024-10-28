@@ -23,18 +23,11 @@ const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-    const filePath = path.join(eventsPath, file);
-    const event = require(filePath);
+    const event = require(path.join(eventsPath, file));
     if (event.name && event.execute) {
-        try {
-            if (event.once) {
-                client.once(event.name, (...args) => event.execute(...args, client));
-            } else {
-                client.on(event.name, (...args) => event.execute(...args, client));
-            }
-        } catch (error) {
-            console.error(`Error loading event ${file}: ${error.message}`);
-        }
+        event.once
+            ? client.once(event.name, (...args) => event.execute(...args, client))
+            : client.on(event.name, (...args) => event.execute(...args, client));
     } else {
         console.warn(`Event ${file} is missing a valid name or execute function.`);
     }
@@ -44,18 +37,12 @@ client.once('ready', () => {
     console.log('Bot Discord YB sudah ready!');
 
     const guild = client.guilds.cache.get(server1.guildId);
-    if (!guild) {
-        console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
-        return;
-    }
+    if (!guild) return console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
 
-    const allowedChannelId = server1.allowedChannelIds[0];
-    const allowedChannel = guild.channels.cache.get(allowedChannelId);
-
-    if (!allowedChannel) {
-        console.error(`Allowed channel dengan ID ${allowedChannelId} tidak ditemukan!`);
-        return;
-    }
+    cron.schedule('0 0 * * *', async () => {
+        console.log('Sending daily leaderboard...');
+        await sendLeaderboard(client);
+    }, { timezone: "Asia/Jakarta" });
 
     cron.schedule('0 19 * * 6', async () => {
         try {
@@ -95,19 +82,7 @@ client.once('ready', () => {
         }
     });
 
-    console.log('Penjadwalan pesan otomatis hari minggu dan jumat telah disiapkan.');
-});
-
-cron.schedule('0 0 * * *', async () => {
-    try {
-        const currentTime = moment().tz('Asia/Jakarta').format('HH:mm');
-        console.log(`Leaderboard sent at ${currentTime} WIB...`);
-        await sendLeaderboard(client);
-    } catch (error) {
-        console.error(`Failed to send leaderboard: ${error.message}`);
-    }
-}, {
-    timezone: "Asia/Jakarta"
+    console.log('Scheduled weekly notifications and daily leaderboard.');
 });
 
 client.login(token);

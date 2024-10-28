@@ -70,8 +70,8 @@ async function sendLeaderboard(client) {
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
     if (channel) {
+        const message = await channel.send({ content: 'Loading leaderboard...' });
         const filter = (interaction) => interaction.isButton();
-        const message = await channel.send({ embeds: [] });
         const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
         collector.on('collect', async (interaction) => {

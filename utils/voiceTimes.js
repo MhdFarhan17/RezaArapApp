@@ -1,28 +1,31 @@
-const pool = require('../utils/db');
+const mongoose = require('mongoose');
 
-// Load voice times from the database
+// Define the schema
+const voiceTimeSchema = new mongoose.Schema({
+    userId: { type: String, required: true, unique: true },
+    totalTime: { type: Number, default: 0 },
+    joinTime: { type: Number, default: null },
+});
+
+// Create the model
+const VoiceTime = mongoose.model('VoiceTime', voiceTimeSchema);
+
+// Load all voice times from MongoDB
 async function loadVoiceTimes() {
-    const [rows] = await pool.query("SELECT * FROM voiceTimes");
-    const voiceTimes = {};
-    rows.forEach(row => {
-        voiceTimes[row.userId] = { totalTime: row.totalTime, joinTime: row.joinTime };
-    });
-    return voiceTimes;
+    const voiceTimes = await VoiceTime.find();
+    return voiceTimes.reduce((acc, doc) => {
+        acc[doc.userId] = { totalTime: doc.totalTime, joinTime: doc.joinTime };
+        return acc;
+    }, {});
 }
 
-// Save voice time to the database
+// Save or update the user's voice time data in MongoDB
 async function saveVoiceTime(userId, totalTime, joinTime = null) {
-    await pool.query(`
-        INSERT INTO voiceTimes (userId, totalTime, joinTime)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE totalTime = ?, joinTime = ?`,
-        [userId, totalTime, joinTime, totalTime, joinTime]
+    await VoiceTime.updateOne(
+        { userId },
+        { totalTime, joinTime },
+        { upsert: true }
     );
 }
 
-// Reset all voice times (for resetdata! command)
-async function resetVoiceTimes() {
-    await pool.query("DELETE FROM voiceTimes");
-}
-
-module.exports = { loadVoiceTimes, saveVoiceTime, resetVoiceTimes };
+module.exports = { loadVoiceTimes, saveVoiceTime };

@@ -5,7 +5,6 @@ const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
-const { resetVoiceTimes } = require('../utils/voiceTimes');
 const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
 
 const userCreatedChannels = {};
@@ -29,14 +28,8 @@ module.exports = {
 
         if (!serverConfig) return;
 
-        // Perintah untuk leaderboard dan backup
+        // Perintah untuk leaderboard
         if (channel.id === serverConfig.leaderboardChannelId) {
-            if (content === 'resetdata!') {
-                resetVoiceTimes();
-                channel.send('Data Leaderboard Voice telah direset.');
-                return;
-            }
-
             if (content === 'leaderboard!') {
                 console.log('Leaderboard Terkirim secara manual.');
                 sendLeaderboard(client);

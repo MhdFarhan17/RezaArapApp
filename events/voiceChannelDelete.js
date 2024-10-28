@@ -1,20 +1,20 @@
 const constants = require('../utils/constants');
 
 module.exports = {
-  name: 'voiceStateUpdate',
-  async execute(oldState, newState, client) {
-    const channel = oldState.channel;
+    name: 'voiceStateUpdate',
+    async execute(oldState, newState) {
+        const channel = oldState.channel;
 
-    const serverConfig = Object.values(constants).find(config => config.guildId === oldState.guild.id);
-    if (!serverConfig) return;
+        const serverConfig = Object.values(constants).find(config => config.guildId === oldState.guild.id);
+        if (!serverConfig) return;
 
-    if (channel && channel.members.size === 0 && channel.parentId === serverConfig.tempVoiceCategoryId) {
-      setTimeout(() => {
-        if (channel.members.size === 0) {
-          channel.delete().catch(console.error);
-          console.log(`Temporary voice channel '${channel.name}' has been deleted due to inactivity.`);
+        if (channel && channel.members.size === 0 && channel.parentId === serverConfig.tempVoiceCategoryId) {
+            setTimeout(() => {
+                if (channel.members.size === 0) {
+                    channel.delete().catch(console.error);
+                    console.log(`Temporary voice channel '${channel.name}' has been deleted due to inactivity.`);
+                }
+            }, 300000);
         }
-      }, 300000);
-    }
-  },
+    },
 };

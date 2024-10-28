@@ -28,7 +28,7 @@ module.exports = {
         const now = Date.now();
         const isMutedOrDeafened = newState.selfMute || newState.selfDeaf;
 
-        // Member joins a voice channel, starts tracking only if not muted/deafened
+        // When joining a voice channel, start tracking if not muted or deafened
         if (!oldState.channel && newState.channel) {
             if (!isMutedOrDeafened) {
                 voiceTimes[member.id].joinTime = now;
@@ -36,7 +36,7 @@ module.exports = {
             }
             logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, newState.channel.id);
 
-        // Member leaves a voice channel, stop tracking and save session time
+        // When leaving a voice channel, stop tracking and save session time
         } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
             const sessionTime = now - voiceTimes[member.id].joinTime;
             voiceTimes[member.id].totalTime += sessionTime;
@@ -45,7 +45,7 @@ module.exports = {
             console.log(`Stopped tracking for ${member.user.tag}. Session: ${sessionTime / 1000}s`);
             logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, oldState.channel.id, null);
 
-        // Member switches channels, save current session and start new if unmuted/undeafened
+        // When switching channels, end the current session and start a new one if unmuted/undeafened
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             if (voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
@@ -56,7 +56,7 @@ module.exports = {
             voiceTimes[member.id].joinTime = isMutedOrDeafened ? null : now;
             logVoiceChannelEvent(client, guildId, 'Member Switched Voice Channels', member.user.tag, member.user.id, oldState.channel.id, newState.channel.id);
 
-        // Member mutes/deafens, pause tracking
+        // When muting/deafening, pause tracking
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
