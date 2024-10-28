@@ -50,13 +50,46 @@ module.exports = {
         // Perintah createvoice! untuk membuat channel sementara
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             let args = content.split(' ').slice(1);
-            let channelName = args[0] ? args.slice(0, -1).join(' ') : `${author.username}'s Channel`;
-            let maxMembers = parseInt(args[args.length - 1]);
 
-            if (isNaN(maxMembers)) {
-                // Jika argumen terakhir bukan angka, maka maxMembers adalah null dan channelName berisi semua args
-                maxMembers = null;
-                channelName = args.join(' ').trim() || `${author.username}'s Channel`;
+            // Memastikan ada minimal 1 argumen untuk nama channel
+            if (args.length < 1) {
+                return message.reply("Format salah! Gunakan: `[cv! atau createvoice!] [Nama Channel atau NamaChannel] [angka untuk maks anggota, opsional]`.")
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            // Memeriksa apakah argumen terakhir adalah angka untuk batas anggota
+            let maxMembers = parseInt(args[args.length - 1]);
+            if (!isNaN(maxMembers)) {
+                // Jika argumen terakhir adalah angka, gunakan sebagai batas anggota dan gabungkan sisa argumen sebagai nama channel
+                args = args.slice(0, -1);
+            } else {
+                maxMembers = null; // Jika tidak ada angka, tidak ada batasan anggota
+            }
+
+            // Batasan maksimal 3 kata untuk nama channel
+            if (args.length > 3) {
+                return message.reply("Nama channel maksimal hanya boleh terdiri dari 3 kata.")
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            // Mengambil nama channel dan memastikan kata pertama bukan angka
+            const channelName = args.join(' ');
+            if (!isNaN(args[0])) {
+                return message.reply("Nama channel harus dimulai dengan kata, bukan angka.")
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            // Pengecekan duplikasi: memastikan channel dengan nama yang sama belum ada
+            const existingChannel = guild.channels.cache.find(
+                channel => channel.name === channelName && channel.parentId === serverConfig.tempVoiceCategoryId
+            );
+            if (existingChannel) {
+                return message.reply(`Channel dengan nama **${channelName}** sudah ada. Gunakan nama lain.`)
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
             }
 
             try {
@@ -93,6 +126,7 @@ module.exports = {
             }
             return;
         }
+
 
         // Perintah lock! dan unlock!
         if (content.startsWith('lock!') || content.startsWith('unlock!')) {
@@ -150,12 +184,22 @@ module.exports = {
         // Perintah setname!
         if (content.startsWith('setname!')) {
             const voiceChannel = member.voice.channel;
+
+            // Memastikan user dalam channel dan adalah pembuat channel tersebut
             if (!voiceChannel || userCreatedChannels[author.id] !== voiceChannel.id) {
                 return message.reply('Hanya pembuat yang bisa mengubah nama Voice Channel ini.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
+            // Validasi jika channel masih ada di server
+            if (!guild.channels.cache.has(voiceChannel.id)) {
+                return message.reply("Channel ini sudah tidak tersedia atau dihapus.")
+                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                    .catch(console.error);
+            }
+
+            // Mengambil nama baru dari perintah setname!
             const newName = content.split(' ').slice(1).join(' ').trim();
             if (!newName) {
                 return message.reply('Masukkan nama channel yang valid.')
@@ -164,6 +208,7 @@ module.exports = {
             }
 
             try {
+                // Mengedit nama channel dengan mempertahankan kapitalisasi dari input pengguna
                 await voiceChannel.edit({ name: newName });
                 message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`)
                     .catch(console.error);
