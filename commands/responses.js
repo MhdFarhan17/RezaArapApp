@@ -82,27 +82,19 @@ module.exports = {
                 case 'mek':
                     message.channel.send(`Ape lu mak mek mak mek anjink ${message.author}!`).catch(console.error);
                     break;
-                    
                 case 'cape':
                     message.channel.send(`Kalau cape itu istirahat, jangan malah main game terus.`).catch(console.error);
                     break;
-                case 'good job':
-                    message.channel.send(`Terima kasih, ${message.author}! Kamu juga hebat!`).catch(console.error);
-                    break;
-
                 case 'gws':
                     message.channel.send(`Get Well Soon ya Tod!`).catch(console.error);
                     break;
-
                 case 'main':
                     message.channel.send(`Ayo main sih guys, jangan diem-diem bae! @everyone`).catch(console.error);
                     break;
-
                 case 'valo':
                     const valoRoleId = '1236564378585661441';
                     message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
                     break;
-
                 case 'roblox':
                     const robloxRoleId = '1236563915497013318';
                     message.channel.send(`Ayo main Roblox gess <@&${robloxRoleId}>`).catch(console.error);

@@ -72,13 +72,13 @@ client.once('ready', () => {
     cron.schedule('0 19 * * 6', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0xFF69B4)
-                .setTitle('Malam Minggu Telah Tiba!')
+                .setColor(0x05DBF2)
+                .setTitle('🌟Malam Minggu Telah Tiba!🌟')
                 .setDescription(
                     '💞 **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! Selamat Bucin ... 😘💕\n\n' +
                     '🤡 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren walau kamu jomblo! 💪😎\n\n'
                 )
-                .setFooter({ text: 'Selamat Malam Mingguan guys 🎉' })
+                .setFooter({ text: 'Selamat Malam Minggu guys 🥂' })
                 .setTimestamp();
 
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
@@ -92,8 +92,8 @@ client.once('ready', () => {
     cron.schedule('30 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0x1E90FF)
-                .setTitle('🕌 Persiapan Sholat Jumat')
+                .setColor(0x02735E)
+                .setTitle('Persiapan Sholat Jumat 🕌 ')
                 .setDescription(
                     '📢 **Wahai para ikhwan!** Sudah saatnya mempersiapkan diri untuk menunaikan Sholat Jumat. Jangan lupa mandi sunnah, pakai pakaian terbaikmu, wangi-wangian, dan bergegaslah menuju masjid. 🌿\n\n' +
                     '🕋 Sholat Jumat adalah momen penuh keberkahan, mari raih pahala yang berlipat dengan hadir tepat waktu dan mendengarkan khotbah dengan khusyuk. Semoga hari ini membawa banyak kebaikan bagi kita semua. 🤲✨'
