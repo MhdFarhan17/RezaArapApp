@@ -1,3 +1,5 @@
+require('../utils/db'); // Ini menginisialisasi koneksi MongoDB dari db.js
+
 const mongoose = require('mongoose');
 
 // Define the schema

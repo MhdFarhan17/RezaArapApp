@@ -1,5 +1,4 @@
 # Ignore environment configuration
-.env
 
 # Ignore node modules folder
 node_modules/

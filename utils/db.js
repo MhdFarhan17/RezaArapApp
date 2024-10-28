@@ -1,17 +1,17 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 // Menampilkan URI untuk memastikan variabel lingkungan sudah benar
 console.log('MongoDB URI:', process.env.MONGODB_URI);
 
-// Menghubungkan ke MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 30000, // Waktu tunggu untuk memilih server MongoDB (30 detik)
+    serverSelectionTimeoutMS: 10000 // Mengatur waktu tunggu koneksi
 }).then(() => {
-    console.log('MongoDB connected successfully');
+    console.log('MongoDB connected successfully!');
+    process.exit(0);
 }).catch((error) => {
-    console.error('Database connection failed:', error.message);
+    console.error('Failed to connect to MongoDB:', error.message);
+    process.exit(1);
 });
 
 // Event listener untuk memantau status koneksi
