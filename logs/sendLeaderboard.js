@@ -80,13 +80,25 @@ async function sendLeaderboard(client) {
             await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
         });
 
-        collector.on('end', async () => {
+        // Setelah kolektor tombol selesai (dalam event 'end'), kita pastikan pesan masih ada sebelum menghapus tombol
+        collector.on('end', async (collected, reason) => {
             try {
-                await message.edit({ components: [] });
+                // Cek jika pesan masih ada sebelum menghapus komponennya
+                if (message.deletable) {
+                    await message.edit({ components: [] });
+                    console.log('Buttons removed successfully.');
+                } else {
+                    console.log('Message was not found, could not remove buttons.');
+                }
             } catch (error) {
-                console.error('Failed to remove buttons:', error);
+                if (error.code === 10008) {
+                    console.warn('Failed to remove buttons: Message no longer exists.');
+                } else {
+                    console.error('Failed to remove buttons:', error);
+                }
             }
         });
+
 
         await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
     } else {
