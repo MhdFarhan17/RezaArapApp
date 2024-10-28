@@ -70,8 +70,8 @@ async function sendLeaderboard(client) {
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
     if (channel) {
-        const message = await channel.send({ content: 'Loading leaderboard...' });
         const filter = (interaction) => interaction.isButton();
+        const message = await channel.send({ embeds: [] });
         const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
         collector.on('collect', async (interaction) => {
@@ -88,7 +88,7 @@ async function sendLeaderboard(client) {
             }
         });
 
-        await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
+        await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1); // Directly send the leaderboard
     } else {
         console.log('Leaderboard channel not found.');
     }

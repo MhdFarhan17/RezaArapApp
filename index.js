@@ -61,7 +61,7 @@ client.once('ready', () => {
     // Schedule daily leaderboard in the leaderboard channel
     cron.schedule('0 0 * * *', async () => {
         try {
-            console.log('Sending daily leaderboard...');
+            console.log('Sending daily leaderboard at 00.00 WIB ...');
             await sendLeaderboard(client);
         } catch (error) {
             console.error(`Failed to send leaderboard: ${error.message}`);

@@ -50,8 +50,14 @@ module.exports = {
         // Perintah createvoice! untuk membuat channel sementara
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             let args = content.split(' ').slice(1);
-            let channelName = args.join(' ').trim() || `${author.username}'s Channel`;
-            let maxMembers = parseInt(args[1]) || null;
+            let channelName = args[0] ? args.slice(0, -1).join(' ') : `${author.username}'s Channel`;
+            let maxMembers = parseInt(args[args.length - 1]);
+
+            if (isNaN(maxMembers)) {
+                // Jika argumen terakhir bukan angka, maka maxMembers adalah null dan channelName berisi semua args
+                maxMembers = null;
+                channelName = args.join(' ').trim() || `${author.username}'s Channel`;
+            }
 
             try {
                 const voiceChannel = await guild.channels.create({
@@ -168,6 +174,7 @@ module.exports = {
                     .catch(console.error);
             }
         }
+
 
         // Cek pesan spam, link, atau kata terlarang
         if (serverConfig.linkOnlyChannelIds.includes(message.channel.id)) {
