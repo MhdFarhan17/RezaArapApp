@@ -37,13 +37,38 @@ client.once('ready', () => {
     console.log('Bot Discord YB sudah ready!');
 
     const guild = client.guilds.cache.get(server1.guildId);
-    if (!guild) return console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
+    if (!guild) {
+        console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
+        return;
+    }
 
+    // Get allowed channel for announcements
+    const allowedChannelId = server1.allowedChannelIds[0];
+    const allowedChannel = guild.channels.cache.get(allowedChannelId);
+    if (!allowedChannel) {
+        console.error(`Allowed channel dengan ID ${allowedChannelId} tidak ditemukan!`);
+        return;
+    }
+
+    // Get leaderboard channel for sending leaderboard messages
+    const leaderboardChannelId = server1.leaderboardChannelId;
+    const leaderboardChannel = guild.channels.cache.get(leaderboardChannelId);
+    if (!leaderboardChannel) {
+        console.error(`Leaderboard channel dengan ID ${leaderboardChannelId} tidak ditemukan!`);
+        return;
+    }
+
+    // Schedule daily leaderboard in the leaderboard channel
     cron.schedule('0 0 * * *', async () => {
-        console.log('Sending daily leaderboard...');
-        await sendLeaderboard(client);
+        try {
+            console.log('Sending daily leaderboard...');
+            await sendLeaderboard(client);
+        } catch (error) {
+            console.error(`Failed to send leaderboard: ${error.message}`);
+        }
     }, { timezone: "Asia/Jakarta" });
 
+    // Schedule Malam Minggu message in the allowed channel
     cron.schedule('0 19 * * 6', async () => {
         try {
             const embed = new EmbedBuilder()
@@ -63,6 +88,7 @@ client.once('ready', () => {
         }
     });
 
+    // Schedule Friday prayer reminder in the allowed channel
     cron.schedule('30 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
