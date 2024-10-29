@@ -33,7 +33,7 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
         const [userId, { totalTime }] = sortedTimes[i];
         try {
             const user = await client.users.fetch(userId);
-            leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+            leaderboardDescription += `${i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : ''} **${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
         } catch (error) {
             console.error(`Gagal mengambil data user ${userId}:`, error);
             leaderboardDescription += `**${i + 1}. [User not found]** ${formatTime(totalTime)}\n`;
@@ -47,13 +47,13 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    const components = totalPages > 1 ? [
+    const components = totalPages > 1 && !disableButtons ? [
         new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`previous_page_${page}`)
                 .setLabel('⬅️ Previous')
                 .setStyle(ButtonStyle.Primary)
-                .setDisabled(disableButtons || page === 1),
+                .setDisabled(page === 1),
             new ButtonBuilder()
                 .setCustomId(`page_info_${page}`)
                 .setLabel(`Page ${page} of ${totalPages}`)
@@ -63,7 +63,7 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
                 .setCustomId(`next_page_${page}`)
                 .setLabel('Next ➡️')
                 .setStyle(ButtonStyle.Primary)
-                .setDisabled(disableButtons || page === totalPages)
+                .setDisabled(page === totalPages)
         )
     ] : [];
 
@@ -84,20 +84,24 @@ async function sendLeaderboard(client) {
         const filter = (interaction) => interaction.isButton();
         const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 menit
 
+        let currentPage = 1;
+
         collector.on('collect', async (interaction) => {
-            await interaction.deferUpdate(); // Menghindari timeout
+            await interaction.deferUpdate();
 
             const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
 
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
-                await updateLeaderboardEmbed(client, message, sortedTimes, nextPage);
+                currentPage = nextPage; // Simpan halaman terakhir yang dilihat
+                await updateLeaderboardEmbed(client, message, sortedTimes, currentPage);
             }
         });
 
         collector.on('end', async () => {
             try {
-                await updateLeaderboardEmbed(client, message, sortedTimes, 1, true); // Menonaktifkan tombol setelah 5 menit
+                // Menampilkan leaderboard dengan halaman terakhir yang dilihat dan menonaktifkan tombol
+                await updateLeaderboardEmbed(client, message, sortedTimes, currentPage, 10, true);
                 console.log('Tombol dinonaktifkan setelah timeout.');
             } catch (error) {
                 console.error('Error ketika menonaktifkan tombol:', error);
