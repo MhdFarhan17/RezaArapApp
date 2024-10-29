@@ -10,7 +10,6 @@ function formatTime(ms) {
     return `${hours} jam, ${minutes} menit, ${seconds} detik`;
 }
 
-// Fungsi untuk memperbarui waktu aktif bagi pengguna yang masih berada di voice channel
 async function updateActiveSessionTimes(client, voiceTimes) {
     const now = Date.now();
 
@@ -24,7 +23,7 @@ async function updateActiveSessionTimes(client, voiceTimes) {
     }
 }
 
-async function updateLeaderboardEmbed(interaction, client, message, sortedTimes, page = 1, perPage = 10, disableButtons = false) {
+async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, perPage = 10, disableButtons = false) {
     const start = (page - 1) * perPage;
     const end = start + perPage;
     const totalPages = Math.ceil(sortedTimes.length / perPage);
@@ -48,10 +47,8 @@ async function updateLeaderboardEmbed(interaction, client, message, sortedTimes,
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
-    // Hanya tampilkan tombol jika ada lebih dari satu halaman
-    let components = [];
-    if (totalPages > 1) {
-        const row = new ActionRowBuilder().addComponents(
+    const components = totalPages > 1 ? [
+        new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId(`previous_page_${page}`)
                 .setLabel('⬅️ Previous')
@@ -67,18 +64,12 @@ async function updateLeaderboardEmbed(interaction, client, message, sortedTimes,
                 .setLabel('Next ➡️')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disableButtons || page === totalPages)
-        );
-        components = [row];
-    }
+        )
+    ] : [];
 
-    if (interaction) {
-        await interaction.update({ embeds: [embed], components });
-    } else {
-        await message.edit({ embeds: [embed], components });
-    }
+    await message.edit({ embeds: [embed], components });
 }
 
-// Fungsi utama untuk mengirimkan leaderboard
 async function sendLeaderboard(client) {
     let voiceTimes = await loadVoiceTimes();
     await updateActiveSessionTimes(client, voiceTimes);
@@ -87,26 +78,26 @@ async function sendLeaderboard(client) {
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
     if (channel) {
-        const message = await channel.send({ content: 'Leaderboard...' });
-        await updateLeaderboardEmbed(null, client, message, sortedTimes, 1);
+        const message = await channel.send({ content: 'Leaderboard sedang dimuat...' });
+        await updateLeaderboardEmbed(client, message, sortedTimes, 1);
 
         const filter = (interaction) => interaction.isButton();
         const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 menit
 
         collector.on('collect', async (interaction) => {
-            await interaction.deferUpdate();
+            await interaction.deferUpdate(); // Menghindari timeout
 
             const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
 
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
-                await updateLeaderboardEmbed(interaction, client, message, sortedTimes, nextPage);
+                await updateLeaderboardEmbed(client, message, sortedTimes, nextPage);
             }
         });
 
         collector.on('end', async () => {
             try {
-                await updateLeaderboardEmbed(null, client, message, sortedTimes, 1, true); // Menonaktifkan tombol setelah 5 menit
+                await updateLeaderboardEmbed(client, message, sortedTimes, 1, true); // Menonaktifkan tombol setelah 5 menit
                 console.log('Tombol dinonaktifkan setelah timeout.');
             } catch (error) {
                 console.error('Error ketika menonaktifkan tombol:', error);
