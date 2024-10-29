@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { loadVoiceTimes } = require('../utils/voiceTimes');
+const { loadVoiceTimes, saveVoiceTime } = require('../utils/voiceTimes');
 const { server1 } = require('../utils/constants');
 
 function formatTime(ms) {
@@ -8,6 +8,23 @@ function formatTime(ms) {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     return `${hours} jam, ${minutes} menit, ${seconds} detik`;
+}
+
+// Fungsi untuk memperbarui waktu aktif bagi pengguna yang masih berada di voice channel
+async function updateActiveSessionTimes(client, voiceTimes) {
+    const now = Date.now();
+
+    // Loop melalui setiap pengguna di voiceTimes
+    for (const userId in voiceTimes) {
+        const member = await client.guilds.cache.get(server1.guildId).members.fetch(userId).catch(() => null);
+
+        // Jika pengguna ada di voice channel dan memiliki waktu `joinTime`, tambahkan ke `totalTime`
+        if (member && member.voice.channel && voiceTimes[userId].joinTime) {
+            const activeSessionTime = now - voiceTimes[userId].joinTime;
+            voiceTimes[userId].totalTime += activeSessionTime;
+            voiceTimes[userId].joinTime = now; // Reset joinTime agar tidak double-counted
+        }
+    }
 }
 
 async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes, page = 1, perPage = 10) {
@@ -22,7 +39,7 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
             const user = await client.users.fetch(userId);
             leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
         } catch (error) {
-            console.error(`Failed to fetch user ${userId}:`, error);
+            console.error(`Gagal mengambil data user ${userId}:`, error);
             leaderboardDescription += `**${i + 1}. [User not found]** ${formatTime(totalTime)}\n`;
         }
     }
@@ -65,7 +82,12 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
 }
 
 async function sendLeaderboard(client) {
-    const voiceTimes = await loadVoiceTimes();
+    let voiceTimes = await loadVoiceTimes(); // Memuat ulang voiceTimes untuk memastikan data terbaru
+    
+    // Perbarui waktu pengguna yang sedang aktif di voice channel
+    await updateActiveSessionTimes(client, voiceTimes);
+
+    // Mengurutkan pengguna berdasarkan waktu yang diperbarui
     const sortedTimes = Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime);
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
@@ -75,30 +97,26 @@ async function sendLeaderboard(client) {
         const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
         collector.on('collect', async (interaction) => {
-            const page = parseInt(interaction.customId.split('_').pop());
+            const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
-            await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
-        });
 
-        // Setelah kolektor tombol selesai (dalam event 'end'), kita pastikan pesan masih ada sebelum menghapus tombol
-        collector.on('end', async (collected, reason) => {
-            try {
-                // Cek jika pesan masih ada sebelum menghapus komponennya
-                if (message.deletable) {
-                    await message.edit({ components: [] });
-                    console.log('Buttons removed successfully.');
-                } else {
-                    console.log('Message was not found, could not remove buttons.');
-                }
-            } catch (error) {
-                if (error.code === 10008) {
-                    console.warn('Failed to remove buttons: Message no longer exists.');
-                } else {
-                    console.error('Failed to remove buttons:', error);
-                }
+            if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
+                await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
             }
         });
 
+        collector.on('end', async () => {
+            try {
+                if (message && message.deletable) {
+                    await message.edit({ components: [] });
+                    console.log('Buttons removed successfully.');
+                } else {
+                    console.log('Message was not found or already deleted, could not remove buttons.');
+                }
+            } catch (error) {
+                console.error('Error when trying to remove buttons:', error);
+            }
+        });
 
         await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
     } else {

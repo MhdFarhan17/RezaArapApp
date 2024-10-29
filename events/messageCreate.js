@@ -47,6 +47,11 @@ module.exports = {
             }
         }
 
+        // Fungsi untuk mempertahankan kapitalisasi sesuai dengan input asli pengguna
+        function capitalizeWords(words) {
+            return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
         // Perintah createvoice! untuk membuat channel sementara
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             let args = content.split(' ').slice(1);
@@ -75,7 +80,7 @@ module.exports = {
             }
 
             // Mengambil nama channel dan memastikan kata pertama bukan angka
-            const channelName = args.join(' ');
+            const originalChannelName = capitalizeWords(args); // Kapitalisasi sesuai input asli
             if (!isNaN(args[0])) {
                 return message.reply("Nama channel harus dimulai dengan kata, bukan angka.")
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
@@ -84,17 +89,17 @@ module.exports = {
 
             // Pengecekan duplikasi: memastikan channel dengan nama yang sama belum ada
             const existingChannel = guild.channels.cache.find(
-                channel => channel.name === channelName && channel.parentId === serverConfig.tempVoiceCategoryId
+                channel => channel.name === originalChannelName && channel.parentId === serverConfig.tempVoiceCategoryId
             );
             if (existingChannel) {
-                return message.reply(`Channel dengan nama **${channelName}** sudah ada. Gunakan nama lain.`)
+                return message.reply(`Channel dengan nama **${originalChannelName}** sudah ada. Gunakan nama lain.`)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
             try {
                 const voiceChannel = await guild.channels.create({
-                    name: channelName,
+                    name: originalChannelName,
                     type: ChannelType.GuildVoice,
                     parent: serverConfig.tempVoiceCategoryId,
                     userLimit: maxMembers,
@@ -113,7 +118,7 @@ module.exports = {
                 userCreatedChannels[author.id] = voiceChannel.id;
 
                 const limitMsg = maxMembers ? ` dengan batas maksimal ${maxMembers} anggota` : ' tanpa batasan anggota';
-                message.reply(`Voice Channel **${channelName}** berhasil dibuat${limitMsg}! Ayo join ke Voice tersebut.`)
+                message.reply(`Voice Channel **${originalChannelName}** berhasil dibuat${limitMsg}! Ayo join ke Voice tersebut.`)
                     .catch(console.error);
 
                 const member = guild.members.cache.get(author.id);
@@ -126,7 +131,6 @@ module.exports = {
             }
             return;
         }
-
 
         // Perintah lock! dan unlock!
         if (content.startsWith('lock!') || content.startsWith('unlock!')) {
@@ -181,6 +185,11 @@ module.exports = {
             return;
         }
 
+        // Fungsi untuk mempertahankan kapitalisasi sesuai dengan input asli pengguna
+        function capitalizeWords(words) {
+            return words.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
         // Perintah setname!
         if (content.startsWith('setname!')) {
             const voiceChannel = member.voice.channel;
@@ -200,12 +209,15 @@ module.exports = {
             }
 
             // Mengambil nama baru dari perintah setname!
-            const newName = content.split(' ').slice(1).join(' ').trim();
-            if (!newName) {
+            const newNameInput = content.split(' ').slice(1).join(' ').trim();
+            if (!newNameInput) {
                 return message.reply('Masukkan nama channel yang valid.')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
+
+            // Menggunakan fungsi capitalizeWords untuk mempertahankan kapitalisasi asli
+            const newName = capitalizeWords(newNameInput);
 
             try {
                 // Mengedit nama channel dengan mempertahankan kapitalisasi dari input pengguna
