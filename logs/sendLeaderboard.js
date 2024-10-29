@@ -24,7 +24,7 @@ async function updateActiveSessionTimes(client, voiceTimes) {
     }
 }
 
-async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes, page = 1, perPage = 10, disableButtons = false) {
+async function updateLeaderboardEmbed(interaction, client, message, sortedTimes, page = 1, perPage = 10, disableButtons = false) {
     const start = (page - 1) * perPage;
     const end = start + perPage;
     const totalPages = Math.ceil(sortedTimes.length / perPage);
@@ -48,36 +48,37 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
         .setFooter({ text: 'Leaderboard direset setiap bulan.' })
         .setTimestamp();
 
+    // Hanya tampilkan tombol jika ada lebih dari satu halaman
     let components = [];
-    if (sortedTimes.length > perPage) {
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`previous_page_${page}`)
-                    .setLabel('⬅️ Previous')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(disableButtons || page === 1),
-                new ButtonBuilder()
-                    .setCustomId(`page_info_${page}`)
-                    .setLabel(`Page ${page} of ${totalPages}`)
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setCustomId(`next_page_${page}`)
-                    .setLabel('Next ➡️')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(disableButtons || page === totalPages)
-            );
+    if (totalPages > 1) {
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`previous_page_${page}`)
+                .setLabel('⬅️ Previous')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(disableButtons || page === 1),
+            new ButtonBuilder()
+                .setCustomId(`page_info_${page}`)
+                .setLabel(`Page ${page} of ${totalPages}`)
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(true),
+            new ButtonBuilder()
+                .setCustomId(`next_page_${page}`)
+                .setLabel('Next ➡️')
+                .setStyle(ButtonStyle.Primary)
+                .setDisabled(disableButtons || page === totalPages)
+        );
         components = [row];
     }
 
     if (interaction) {
         await interaction.update({ embeds: [embed], components });
     } else {
-        await channel.send({ embeds: [embed], components });
+        await message.edit({ embeds: [embed], components });
     }
 }
 
+// Fungsi utama untuk mengirimkan leaderboard
 async function sendLeaderboard(client) {
     let voiceTimes = await loadVoiceTimes();
     await updateActiveSessionTimes(client, voiceTimes);
@@ -87,33 +88,32 @@ async function sendLeaderboard(client) {
 
     if (channel) {
         const message = await channel.send({ content: 'Leaderboard...' });
+        await updateLeaderboardEmbed(null, client, message, sortedTimes, 1);
+
         const filter = (interaction) => interaction.isButton();
-        const collector = message.createMessageComponentCollector({ filter, time: 300000 });
+        const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 menit
 
         collector.on('collect', async (interaction) => {
             await interaction.deferUpdate();
-        
+
             const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
-        
+
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
-                await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
+                await updateLeaderboardEmbed(interaction, client, message, sortedTimes, nextPage);
             }
         });
 
-        // Setelah kolektor berakhir, nonaktifkan tombol alih-alih menghapusnya
         collector.on('end', async () => {
             try {
-                await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1, true); // Disable all buttons
-                console.log('Buttons disabled after timeout.');
+                await updateLeaderboardEmbed(null, client, message, sortedTimes, 1, true); // Menonaktifkan tombol setelah 5 menit
+                console.log('Tombol dinonaktifkan setelah timeout.');
             } catch (error) {
-                console.error('Error when trying to disable buttons:', error);
+                console.error('Error ketika menonaktifkan tombol:', error);
             }
         });
-
-        await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1);
     } else {
-        console.log('Leaderboard channel not found.');
+        console.log('Leaderboard channel tidak ditemukan.');
     }
 }
 
