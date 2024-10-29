@@ -3,11 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
-const moment = require('moment-timezone');
+const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
 require('dotenv').config();
 
 const token = process.env.DISCORD_TOKEN;
 const { server1 } = require('./utils/constants');
+
+if (!token) {
+    console.error('Bot token tidak ditemukan! Pastikan DISCORD_TOKEN sudah diatur di file .env');
+    process.exit(1);
+}
 
 const client = new Client({
     intents: [
@@ -19,6 +24,7 @@ const client = new Client({
     ]
 });
 
+// Load event files
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -33,7 +39,7 @@ for (const file of eventFiles) {
     }
 }
 
-client.once('ready', () => {
+client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
 
     const guild = client.guilds.cache.get(server1.guildId);
@@ -41,6 +47,9 @@ client.once('ready', () => {
         console.error(`Guild dengan ID ${server1.guildId} tidak ditemukan!`);
         return;
     }
+
+    // Inisialisasi voice times untuk member yang sudah aktif di voice channel saat bot mulai
+    await initializeVoiceTimes(client);
 
     // Get allowed channel for announcements
     const allowedChannelId = server1.allowedChannelIds[0];
