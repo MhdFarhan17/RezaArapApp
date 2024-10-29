@@ -16,6 +16,16 @@ const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 1;
 const MAX_WARNINGS = 1;
 
+function capitalizeWords(words) {
+    if (Array.isArray(words)) {
+        words = words.join(' ');
+    }
+    if (typeof words !== 'string') {
+        return '';
+    }
+    return words.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
@@ -47,47 +57,36 @@ module.exports = {
             }
         }
 
-        // Fungsi untuk mempertahankan kapitalisasi sesuai dengan input asli pengguna
-        function capitalizeWords(words) {
-            return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        }
-
         // Perintah createvoice! untuk membuat channel sementara
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             let args = content.split(' ').slice(1);
 
-            // Memastikan ada minimal 1 argumen untuk nama channel
             if (args.length < 1) {
                 return message.reply("Format salah! Gunakan: `[cv! atau createvoice!] [Nama Channel atau NamaChannel] [angka untuk maks anggota, opsional]`.")
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
-            // Memeriksa apakah argumen terakhir adalah angka untuk batas anggota
             let maxMembers = parseInt(args[args.length - 1]);
             if (!isNaN(maxMembers)) {
-                // Jika argumen terakhir adalah angka, gunakan sebagai batas anggota dan gabungkan sisa argumen sebagai nama channel
                 args = args.slice(0, -1);
             } else {
-                maxMembers = null; // Jika tidak ada angka, tidak ada batasan anggota
+                maxMembers = null;
             }
 
-            // Batasan maksimal 3 kata untuk nama channel
             if (args.length > 3) {
                 return message.reply("Nama channel maksimal hanya boleh terdiri dari 3 kata.")
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
-            // Mengambil nama channel dan memastikan kata pertama bukan angka
-            const originalChannelName = capitalizeWords(args); // Kapitalisasi sesuai input asli
+            const originalChannelName = capitalizeWords(args);
             if (!isNaN(args[0])) {
                 return message.reply("Nama channel harus dimulai dengan kata, bukan angka.")
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
             }
 
-            // Pengecekan duplikasi: memastikan channel dengan nama yang sama belum ada
             const existingChannel = guild.channels.cache.find(
                 channel => channel.name === originalChannelName && channel.parentId === serverConfig.tempVoiceCategoryId
             );
@@ -183,11 +182,6 @@ module.exports = {
                     .catch(console.error);
             }
             return;
-        }
-
-        // Fungsi untuk mempertahankan kapitalisasi sesuai dengan input asli pengguna
-        function capitalizeWords(words) {
-            return words.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         }
 
         // Perintah setname!
