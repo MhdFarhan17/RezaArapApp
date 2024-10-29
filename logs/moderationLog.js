@@ -13,7 +13,7 @@ module.exports = {
         const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
         if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
 
-        const color = action.includes("left") || action.includes("leave") || action.includes("Member Left Voice Channel") ? Colors.Red : Colors.Green;
+        const color = action.includes("Member Left Voice Channel") || action.includes("leave") || action.includes("left") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
                             : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';

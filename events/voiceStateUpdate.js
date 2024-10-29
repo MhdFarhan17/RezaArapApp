@@ -5,11 +5,30 @@ const { server1, server2 } = require('../utils/constants');
 let voiceTimes = {};
 const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
 
-// Load initial voice times from the database
-async function initializeVoiceTimes() {
+// Load initial voice times from the database and check active members in voice channels
+async function initializeVoiceTimes(client) {
     voiceTimes = await loadVoiceTimes();
+    const guild = client.guilds.cache.get(server1.guildId) || client.guilds.cache.get(server2.guildId);
+
+    // Iterate over each voice channel in the guild to check for active members
+    guild.channels.cache.filter(channel => channel.type === 'GUILD_VOICE').forEach(voiceChannel => {
+        voiceChannel.members.forEach(member => {
+            if (excludedBots.includes(member.user.username)) return;
+
+            // Start tracking for active members on bot restart
+            if (!voiceTimes[member.id]) {
+                voiceTimes[member.id] = { totalTime: 0 };
+            }
+
+            const isMutedOrDeafened = member.voice.selfMute || member.voice.selfDeaf;
+            if (!isMutedOrDeafened) {
+                // Start timing if not muted or deafened
+                voiceTimes[member.id].joinTime = Date.now();
+                console.log(`Resumed tracking for ${member.user.tag} on bot restart.`);
+            }
+        });
+    });
 }
-initializeVoiceTimes();
 
 module.exports = {
     name: 'voiceStateUpdate',
@@ -71,3 +90,6 @@ module.exports = {
         }
     }
 };
+
+// Initialize voice times and active sessions on bot start
+initializeVoiceTimes(client).catch(console.error);
