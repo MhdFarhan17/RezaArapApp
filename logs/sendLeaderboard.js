@@ -33,7 +33,7 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
         const [userId, { totalTime }] = sortedTimes[i];
         try {
             const user = await client.users.fetch(userId);
-            leaderboardDescription += `${i + 1 === 1 ? '🥇' : i + 1 === 2 ? '🥈' : i + 1 === 3 ? '🥉' : ''} **${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
+            leaderboardDescription += `**${i + 1}. ${user.tag}** ${formatTime(totalTime)}\n`;
         } catch (error) {
             console.error(`Gagal mengambil data user ${userId}:`, error);
             leaderboardDescription += `**${i + 1}. [User not found]** ${formatTime(totalTime)}\n`;
