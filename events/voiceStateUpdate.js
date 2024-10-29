@@ -85,7 +85,7 @@ module.exports = {
                 console.log(`Resumed tracking for ${member.user.tag}`);
             }
         }
+    },
 
-        initializeVoiceTimes
-    }
+    initializeVoiceTimes
 };
