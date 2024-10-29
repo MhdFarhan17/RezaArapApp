@@ -97,9 +97,11 @@ async function sendLeaderboard(client) {
         const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
         collector.on('collect', async (interaction) => {
+            await interaction.deferUpdate(); // Menunda interaksi untuk menghindari timeout
+        
             const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
-
+        
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
                 await updateLeaderboardEmbed(interaction, client, channel, sortedTimes, nextPage);
             }
