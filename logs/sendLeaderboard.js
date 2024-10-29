@@ -14,20 +14,17 @@ function formatTime(ms) {
 async function updateActiveSessionTimes(client, voiceTimes) {
     const now = Date.now();
 
-    // Loop melalui setiap pengguna di voiceTimes
     for (const userId in voiceTimes) {
         const member = await client.guilds.cache.get(server1.guildId).members.fetch(userId).catch(() => null);
-
-        // Jika pengguna ada di voice channel dan memiliki waktu `joinTime`, tambahkan ke `totalTime`
         if (member && member.voice.channel && voiceTimes[userId].joinTime) {
             const activeSessionTime = now - voiceTimes[userId].joinTime;
             voiceTimes[userId].totalTime += activeSessionTime;
-            voiceTimes[userId].joinTime = now; // Reset joinTime agar tidak double-counted
+            voiceTimes[userId].joinTime = now;
         }
     }
 }
 
-async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes, page = 1, perPage = 10) {
+async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes, page = 1, perPage = 10, disableButtons = false) {
     const start = (page - 1) * perPage;
     const end = start + perPage;
     const totalPages = Math.ceil(sortedTimes.length / perPage);
@@ -59,7 +56,7 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
                     .setCustomId(`previous_page_${page}`)
                     .setLabel('⬅️ Previous')
                     .setStyle(ButtonStyle.Primary)
-                    .setDisabled(page === 1),
+                    .setDisabled(disableButtons || page === 1),
                 new ButtonBuilder()
                     .setCustomId(`page_info_${page}`)
                     .setLabel(`Page ${page} of ${totalPages}`)
@@ -69,7 +66,7 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
                     .setCustomId(`next_page_${page}`)
                     .setLabel('Next ➡️')
                     .setStyle(ButtonStyle.Primary)
-                    .setDisabled(page === totalPages)
+                    .setDisabled(disableButtons || page === totalPages)
             );
         components = [row];
     }
@@ -82,12 +79,9 @@ async function updateLeaderboardEmbed(interaction, client, channel, sortedTimes,
 }
 
 async function sendLeaderboard(client) {
-    let voiceTimes = await loadVoiceTimes(); // Memuat ulang voiceTimes untuk memastikan data terbaru
-    
-    // Perbarui waktu pengguna yang sedang aktif di voice channel
+    let voiceTimes = await loadVoiceTimes();
     await updateActiveSessionTimes(client, voiceTimes);
 
-    // Mengurutkan pengguna berdasarkan waktu yang diperbarui
     const sortedTimes = Object.entries(voiceTimes).sort(([, a], [, b]) => b.totalTime - a.totalTime);
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
@@ -97,7 +91,7 @@ async function sendLeaderboard(client) {
         const collector = message.createMessageComponentCollector({ filter, time: 300000 });
 
         collector.on('collect', async (interaction) => {
-            await interaction.deferUpdate(); // Menunda interaksi untuk menghindari timeout
+            await interaction.deferUpdate();
         
             const page = parseInt(interaction.customId.split('_')[2]);
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
@@ -107,16 +101,13 @@ async function sendLeaderboard(client) {
             }
         });
 
+        // Setelah kolektor berakhir, nonaktifkan tombol alih-alih menghapusnya
         collector.on('end', async () => {
             try {
-                if (message && message.deletable) {
-                    await message.edit({ components: [] });
-                    console.log('Buttons removed successfully.');
-                } else {
-                    console.log('Message was not found or already deleted, could not remove buttons.');
-                }
+                await updateLeaderboardEmbed(null, client, channel, sortedTimes, 1, true); // Disable all buttons
+                console.log('Buttons disabled after timeout.');
             } catch (error) {
-                console.error('Error when trying to remove buttons:', error);
+                console.error('Error when trying to disable buttons:', error);
             }
         });
 
