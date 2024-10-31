@@ -78,7 +78,7 @@ async function sendLeaderboard(client) {
     const channel = client.channels.cache.get(server1.leaderboardChannelId);
 
     if (channel) {
-        const message = await channel.send({ content: 'Leaderboard sedang dimuat...' });
+        const message = await channel.send({ content: 'Leaderboard Terkirim...' });
         await updateLeaderboardEmbed(client, message, sortedTimes, 1);
 
         const filter = (interaction) => interaction.isButton();

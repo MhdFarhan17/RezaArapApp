@@ -50,7 +50,6 @@ module.exports = {
         // Hanya izinkan perintah tertentu di commandChannel
         if (channel.id === serverConfig.commandChannelId) {
             if (!['cv!', 'createvoice!', 'lock!', 'unlock!', 'setlimit!', 'setname!'].some(cmd => content.startsWith(cmd))) {
-                await message.delete().catch(console.error);
                 return message.reply('Channel ini hanya untuk perintah khusus: `createvoice!`, `lock!`, `unlock!`, `setlimit!`, dan `setname!`')
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);

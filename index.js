@@ -81,13 +81,15 @@ client.once('ready', async () => {
     cron.schedule('0 19 * * 6', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0x05DBF2)
+                .setColor(0x5bc6ff)
                 .setTitle('🌟Malam Minggu Telah Tiba!🌟')
                 .setDescription(
-                    '💞 **Yang udah punya pacar**, yuk keluar dan rayakan cinta kalian! Jangan cuma ngechat, ajak dia jalan atau nonton bareng! Selamat Bucin ... 😘💕\n\n' +
-                    '🤡 **Yang masih jomblo?** Jangan sedih, Malam Minggu bukan hanya untuk pasangan! Ayo main game, hangout bareng teman-teman Discord kita, atau nikmati keseruan malam sendiri. Kamu keren walau kamu jomblo! 💪😎\n\n'
+                    '**Udah Punya Pacar? 💖**\n' +
+                    'Ayo, manfaatkan momen ini untuk membuatnya tersenyum! Nggak cuma nge-chat doang, ajak si doi jalan, nonton bareng, atau makan malam romantis. Biar makin lengket dan makin bucin! 😘💕\n\n' +
+                    '**Masih Jomblo? 🤡**\n' +
+                    'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord kita! Main game, ngobrol seru, atau nikmati kesendirian dengan gaya. Kamu keren meski jomblo, bro! 💪😎\n\n'
                 )
-                .setFooter({ text: 'Selamat Malam Minggu guys 🥂' })
+                .setFooter({ text: 'Selamat Malam Minggu!🎉' })
                 .setTimestamp();
 
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
@@ -101,7 +103,7 @@ client.once('ready', async () => {
     cron.schedule('30 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
-                .setColor(0x02735E)
+                .setColor(0x06FC04)
                 .setTitle('Persiapan Sholat Jumat 🕌 ')
                 .setDescription(
                     '📢 **Wahai para ikhwan!** Sudah saatnya mempersiapkan diri untuk menunaikan Sholat Jumat. Jangan lupa mandi sunnah, pakai pakaian terbaikmu, wangi-wangian, dan bergegaslah menuju masjid. 🌿\n\n' +
