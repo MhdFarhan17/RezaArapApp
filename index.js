@@ -87,7 +87,7 @@ client.once('ready', async () => {
                     '**Udah Punya Pacar? 💖**\n' +
                     'Ayo, manfaatkan momen ini untuk membuatnya tersenyum! Nggak cuma nge-chat doang, ajak si doi jalan, nonton bareng, atau makan malam romantis. Biar makin lengket dan makin bucin! 😘💕\n\n' +
                     '**Masih Jomblo? 🤡**\n' +
-                    'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord kita! Main game, ngobrol seru, atau nikmati kesendirian dengan gaya. Kamu keren meski jomblo, bro! 💪😎\n\n'
+                    'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord GITGUD! Main game, ngobrol seru, atau nikmati literatur sendirian. Kamu keren meski jomblo, bro! 💪😎\n\n'
                 )
                 .setFooter({ text: 'Selamat Malam Minggu!🎉' })
                 .setTimestamp();

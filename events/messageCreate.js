@@ -35,9 +35,28 @@ module.exports = {
         const { guild, author, channel, member } = message;
         const serverConfig = guild.id === server1.guildId ? server1 : server2;
         const now = Date.now();
+        const shareLinkChannelId = "1303005047864692878"; // ID of the "Share-Link" channel
+        const allowedChannelId = serverConfig.allowedChannelIds[0]; // Retrieves the allowed channel ID from constants
+        const linkRegex = /(https?:\/\/[^\s]+)/g; // Basic link regex pattern
 
         if (!serverConfig) return;
 
+        // Check if the message contains a link and is sent in the specified allowed channel
+        if (channel.id === allowedChannelId && linkRegex.test(content)) {
+            // Delete the message
+            await message.delete().catch(console.error);
+
+            // Send warning message tagging the "Share-Link" channel
+            const warningMessage = `Gak boleh kirim link disini bro 🙏, kalau mau kirim link silahkan ke <#${shareLinkChannelId}>`;
+            message.channel.send(warningMessage)
+                .then(sentMessage => setTimeout(() => sentMessage.delete().catch(console.error), 1800000))
+                .catch(console.error);
+
+            return;
+        }
+
+        // Existing functionality here (preserved without changes)
+        
         // Perintah untuk leaderboard
         if (channel.id === serverConfig.leaderboardChannelId) {
             if (content === 'leaderboard!') {
@@ -50,9 +69,13 @@ module.exports = {
         // Hanya izinkan perintah tertentu di commandChannel
         if (channel.id === serverConfig.commandChannelId) {
             if (!['cv!', 'createvoice!', 'lock!', 'unlock!', 'setlimit!', 'setname!'].some(cmd => content.startsWith(cmd))) {
-                return message.reply('Channel ini hanya untuk perintah khusus: `createvoice!`, `lock!`, `unlock!`, `setlimit!`, dan `setname!`')
-                    .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
+                message.delete().catch(console.error);
+
+                message.channel.send('Channel ini hanya untuk perintah khusus: `createvoice!`, `lock!`, `unlock!`, `setlimit!`, dan `setname!`')
+                    .then(sentMessage => setTimeout(() => sentMessage.delete().catch(console.error), 60000))
                     .catch(console.error);
+
+                return;
             }
         }
 

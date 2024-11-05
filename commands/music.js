@@ -1,4 +1,4 @@
-const { logModerationAction } = require('../logs/moderationLog');
+const { logMessageDelete } = require('../logs/moderationLog');
 
 module.exports = {
     handleMusicRequest(client, message) {
@@ -12,7 +12,7 @@ module.exports = {
                 message.channel.send(`${message.author}, di channel ini hanya diperbolehkan mengirim link YouTube, Spotify, atau menggunakan perintah musik yang valid.`)
                     .then(sentMessage => setTimeout(() => sentMessage.delete(), 60000))
                     .catch(console.error);
-                logModerationAction(client, message.guild.id, 'Penghapusan Pesan di Channel Request Musik', message.author.tag, message.author.id, message.channel.name, content);
+                logMessageDelete(client, message.guild.id, 'Penghapusan Pesan di Channel Request Musik', message.author.tag, message.author.id, message.channel.name, content);
             }).catch(console.error);
         }
     }

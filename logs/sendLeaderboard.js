@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { loadVoiceTimes, saveVoiceTime } = require('../utils/voiceTimes');
+const { loadVoiceTimes } = require('../utils/voiceTimes');
 const { server1 } = require('../utils/constants');
 
 function formatTime(ms) {
@@ -44,7 +44,7 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
         .setTitle('𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
-        .setFooter({ text: 'Leaderboard direset setiap bulan.' })
+        .setFooter({ text: `Page ${page} of ${totalPages} | Leaderboard direset setiap bulan.` })
         .setTimestamp();
 
     const components = totalPages > 1 && !disableButtons ? [
@@ -54,11 +54,6 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
                 .setLabel('⬅️ Previous')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(page === 1),
-            new ButtonBuilder()
-                .setCustomId(`page_info_${page}`)
-                .setLabel(`Page ${page} of ${totalPages}`)
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(true),
             new ButtonBuilder()
                 .setCustomId(`next_page_${page}`)
                 .setLabel('Next ➡️')
@@ -82,7 +77,7 @@ async function sendLeaderboard(client) {
         await updateLeaderboardEmbed(client, message, sortedTimes, 1);
 
         const filter = (interaction) => interaction.isButton();
-        const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 menit
+        const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 minutes
 
         let currentPage = 1;
 
@@ -93,22 +88,22 @@ async function sendLeaderboard(client) {
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
 
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
-                currentPage = nextPage; // Simpan halaman terakhir yang dilihat
+                currentPage = nextPage; // Save the last viewed page
                 await updateLeaderboardEmbed(client, message, sortedTimes, currentPage);
             }
         });
 
         collector.on('end', async () => {
             try {
-                // Menampilkan leaderboard dengan halaman terakhir yang dilihat dan menonaktifkan tombol
+                // Display the leaderboard with the last viewed page and disable buttons
                 await updateLeaderboardEmbed(client, message, sortedTimes, currentPage, 10, true);
-                console.log('Tombol dinonaktifkan setelah timeout.');
+                console.log('Buttons disabled after timeout.');
             } catch (error) {
-                console.error('Error ketika menonaktifkan tombol:', error);
+                console.error('Error disabling buttons:', error);
             }
         });
     } else {
-        console.log('Leaderboard channel tidak ditemukan.');
+        console.log('Leaderboard channel not found.');
     }
 }
 
