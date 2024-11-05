@@ -1,22 +1,29 @@
 const { EmbedBuilder, Colors } = require('discord.js');
 const { server1, server2 } = require('../utils/constants');
 
+// Fungsi untuk mendapatkan konfigurasi server berdasarkan guild ID
 function getServerConfig(guildId) {
     return guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 }
 
+// Fungsi utama untuk mengirim log ke channel yang ditentukan
+function sendLog(client, guildId, embed) {
+    const serverConfig = getServerConfig(guildId);
+    if (!serverConfig) return console.error(`Server config for guildId ${guildId} not found.`);
+    
+    const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
+    if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
+    
+    logChannel.send({ embeds: [embed] }).catch(err => console.error(`Failed to send log: ${err.message}`));
+}
+
 module.exports = {
+    // Log untuk aktivitas voice channel
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelIdFrom, channelIdTo = null) {
-        const serverConfig = getServerConfig(guildId);
-        if (!serverConfig) return console.error(`Server config for guildId ${guildId} not found.`);
-
-        const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
-        if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
-
-        const color = action.includes("Member Left Voice Channel") || action.includes("leave") || action.includes("left") ? Colors.Red : Colors.Green;
+        const color = action.includes("left") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
-                            : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
+                        : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
 
         const embed = new EmbedBuilder()
             .setColor(color)
@@ -29,16 +36,11 @@ module.exports = {
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        logChannel.send({ embeds: [embed] }).catch(err => console.error(`Failed to send log: ${err.message}`));
+        sendLog(client, guildId, embed);
     },
 
+    // Log untuk penghapusan pesan
     logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
-        const serverConfig = getServerConfig(guildId);
-        if (!serverConfig) return console.error(`Server config for guildId ${guildId} not found.`);
-
-        const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
-        if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
-
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('🗑️ Message Deleted')
@@ -50,16 +52,11 @@ module.exports = {
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        logChannel.send({ embeds: [embed] }).catch(err => console.error(`Failed to send log: ${err.message}`));
+        sendLog(client, guildId, embed);
     },
 
+    // Log untuk pengeditan pesan
     logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
-        const serverConfig = getServerConfig(guildId);
-        if (!serverConfig) return console.error(`Server config for guildId ${guildId} not found.`);
-
-        const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
-        if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
-
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
@@ -72,6 +69,66 @@ module.exports = {
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
 
-        logChannel.send({ embeds: [embed] }).catch(err => console.error(`Failed to send log: ${err.message}`));
+        sendLog(client, guildId, embed);
+    },
+
+    // Log untuk anggota yang bergabung
+    logMemberJoin(client, guildId, userTag, userId) {
+        const embed = new EmbedBuilder()
+            .setColor(Colors.Green)
+            .setTitle('✅ Member Joined')
+            .addFields(
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '🔍 **Username**', value: userTag, inline: false }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
+            .setTimestamp();
+
+        sendLog(client, guildId, embed);
+    },
+
+    // Log untuk anggota yang keluar
+    logMemberLeave(client, guildId, userTag, userId) {
+        const embed = new EmbedBuilder()
+            .setColor(Colors.Red)
+            .setTitle('❌ Member Left')
+            .addFields(
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '🔍 **Username**', value: userTag, inline: false }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
+            .setTimestamp();
+
+        sendLog(client, guildId, embed);
+    },
+
+    // Log untuk perubahan role pada anggota
+    logRoleChange(client, guildId, userTag, userId, roleName, action) {
+        const embed = new EmbedBuilder()
+            .setColor(action === 'Added' ? Colors.Green : Colors.Red)
+            .setTitle(`🔧 Role ${action}`)
+            .addFields(
+                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '🏷️ **Role**', value: roleName, inline: false }
+            )
+            .setFooter({ text: `User ID: ${userId}` })
+            .setTimestamp();
+
+        sendLog(client, guildId, embed);
+    },
+
+    // Log untuk perubahan pada channel
+    logChannelChange(client, guildId, action, channelName, channelId) {
+        const embed = new EmbedBuilder()
+            .setColor(Colors.Blue)
+            .setTitle(`📁 Channel ${action}`)
+            .addFields(
+                { name: '🏷️ **Channel**', value: `<#${channelId}>`, inline: false },
+                { name: '🛠️ **Action**', value: action, inline: false }
+            )
+            .setFooter({ text: `Channel ID: ${channelId}` })
+            .setTimestamp();
+
+        sendLog(client, guildId, embed);
     }
 };

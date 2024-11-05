@@ -9,7 +9,8 @@ module.exports = {
         moderationLogChannelId: '1294689208635752541',
         antiRaidRoleId: ['1290267440164634665'],
         tempVoiceCategoryId: '1291854096646541364',
-        commandChannelId: '1291829623423762474'
+        commandChannelId: '1291829623423762474',
+        shareLinkChannelId: '1303005047864692878'
     },
     // Konfigurasi untuk Server 2
     server2: {
@@ -20,7 +21,8 @@ module.exports = {
         moderationLogChannelId: '1290061841543991296',
         antiRaidRoleId: ['1288601588327387146'],
         tempVoiceCategoryId: '1291484735763251241',
-        commandChannelId: '1291481116716433462'
+        commandChannelId: '1291481116716433462',
+        shareLinkChannelId: '1288615004714565652'
     },
     youtubeRegex: /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/,
     spotifyRegex: /https?:\/\/(open\.spotify\.com)\/.+/,

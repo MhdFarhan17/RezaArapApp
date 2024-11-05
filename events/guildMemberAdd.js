@@ -1,5 +1,5 @@
 const { server1, server2 } = require('../utils/constants');
-const { logModerationAction } = require('../logs/moderationLog');
+const { logMemberJoin, logRoleChange } = require('../logs/moderationLog'); // Import fungsi log
 
 const joinTimestamps = [];
 
@@ -16,6 +16,9 @@ module.exports = {
 
         const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
+        // Log anggota yang bergabung
+        logMemberJoin(client, guildId, member.user.tag, member.user.id);
+
         joinTimestamps.push(Date.now());
 
         const recentJoins = joinTimestamps.filter(timestamp => Date.now() - timestamp < 60000);
@@ -24,7 +27,7 @@ module.exports = {
             member.roles.add(antiRaidRoleId)
                 .then(() => {
                     console.log(`${member.user.tag} diberikan role Anti-Raid.`);
-                    logModerationAction(client, guildId, 'Anti-Raid Role Assigned', member.user.tag, member.user.id, 'N/A');
+                    logRoleChange(client, guildId, member.user.tag, member.user.id, 'Anti-Raid', 'Added');
                 })
                 .catch(console.error);
         }
@@ -35,4 +38,3 @@ module.exports = {
         }
     }
 };
-

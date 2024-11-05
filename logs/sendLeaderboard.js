@@ -44,7 +44,7 @@ async function updateLeaderboardEmbed(client, message, sortedTimes, page = 1, pe
         .setTitle('𝐋𝐞𝐚𝐝𝐞𝐫𝐛𝐨𝐚𝐫𝐝 𝐓𝐞𝐫𝐥𝐚𝐦𝐚 𝐝𝐢 𝐕𝐨𝐢𝐜𝐞-𝐂𝐡𝐚𝐧𝐧𝐞𝐥 𝐆𝐈𝐓𝐆𝐔𝐃')
         .setDescription(leaderboardDescription || 'Tidak ada data yang tersedia.')
         .setColor(0x1abc9c)
-        .setFooter({ text: `Page ${page} of ${totalPages} | Leaderboard direset setiap bulan.` })
+        .setFooter({ text: `Page ${page} of ${totalPages} | Reset setiap bulan` })
         .setTimestamp();
 
     const components = totalPages > 1 && !disableButtons ? [

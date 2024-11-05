@@ -4,6 +4,7 @@ const path = require('path');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
+const { logMemberJoin, logMemberLeave } = require('./logs/moderationLog'); // Import fungsi log
 require('dotenv').config();
 
 const token = process.env.DISCORD_TOKEN;
@@ -38,6 +39,16 @@ for (const file of eventFiles) {
         console.warn(`Event ${file} is missing a valid name or execute function.`);
     }
 }
+
+// Event untuk log anggota baru
+client.on('guildMemberAdd', member => {
+    logMemberJoin(client, member.guild.id, member.user.tag, member.user.id);
+});
+
+// Event untuk log anggota yang keluar
+client.on('guildMemberRemove', member => {
+    logMemberLeave(client, member.guild.id, member.user.tag, member.user.id);
+});
 
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');

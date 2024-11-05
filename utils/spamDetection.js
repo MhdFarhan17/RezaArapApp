@@ -1,5 +1,5 @@
 module.exports = {
-    checkSpam(userMessages, userId, now, timeframe = 5000, threshold = 2) {
+    checkSpam(userMessages, userId, now, timeframe = 10000, threshold = 2) {
         if (!userMessages[userId]) {
             userMessages[userId] = [];
         }
