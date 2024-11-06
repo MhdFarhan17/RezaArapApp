@@ -20,7 +20,7 @@ function sendLog(client, guildId, embed) {
 module.exports = {
     // Log untuk aktivitas voice channel
     logVoiceChannelEvent(client, guildId, action, userId, channelIdFrom, channelIdTo = null) {
-        const color = action.includes("Member Left Voice Channel") || action.includes("left") ? Colors.Red : Colors.Green;
+        const color = action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
                         : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';

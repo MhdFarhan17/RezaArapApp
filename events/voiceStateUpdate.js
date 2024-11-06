@@ -15,7 +15,7 @@ async function initializeVoiceTimes(client) {
         return;
     }
 
-    guild.channels.cache.filter(channel => channel.type === 'GUILD_VOICE').forEach(voiceChannel => {
+    guild.channels.cache.filter(channel => channel.isVoice()).forEach(voiceChannel => {
         voiceChannel.members.forEach(member => {
             if (excludedBots.includes(member.user.username)) return;
 
@@ -55,7 +55,7 @@ module.exports = {
                 voiceTimes[member.id].joinTime = now;
                 console.log(`Started tracking for ${member.user.tag}`);
             }
-            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.tag, member.user.id, null, newState.channel.id);
+            logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.id, null, newState.channel.id);
 
         } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
             // Member keluar dari voice channel
@@ -64,7 +64,7 @@ module.exports = {
             await saveVoiceTime(member.id, voiceTimes[member.id].totalTime, null);
             delete voiceTimes[member.id].joinTime;
             console.log(`Stopped tracking for ${member.user.tag}. Session: ${sessionTime / 1000}s`);
-            logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.tag, member.user.id, oldState.channel.id, null);
+            logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.id, oldState.channel.id, null);
 
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             // Member berpindah channel
