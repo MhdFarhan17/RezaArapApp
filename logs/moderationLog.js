@@ -40,13 +40,16 @@ module.exports = {
     },
 
     // Log untuk penghapusan pesan
-    logMessageDelete(client, guildId, userId, channelName, messageContent) {
+    logMessageDelete(client, guildId, userId, channelId, messageContent) {
+        const userMention = `<@${userId}>`;
+        const channelMention = `<#${channelId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('🗑️ Message Deleted')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `<#${channelName}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
+                { name: '🔊 **Channel**', value: channelMention, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -56,13 +59,16 @@ module.exports = {
     },
 
     // Log untuk pengeditan pesan
-    logMessageEdit(client, guildId, userId, channelName, oldContent, newContent) {
+    logMessageEdit(client, guildId, userId, channelId, oldContent, newContent) {
+        const userMention = `<@${userId}>`;
+        const channelMention = `<#${channelId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `<#${channelName}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
+                { name: '🔊 **Channel**', value: channelMention, inline: false },
                 { name: '📥 **Old Text**', value: oldContent || '[Attachment/No Content]', inline: false },
                 { name: '📤 **New Text**', value: newContent || '[Attachment/No Content]', inline: false }
             )
@@ -74,11 +80,13 @@ module.exports = {
 
     // Log untuk anggota yang bergabung
     logMemberJoin(client, guildId, userTag, userId) {
+        const userMention = `<@${userId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('✅ Member Joined')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
                 { name: '🔍 **Username**', value: userTag, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -89,11 +97,13 @@ module.exports = {
 
     // Log untuk anggota yang keluar
     logMemberLeave(client, guildId, userTag, userId) {
+        const userMention = `<@${userId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('❌ Member Left')
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
                 { name: '🔍 **Username**', value: userTag, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -104,11 +114,13 @@ module.exports = {
 
     // Log untuk perubahan role pada anggota
     logRoleChange(client, guildId, userTag, userId, roleName, action) {
+        const userMention = `<@${userId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(action === 'Added' ? Colors.Green : Colors.Red)
             .setTitle(`🔧 Role ${action}`)
             .addFields(
-                { name: '👤 **User**', value: `<@${userId}>`, inline: false },
+                { name: '👤 **User**', value: userMention, inline: false },
                 { name: '🏷️ **Role**', value: roleName, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -118,12 +130,14 @@ module.exports = {
     },
 
     // Log untuk perubahan pada channel
-    logChannelChange(client, guildId, action, channelName, channelId) {
+    logChannelChange(client, guildId, action, channelId) {
+        const channelMention = `<#${channelId}>`;
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Blue)
             .setTitle(`📁 Channel ${action}`)
             .addFields(
-                { name: '🏷️ **Channel**', value: `<#${channelId}>`, inline: false },
+                { name: '🏷️ **Channel**', value: channelMention, inline: false },
                 { name: '🛠️ **Action**', value: action, inline: false }
             )
             .setFooter({ text: `Channel ID: ${channelId}` })
