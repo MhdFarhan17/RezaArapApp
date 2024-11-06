@@ -40,9 +40,13 @@ module.exports = {
     },
 
     // Log untuk penghapusan pesan
-    logMessageDelete(client, guildId, userId, channelId, messageContent) {
+    async logMessageDelete(client, guildId, userId, channelId, messageContent) {
         const userMention = `<@${userId}>`;
-        const channelMention = `<#${channelId}>`;
+        let channel = client.channels.cache.get(channelId);
+        if (!channel) {
+            channel = await client.channels.fetch(channelId).catch(() => null);
+        }
+        const channelMention = channel ? `<#${channel.id}>` : 'Unknown';
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
@@ -59,9 +63,13 @@ module.exports = {
     },
 
     // Log untuk pengeditan pesan
-    logMessageEdit(client, guildId, userId, channelId, oldContent, newContent) {
+    async logMessageEdit(client, guildId, userId, channelId, oldContent, newContent) {
         const userMention = `<@${userId}>`;
-        const channelMention = `<#${channelId}>`;
+        let channel = client.channels.cache.get(channelId);
+        if (!channel) {
+            channel = await client.channels.fetch(channelId).catch(() => null);
+        }
+        const channelMention = channel ? `<#${channel.id}>` : 'Unknown';
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
