@@ -111,7 +111,7 @@ client.once('ready', async () => {
     });
 
     // Schedule Friday prayer reminder in the allowed channel
-    cron.schedule('30 11 * * 5', async () => {
+    cron.schedule('20 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0x06FC04)

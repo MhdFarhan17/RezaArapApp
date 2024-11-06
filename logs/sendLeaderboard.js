@@ -77,7 +77,7 @@ async function sendLeaderboard(client) {
         await updateLeaderboardEmbed(client, message, sortedTimes, 1);
 
         const filter = (interaction) => interaction.isButton();
-        const collector = message.createMessageComponentCollector({ filter, time: 300000 }); // 5 minutes
+        const collector = message.createMessageComponentCollector({ filter, time: 600000 }); // 5 minutes
 
         let currentPage = 1;
 
