@@ -20,7 +20,7 @@ function sendLog(client, guildId, embed) {
 module.exports = {
     // Log untuk aktivitas voice channel
     logVoiceChannelEvent(client, guildId, action, userTag, userId, channelIdFrom, channelIdTo = null) {
-        const color = action.includes("left") ? Colors.Red : Colors.Green;
+        const color = action.includes("Member Left Voice Channel") | action.includes("left") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
                         : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
@@ -40,13 +40,13 @@ module.exports = {
     },
 
     // Log untuk penghapusan pesan
-    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent) {
+    logMessageDelete(client, guildId, userTag, userId, channelName, messageContent, channelId) {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('🗑️ Message Deleted')
             .addFields(
                 { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `<#${channelName}>`, inline: false },
+                { name: '🔊 **Channel**', value: `<#${channelId}>`, inline: false },
                 { name: '📝 **Message**', value: messageContent || '[Attachment/No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -56,13 +56,13 @@ module.exports = {
     },
 
     // Log untuk pengeditan pesan
-    logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent) {
+    logMessageEdit(client, guildId, userTag, userId, channelName, oldContent, newContent, channelId) {
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('✏️ Message Edited')
             .addFields(
                 { name: '👤 **User**', value: `<@${userId}>`, inline: false },
-                { name: '🔊 **Channel**', value: `<#${channelName}>`, inline: false },
+                { name: '🔊 **Channel**', value: `<#${channelId}>`, inline: false },
                 { name: '📥 **Old Text**', value: oldContent || '[Attachment/No Content]', inline: false },
                 { name: '📤 **New Text**', value: newContent || '[Attachment/No Content]', inline: false }
             )
