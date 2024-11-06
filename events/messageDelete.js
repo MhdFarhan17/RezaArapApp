@@ -13,11 +13,11 @@ module.exports = {
         }
 
         const guildId = message.guild ? message.guild.id : 'Unknown Guild';
-        const channelName = message.channel ? message.channel.name : 'Unknown';
+        const channelId = message.channel ? message.channel.id : 'Unknown';
         const authorTag = message.author ? message.author.tag : 'Unknown User';
         const authorId = message.author ? message.author.id : 'Unknown User';
         const content = message.content ? message.content : '[Attachment/No Content]';
 
-        logMessageDelete(message.client, guildId, authorTag, authorId, channelName, content);
+        logMessageDelete(message.client, guildId, authorId, channelId, content);
     }
 };
