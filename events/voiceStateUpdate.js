@@ -1,6 +1,7 @@
 const { loadVoiceTimes, saveVoiceTime } = require('../utils/voiceTimes');
 const { logVoiceChannelEvent } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
+const { ChannelType } = require('discord.js'); // Pastikan ini di-import
 
 let voiceTimes = {};
 const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
@@ -15,7 +16,7 @@ async function initializeVoiceTimes(client) {
         return;
     }
 
-    guild.channels.cache.filter(channel => channel.isVoice()).forEach(voiceChannel => {
+    guild.channels.cache.filter(channel => channel.type === ChannelType.GuildVoice).forEach(voiceChannel => {
         voiceChannel.members.forEach(member => {
             if (excludedBots.includes(member.user.username)) return;
 
