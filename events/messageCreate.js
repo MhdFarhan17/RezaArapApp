@@ -55,7 +55,8 @@ async function handleSpamCheck(message, content) {
         if (userWarnings[author.id] < MAX_WARNINGS) {
             sendWarning(channel, `${author}, Gausah SPAM ya todd 😠, tar gua pukul palalu.`);
             userWarnings[author.id]++;
-            logMessageDelete(message.client, message.guild.id, 'Penghapusan Pesan Spam', author.tag, author.id, channel.name, content);
+            // Pastikan parameter yang dikirim benar
+            logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
 }
