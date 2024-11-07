@@ -1,11 +1,12 @@
 const { handleQuotes } = require('../commands/quotes');
+const { handleFontRequest } = require('../utils/fontGenerator');
 const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
-const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords } = require('../utils/constants');
+const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords} = require('../utils/constants');
 
 const userCreatedChannels = {};
 const userMessages = {};
@@ -250,6 +251,11 @@ module.exports = {
         if (serverConfig.allowedChannelIds.includes(channel.id)) {
             handleQuotes(message);
             handleResponses(message);
+        }
+
+        if (serverConfig.fontGeneratorId.includes(channel.id)) {
+            handleFontRequest(client, message);
+            return;
         }
     }
 };
