@@ -1,10 +1,13 @@
 const { convertToFancyFonts } = require('../utils/fontUtils');
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Colors } = require('discord.js');
 const { fontGeneratorId } = require('../utils/constants');
 
 async function handleFontRequest(client, message) {
     // Periksa apakah pesan berasal dari channel yang sesuai
-    if (message.channel.id !== fontGeneratorId) return;
+    if (message.channel.id !== fontGeneratorId) {
+        console.log('Pesan diterima di channel yang salah:', message.channel.id);
+        return;
+    }
 
     // Ambil argumen teks setelah perintah
     const args = message.content.split(' ').slice(1);
@@ -14,8 +17,9 @@ async function handleFontRequest(client, message) {
     const inputText = args.join(' ');
 
     // Konversi teks ke berbagai gaya font
+    console.log('Memproses teks untuk diubah:', inputText);
     const fonts = convertToFancyFonts(inputText);
-    
+
     // Bagi font menjadi halaman per 10 item
     const pages = [];
     const itemsPerPage = 10;
@@ -29,7 +33,7 @@ async function handleFontRequest(client, message) {
             .setTitle(`Pilihan Gaya Font untuk "${inputText}"`)
             .setDescription(page.map((font, index) => `${index + 1 + pageIndex * itemsPerPage}. ${font}`).join('\n'))
             .setFooter({ text: `Halaman ${pageIndex + 1} dari ${totalPages}` })
-            .setColor('#0099ff');
+            .setColor(Colors.Blue);
         return embed;
     };
 
@@ -37,58 +41,66 @@ async function handleFontRequest(client, message) {
     const totalPages = pages.length;
 
     // Kirim pesan embed pertama dengan tombol navigasi
-    const messageEmbed = await message.channel.send({
-        embeds: [createEmbed(pages[currentPage], currentPage, totalPages)],
-        components: totalPages > 1 ? [
-            new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId('previous')
-                    .setLabel('Previous')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setCustomId('next')
-                    .setLabel('Next')
-                    .setStyle(ButtonStyle.Primary)
-            )
-        ] : []
-    });
-
-    if (totalPages <= 1) return;
-
-    // Buat collector untuk tombol
-    const filter = i => i.user.id === message.author.id;
-    const collector = messageEmbed.createMessageComponentCollector({ filter, time: 60000 });
-
-    collector.on('collect', async i => {
-        if (i.customId === 'previous') {
-            currentPage = Math.max(currentPage - 1, 0);
-        } else if (i.customId === 'next') {
-            currentPage = Math.min(currentPage + 1, totalPages - 1);
-        }
-
-        await i.update({
+    try {
+        const messageEmbed = await message.channel.send({
             embeds: [createEmbed(pages[currentPage], currentPage, totalPages)],
-            components: [
+            components: totalPages > 1 ? [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setCustomId('previous')
                         .setLabel('Previous')
                         .setStyle(ButtonStyle.Primary)
-                        .setDisabled(currentPage === 0),
+                        .setDisabled(true),
                     new ButtonBuilder()
                         .setCustomId('next')
                         .setLabel('Next')
                         .setStyle(ButtonStyle.Primary)
-                        .setDisabled(currentPage === totalPages - 1)
                 )
-            ]
+            ] : []
         });
-    });
 
-    collector.on('end', () => {
-        messageEmbed.edit({ components: [] }).catch(console.error);
-    });
+        if (totalPages <= 1) return;
+
+        // Buat collector untuk tombol
+        const filter = i => i.user.id === message.author.id;
+        const collector = messageEmbed.createMessageComponentCollector({ filter, time: 60000 });
+
+        collector.on('collect', async i => {
+            if (i.customId === 'previous') {
+                currentPage = Math.max(currentPage - 1, 0);
+            } else if (i.customId === 'next') {
+                currentPage = Math.min(currentPage + 1, totalPages - 1);
+            }
+
+            await i.update({
+                embeds: [createEmbed(pages[currentPage], currentPage, totalPages)],
+                components: [
+                    new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('previous')
+                            .setLabel('Previous')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(currentPage === 0),
+                        new ButtonBuilder()
+                            .setCustomId('next')
+                            .setLabel('Next')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(currentPage === totalPages - 1)
+                    )
+                ]
+            });
+        });
+
+        collector.on('end', (collected, reason) => {
+            console.log(`Collector berakhir dengan alasan: ${reason}`);
+            messageEmbed.edit({ components: [] }).catch(console.error);
+        });
+
+        console.log('handleFontRequest dipanggil dengan pesan:', message.content);
+    } catch (error) {
+        console.error('Terjadi kesalahan saat mengirim embed:', error);
+        message.channel.send('Terjadi kesalahan saat memproses permintaan. Coba lagi nanti.');
+    }
 }
 
 module.exports = { handleFontRequest };
