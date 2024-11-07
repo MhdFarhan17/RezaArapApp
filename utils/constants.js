@@ -11,7 +11,7 @@ module.exports = {
         tempVoiceCategoryId: '1291854096646541364',
         commandChannelId: '1291829623423762474',
         shareLinkChannelId: '1303005047864692878',
-        fontGeneratorId: '1303953316635611156'
+        fontGeneratorId: ['1303953316635611156']
     },
     // Konfigurasi untuk Server 2
     server2: {
