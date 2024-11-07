@@ -210,10 +210,11 @@ module.exports = {
             }
         }
 
-        // Cek apakah perintah font! dipanggil di channel fontGeneratorId
         if (message.content.startsWith('font!') && message.channel.id === serverConfig.fontGeneratorId) {
+            console.log('Perintah font! terdeteksi di channel yang benar');
             try {
                 await handleFontRequest(client, message);
+                console.log('handleFontRequest berhasil dipanggil');
             } catch (error) {
                 console.error('Terjadi kesalahan saat memproses permintaan font:', error);
                 message.channel.send('Terjadi kesalahan saat memproses permintaan. Coba lagi nanti.');
