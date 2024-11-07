@@ -24,18 +24,18 @@ function convertToFancyFonts(text) {
             return char;
         }).join(''),
 
-        // Gaya 4: Fraktur
+        // Gaya 4: Script (umumnya didukung)
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
-                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D51E - 'a'.charCodeAt(0) : 0x1D504 - 'A'.charCodeAt(0)));
+                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D4B6 - 'a'.charCodeAt(0) : 0x1D4AE - 'A'.charCodeAt(0)));
             }
             return char;
         }).join(''),
 
-        // Gaya 5: Double-Struck (umumnya didukung)
+        // Gaya 5: Sans Serif Italic (umumnya didukung)
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
-                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D552 - 'a'.charCodeAt(0) : 0x1D538 - 'A'.charCodeAt(0)));
+                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D622 - 'a'.charCodeAt(0) : 0x1D608 - 'A'.charCodeAt(0)));
             }
             return char;
         }).join(''),
