@@ -6,7 +6,7 @@ const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
-const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords} = require('../utils/constants');
+const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords, fontGeneratorId} = require('../utils/constants');
 
 const userCreatedChannels = {};
 const userMessages = {};
@@ -210,18 +210,6 @@ module.exports = {
             }
         }
 
-        if (message.content.startsWith('font!') && message.channel.id === serverConfig.fontGeneratorId) {
-            console.log('Perintah font! terdeteksi di channel yang benar');
-            try {
-                await handleFontRequest(client, message);
-                console.log('handleFontRequest berhasil dipanggil');
-            } catch (error) {
-                console.error('Terjadi kesalahan saat memproses permintaan font:', error);
-                message.channel.send('Terjadi kesalahan saat memproses permintaan. Coba lagi nanti.');
-            }
-            return;
-        }
-
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             await handleCreateVoiceChannel(message, serverConfig);
             return;
@@ -263,6 +251,11 @@ module.exports = {
         if (serverConfig.allowedChannelIds.includes(channel.id)) {
             handleQuotes(message);
             handleResponses(message);
+        }
+
+        if (serverConfig.fontGeneratorId.includes(channel.id)) {
+            handleFontRequest(client, message);
+            return;
         }
     }
 };
