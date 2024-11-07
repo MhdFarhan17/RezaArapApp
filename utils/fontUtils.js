@@ -1,15 +1,14 @@
 function convertToFancyFonts(text) {
-    // Array untuk menyimpan gaya font Unicode
     const fancyFonts = [
-        // Gaya Bold
+        // Gaya 1: Bold Serif
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
                 return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D41A - 'a'.charCodeAt(0) : 0x1D400 - 'A'.charCodeAt(0)));
             }
-            return char; // Karakter selain huruf dibiarkan apa adanya
+            return char;
         }).join(''),
 
-        // Gaya Italic
+        // Gaya 2: Italic Serif
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
                 return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D44E - 'a'.charCodeAt(0) : 0x1D434 - 'A'.charCodeAt(0)));
@@ -17,7 +16,7 @@ function convertToFancyFonts(text) {
             return char;
         }).join(''),
 
-        // Gaya Bold Italic
+        // Gaya 3: Bold Italic Serif
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
                 return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D482 - 'a'.charCodeAt(0) : 0x1D468 - 'A'.charCodeAt(0)));
@@ -25,7 +24,7 @@ function convertToFancyFonts(text) {
             return char;
         }).join(''),
 
-        // Gaya Fraktur
+        // Gaya 4: Fraktur
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
                 return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D51E - 'a'.charCodeAt(0) : 0x1D504 - 'A'.charCodeAt(0)));
@@ -33,10 +32,50 @@ function convertToFancyFonts(text) {
             return char;
         }).join(''),
 
-        // Gaya Double-Struck
+        // Gaya 5: Double-Struck (umumnya didukung)
         text.split('').map(char => {
             if (/[A-Za-z]/.test(char)) {
                 return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D552 - 'a'.charCodeAt(0) : 0x1D538 - 'A'.charCodeAt(0)));
+            }
+            return char;
+        }).join(''),
+
+        // Gaya 6: Monospace
+        text.split('').map(char => {
+            if (/[A-Za-z]/.test(char)) {
+                return String.fromCodePoint(char.charCodeAt(0) + 0xFF00 - 0x20);
+            }
+            return char;
+        }).join(''),
+
+        // Gaya 7: Small Caps
+        text.split('').map(char => {
+            if (/[A-Za-z]/.test(char) && char >= 'a') {
+                return String.fromCodePoint(char.charCodeAt(0) - 0x20 + 0x1D00);
+            }
+            return char;
+        }).join(''),
+
+        // Gaya 8: Bold Sans Serif
+        text.split('').map(char => {
+            if (/[A-Za-z]/.test(char)) {
+                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D5EE - 'a'.charCodeAt(0) : 0x1D5D4 - 'A'.charCodeAt(0)));
+            }
+            return char;
+        }).join(''),
+
+        // Gaya 9: Italic Sans Serif
+        text.split('').map(char => {
+            if (/[A-Za-z]/.test(char)) {
+                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D622 - 'a'.charCodeAt(0) : 0x1D608 - 'A'.charCodeAt(0)));
+            }
+            return char;
+        }).join(''),
+
+        // Gaya 10: Bold Italic Sans Serif
+        text.split('').map(char => {
+            if (/[A-Za-z]/.test(char)) {
+                return String.fromCodePoint(char.charCodeAt(0) + (char >= 'a' ? 0x1D656 - 'a'.charCodeAt(0) : 0x1D63C - 'A'.charCodeAt(0)));
             }
             return char;
         }).join(''),
