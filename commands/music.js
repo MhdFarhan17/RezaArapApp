@@ -27,7 +27,6 @@ module.exports = {
         if (!isMusicLink(content) && !isValidMusicCommand(content)) {
             message.delete().then(() => {
                 sendWarning(message, `${message.author}, di channel ini hanya diperbolehkan mengirim link YouTube, Spotify, atau menggunakan perintah musik yang valid.`);
-                logMessageDelete(client, message.guild.id, message.author.id, message.channel.id, content);
             }).catch(console.error);
         }
     }
