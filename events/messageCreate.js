@@ -253,7 +253,7 @@ module.exports = {
             handleResponses(message);
         }
 
-        if (serverConfig.fontGeneratorId.includes(channel.id)) {
+        if (message.channel.id === serverConfig.fontGeneratorId) {
             handleFontRequest(client, message);
             return;
         }

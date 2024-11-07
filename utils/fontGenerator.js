@@ -1,65 +1,94 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { convertToFancyFonts } = require('./fontUtils');
+const { convertToFancyFonts } = require('../utils/fontUtils');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { fontGeneratorId } = require('../utils/constants');
 
-module.exports = {
-    name: 'fontGenerator',
-    async execute(message) {
-        const input = message.content.split(' ').slice(1).join(' ');
-        if (!input) {
-            return message.channel.send('Silakan masukkan teks untuk dikonversi!');
-        }
+async function handleFontRequest(client, message) {
+    // Periksa apakah pesan berasal dari channel yang sesuai
+    if (message.channel.id !== fontGeneratorId) return;
 
-        const fancyFonts = convertToFancyFonts(input);
-        const totalPages = Math.ceil(fancyFonts.length / 10);
-        let currentPage = 0;
+    // Ambil argumen teks setelah perintah
+    const args = message.content.split(' ').slice(1);
+    if (args.length === 0) {
+        return message.channel.send('Mohon masukkan teks setelah perintah `font!` untuk mengubah gaya font.');
+    }
+    const inputText = args.join(' ');
 
-        const generateEmbed = (page) => {
-            const embed = new EmbedBuilder()
-                .setTitle(`Berikut adalah beberapa pilihan gaya font untuk "${input}":`)
-                .setDescription(
-                    fancyFonts
-                        .slice(page * 10, (page + 1) * 10)
-                        .map((font, index) => `${page * 10 + index + 1}. ${font}`)
-                        .join('\n')
-                )
-                .setFooter({ text: `Halaman ${page + 1} dari ${totalPages}` });
-            return embed;
-        };
+    // Konversi teks ke berbagai gaya font
+    const fonts = convertToFancyFonts(inputText);
+    
+    // Bagi font menjadi halaman per 10 item
+    const pages = [];
+    const itemsPerPage = 10;
+    for (let i = 0; i < fonts.length; i += itemsPerPage) {
+        pages.push(fonts.slice(i, i + itemsPerPage));
+    }
 
-        const row = new ActionRowBuilder()
-            .addComponents(
+    // Fungsi untuk membuat embed halaman
+    const createEmbed = (page, pageIndex, totalPages) => {
+        const embed = new EmbedBuilder()
+            .setTitle(`Pilihan Gaya Font untuk "${inputText}"`)
+            .setDescription(page.map((font, index) => `${index + 1 + pageIndex * itemsPerPage}. ${font}`).join('\n'))
+            .setFooter({ text: `Halaman ${pageIndex + 1} dari ${totalPages}` })
+            .setColor('#0099ff');
+        return embed;
+    };
+
+    let currentPage = 0;
+    const totalPages = pages.length;
+
+    // Kirim pesan embed pertama dengan tombol navigasi
+    const messageEmbed = await message.channel.send({
+        embeds: [createEmbed(pages[currentPage], currentPage, totalPages)],
+        components: totalPages > 1 ? [
+            new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId('previous')
-                    .setLabel('⏪ Previous')
-                    .setStyle(ButtonStyle.Primary),
+                    .setLabel('Previous')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true),
                 new ButtonBuilder()
                     .setCustomId('next')
-                    .setLabel('⏩ Next')
+                    .setLabel('Next')
                     .setStyle(ButtonStyle.Primary)
-            );
+            )
+        ] : []
+    });
 
-        const messageEmbed = await message.channel.send({
-            embeds: [generateEmbed(currentPage)],
-            components: [row]
+    if (totalPages <= 1) return;
+
+    // Buat collector untuk tombol
+    const filter = i => i.user.id === message.author.id;
+    const collector = messageEmbed.createMessageComponentCollector({ filter, time: 60000 });
+
+    collector.on('collect', async i => {
+        if (i.customId === 'previous') {
+            currentPage = Math.max(currentPage - 1, 0);
+        } else if (i.customId === 'next') {
+            currentPage = Math.min(currentPage + 1, totalPages - 1);
+        }
+
+        await i.update({
+            embeds: [createEmbed(pages[currentPage], currentPage, totalPages)],
+            components: [
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('previous')
+                        .setLabel('Previous')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(currentPage === 0),
+                    new ButtonBuilder()
+                        .setCustomId('next')
+                        .setLabel('Next')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(currentPage === totalPages - 1)
+                )
+            ]
         });
+    });
 
-        const collector = messageEmbed.createMessageComponentCollector({ time: 60000 });
+    collector.on('end', () => {
+        messageEmbed.edit({ components: [] }).catch(console.error);
+    });
+}
 
-        collector.on('collect', interaction => {
-            if (interaction.customId === 'next') {
-                currentPage = currentPage + 1 < totalPages ? currentPage + 1 : 0;
-            } else if (interaction.customId === 'previous') {
-                currentPage = currentPage - 1 >= 0 ? currentPage - 1 : totalPages - 1;
-            }
-
-            interaction.update({
-                embeds: [generateEmbed(currentPage)],
-                components: [row]
-            });
-        });
-
-        collector.on('end', () => {
-            messageEmbed.edit({ components: [] });
-        });
-    }
-};
+module.exports = { handleFontRequest };
