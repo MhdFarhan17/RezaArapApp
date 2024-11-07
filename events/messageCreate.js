@@ -210,6 +210,17 @@ module.exports = {
             }
         }
 
+        // Cek apakah perintah font! dipanggil di channel fontGeneratorId
+        if (message.content.startsWith('font!') && message.channel.id === serverConfig.fontGeneratorId) {
+            try {
+                await handleFontRequest(client, message);
+            } catch (error) {
+                console.error('Terjadi kesalahan saat memproses permintaan font:', error);
+                message.channel.send('Terjadi kesalahan saat memproses permintaan. Coba lagi nanti.');
+            }
+            return;
+        }
+
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             await handleCreateVoiceChannel(message, serverConfig);
             return;
@@ -251,11 +262,6 @@ module.exports = {
         if (serverConfig.allowedChannelIds.includes(channel.id)) {
             handleQuotes(message);
             handleResponses(message);
-        }
-
-        if (message.channel.id === serverConfig.fontGeneratorId) {
-            handleFontRequest(client, message);
-            return;
         }
     }
 };
