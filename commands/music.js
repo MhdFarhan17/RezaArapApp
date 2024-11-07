@@ -25,8 +25,9 @@ module.exports = {
         const content = message.content.toLowerCase();
 
         if (!isMusicLink(content) && !isValidMusicCommand(content)) {
-            // Hanya kirim peringatan tanpa menghapus pesan
-            sendWarning(message, `${message.author}, di channel ini hanya diperbolehkan mengirim link YouTube, Spotify, atau menggunakan perintah musik yang valid.`);
+            message.delete().then(() => {
+                sendWarning(message, `${message.author}, di channel ini hanya diperbolehkan mengirim link YouTube, Spotify, atau menggunakan perintah musik yang valid.`);
+            }).catch(console.error);
         }
     }
 };
