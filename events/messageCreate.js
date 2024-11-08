@@ -38,27 +38,22 @@ async function handleSpamCheck(message, content) {
 
     if (!userMessages[author.id]) userMessages[author.id] = [];
 
-    // Track the messages sent by the user
+    // Track the content and timestamp
     userMessages[author.id].push({ content, timestamp: now });
     userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
     const identicalMessages = userMessages[author.id].filter(msg => msg.content === content);
     if (identicalMessages.length > SPAM_THRESHOLD) {
-        // Iterate over the older identical messages for deletion
-        for (let msg of identicalMessages.slice(0, -SPAM_THRESHOLD)) {
-            try {
-                const fetchedMessage = await channel.messages.fetch(msg.messageId).catch(err => {
-                    console.error(`Failed to fetch message for deletion: ${err.message}`);
-                });
-
-                // Ensure the fetched message is valid before attempting deletion
-                if (fetchedMessage) {
-                    await fetchedMessage.delete().catch(err => {
-                        console.error(`Failed to delete message: ${err.message}`);
-                    });
+        // Remove previous messages directly from the channel cache if possible
+        for (let i = 0; i < identicalMessages.length - SPAM_THRESHOLD; i++) {
+            const messageToDelete = channel.messages.cache.find(m => m.content === content && m.author.id === author.id);
+            
+            if (messageToDelete) {
+                try {
+                    await messageToDelete.delete();
+                } catch (error) {
+                    console.error(`Failed to delete message: ${error.message}`);
                 }
-            } catch (error) {
-                console.error('Error processing spam check:', error);
             }
         }
 
@@ -71,6 +66,7 @@ async function handleSpamCheck(message, content) {
         }
     }
 }
+
 
 
 async function handleCreateVoiceChannel(message, serverConfig) {
