@@ -1,5 +1,4 @@
 const { handleQuotes } = require('../commands/quotes');
-const { handleFontRequest } = require('../utils/fontGenerator');
 const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
@@ -249,11 +248,6 @@ module.exports = {
         if (serverConfig.allowedChannelIds.includes(channel.id)) {
             handleQuotes(message);
             handleResponses(message);
-        }
-
-        if (serverConfig.fontGeneratorId.includes(channel.id)) {
-            handleFontRequest(client, message);
-            return;
         }
     }
 };
