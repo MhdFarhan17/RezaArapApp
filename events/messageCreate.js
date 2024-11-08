@@ -10,9 +10,10 @@ const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, 
 const userCreatedChannels = {};
 const userMessages = {};
 const userWarnings = {};
-const SPAM_TIMEFRAME = 10000; // 10 detik
-const SPAM_THRESHOLD = 2; // Setelah pesan ke-3 dianggap spam
+const SPAM_TIMEFRAME = 10000;
+const SPAM_THRESHOLD = 2;
 const MAX_WARNINGS = 1;
+const WARNING_RESET_TIME = 15000;
 
 function getServerConfig(guildId) {
     return [server1, server2].find(server => server.guildId === guildId);
@@ -36,32 +37,35 @@ async function handleSpamCheck(message, content) {
     const { author, channel } = message;
     const now = Date.now();
 
-    if (!userMessages[author.id]) userMessages[author.id] = [];
+    // Initialize the user message log if not present
+    if (!userMessages[author.id]) {
+        userMessages[author.id] = [];
+    }
 
-    // Track the content and timestamp
+    // Add the current message to the log and filter out older ones beyond the SPAM_TIMEFRAME
     userMessages[author.id].push({ content, timestamp: now });
     userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
+    // Check for identical messages within the SPAM_TIMEFRAME
     const identicalMessages = userMessages[author.id].filter(msg => msg.content === content);
+
     if (identicalMessages.length > SPAM_THRESHOLD) {
-        // Remove previous messages directly from the channel cache if possible
-        for (let i = 0; i < identicalMessages.length - SPAM_THRESHOLD; i++) {
-            const messageToDelete = channel.messages.cache.find(m => m.content === content && m.author.id === author.id);
-            
-            if (messageToDelete) {
-                try {
-                    await messageToDelete.delete();
-                } catch (error) {
-                    console.error(`Failed to delete message: ${error.message}`);
-                }
+        try {
+            // Attempt to fetch and delete the spam messages
+            const fetchedMessages = await channel.messages.fetch({ limit: 50 });
+            const messagesToDelete = fetchedMessages.filter(m => m.content === content && m.author.id === author.id);
+
+            for (const [_, msg] of messagesToDelete) {
+                await msg.delete().catch(console.error);
             }
+        } catch (error) {
+            console.error(`Failed to delete message: ${error.message}`);
         }
 
-        if (!userWarnings[author.id]) userWarnings[author.id] = 0;
-
-        if (userWarnings[author.id] < MAX_WARNINGS) {
-            sendWarning(channel, `${author}, please stop spamming.`);
-            userWarnings[author.id]++;
+        // Issue a warning if it's the first time or if the cooldown has passed
+        if (!userWarnings[author.id] || now - userWarnings[author.id] > WARNING_RESET_TIME) {
+            sendWarning(channel, `${author}, Gausah SPAM ya tod 😡, ntar gua pukul pala lu!`);
+            userWarnings[author.id] = now; // Update the timestamp of the last warning issued
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
@@ -196,8 +200,6 @@ module.exports = {
         const shareLinkChannelId = serverConfig.shareLinkChannelId;
         const allowedChannelId = serverConfig.allowedChannelIds[0];
 
-        await handleSpamCheck(message, content);
-
         if (channel.id === allowedChannelId && isLink(content)) {
             await message.delete().catch(console.error);
             sendWarning(channel, `Gak boleh kirim link disini bro 🙏, kalau mau kirim link silahkan ke <#${shareLinkChannelId}>`);
@@ -218,6 +220,8 @@ module.exports = {
                 return;
             }
         }
+
+        await handleSpamCheck(message, content);
 
         if (content.startsWith('createvoice!') || content.startsWith('cv!')) {
             await handleCreateVoiceChannel(message, serverConfig);
