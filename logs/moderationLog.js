@@ -138,15 +138,25 @@ module.exports = {
     },
 
     // Log untuk perubahan pada channel
-    logChannelChange(client, guildId, action, channelId) {
-        const channelMention = `<#${channelId}>`;
+    logChannelChange(client, guildId, action, channelId, channelName) {
+        // Tentukan warna berdasarkan jenis tindakan
+        let color;
+        if (action.toLowerCase() === 'deleted') {
+            color = Colors.Red; // Warna merah untuk penghapusan channel
+        } else if (action.toLowerCase() === 'created' || action.toLowerCase() === 'renamed') {
+            color = Colors.Green; // Warna hijau untuk pembuatan dan penggantian nama channel
+        } else {
+            color = Colors.Blue; // Warna default untuk tindakan lainnya
+        }
+
+        const channelMention = `<#${channelId}> (${channelName || 'Unknown'})`;
 
         const embed = new EmbedBuilder()
-            .setColor(Colors.Blue)
-            .setTitle(`📁 Channel ${action}`)
+            .setColor(color)
+            .setTitle(`📁 Perubahan Channel: ${action}`)
             .addFields(
                 { name: '🏷️ **Channel**', value: channelMention, inline: false },
-                { name: '🛠️ **Action**', value: action, inline: false }
+                { name: '🛠️ **Tindakan**', value: action, inline: false }
             )
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();

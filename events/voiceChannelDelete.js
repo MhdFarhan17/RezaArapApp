@@ -16,8 +16,12 @@ module.exports = {
             console.log(`Channel '${channel.name}' kosong. Memulai timer penghapusan 5 menit...`);
             setTimeout(async () => {
                 const updatedChannel = oldState.guild.channels.cache.get(channel.id);
-
-                if (updatedChannel && updatedChannel.members.size === 0) {
+                if (!updatedChannel) {
+                    console.log(`Channel '${channel.name}' sudah dihapus sebelum eksekusi bot.`);
+                    return;
+                }
+            
+                if (updatedChannel.members.size === 0) {
                     try {
                         await updatedChannel.delete();
                         console.log(`Temporary voice channel '${updatedChannel.name}' telah dihapus karena tidak ada aktivitas.`);
@@ -28,7 +32,7 @@ module.exports = {
                 } else {
                     console.log(`Channel '${channel.name}' tidak kosong atau sudah dihapus.`);
                 }
-            }, 300000); // 5 menit (300000 ms)
+            }, 300000); // 5 menit
         }
     },
 };
