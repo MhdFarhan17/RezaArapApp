@@ -53,26 +53,32 @@ async function handleSpamCheck(message, content) {
         try {
             // Only delete messages starting from the third instance
             for (let i = 2; i < identicalMessages.length; i++) {
-                const msgToDelete = await channel.messages.fetch(identicalMessages[i].messageId).catch(console.error);
+                const msgToDelete = await channel.messages.fetch(identicalMessages[i].messageId).catch(err => {
+                    if (err.code === 10008) {
+                        console.warn('Tried to fetch or delete an unknown message. It may have already been deleted.');
+                        return null;
+                    }
+                    throw err;
+                });
+
                 if (msgToDelete) {
-                    await msgToDelete.delete().catch(console.error);
+                    await msgToDelete.delete().catch(err => {
+                        if (err.code === 10008) {
+                            console.warn('Message already deleted.');
+                        } else {
+                            console.error(`Failed to delete message: ${err.message}`);
+                        }
+                    });
                 }
             }
         } catch (error) {
-            if (error.code !== 10008) { // Ignore "Unknown Message" errors
-                console.error(`Failed to delete message: ${error.message}`);
-            }
+            console.error(`Error handling spam check: ${error.message}`);
         }
 
-        // Check if the user has reached the warning limit
-        if (!userWarnings[author.id]) {
-            userWarnings[author.id] = { count: 0, lastWarningTime: 0 };
-        }
-
-        if (userWarnings[author.id].count < MAX_WARNINGS || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
+        // Issue a warning if the warning conditions are met
+        if (!userWarnings[author.id] || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
             sendWarning(channel, `${author}, Gausah SPAM ya tod 😡, ntar gua pukul pala lu!`);
-            userWarnings[author.id].count++;
-            userWarnings[author.id].lastWarningTime = now; // Update the last warning time
+            userWarnings[author.id] = { count: 1, lastWarningTime: now };
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
