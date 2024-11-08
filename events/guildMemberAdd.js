@@ -16,9 +16,6 @@ module.exports = {
 
         const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
-        // Log anggota yang bergabung
-        logMemberJoin(client, guildId, member.user.tag, member.user.id);
-
         joinTimestamps.push(Date.now());
 
         const recentJoins = joinTimestamps.filter(timestamp => Date.now() - timestamp < 60000);

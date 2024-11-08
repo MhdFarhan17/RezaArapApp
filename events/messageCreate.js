@@ -11,11 +11,10 @@ const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, 
 const userCreatedChannels = {};
 const userMessages = {};
 const userWarnings = {};
-const SPAM_TIMEFRAME = 10000;
-const SPAM_THRESHOLD = 1;
+const SPAM_TIMEFRAME = 10000; // 10 detik
+const SPAM_THRESHOLD = 2; // Setelah pesan ke-3 dianggap spam
 const MAX_WARNINGS = 1;
 
-// Helper functions
 function getServerConfig(guildId) {
     return [server1, server2].find(server => server.guildId === guildId);
 }
@@ -56,7 +55,6 @@ async function handleSpamCheck(message, content) {
         if (userWarnings[author.id] < MAX_WARNINGS) {
             sendWarning(channel, `${author}, Gausah SPAM ya todd 😠, tar gua pukul palalu.`);
             userWarnings[author.id]++;
-            // Pastikan parameter yang dikirim benar
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
@@ -189,6 +187,8 @@ module.exports = {
         const shareLinkChannelId = serverConfig.shareLinkChannelId;
         const allowedChannelId = serverConfig.allowedChannelIds[0];
 
+        await handleSpamCheck(message, content);
+
         if (channel.id === allowedChannelId && isLink(content)) {
             await message.delete().catch(console.error);
             sendWarning(channel, `Gak boleh kirim link disini bro 🙏, kalau mau kirim link silahkan ke <#${shareLinkChannelId}>`);
@@ -234,8 +234,6 @@ module.exports = {
             handleLinkChannels(client, message);
             return;
         }
-
-        await handleSpamCheck(message, content);
 
         if (containsBannedWords(content)) {
             await message.delete().catch(console.error);
