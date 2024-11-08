@@ -38,26 +38,40 @@ async function handleSpamCheck(message, content) {
 
     if (!userMessages[author.id]) userMessages[author.id] = [];
 
+    // Track the messages sent by the user
     userMessages[author.id].push({ content, timestamp: now });
     userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
     const identicalMessages = userMessages[author.id].filter(msg => msg.content === content);
     if (identicalMessages.length > SPAM_THRESHOLD) {
+        // Iterate over the older identical messages for deletion
         for (let msg of identicalMessages.slice(0, -SPAM_THRESHOLD)) {
-            channel.messages.fetch(msg.messageId)
-                .then(messageToDelete => messageToDelete.delete().catch(console.error))
-                .catch(console.error);
+            try {
+                const fetchedMessage = await channel.messages.fetch(msg.messageId).catch(err => {
+                    console.error(`Failed to fetch message for deletion: ${err.message}`);
+                });
+
+                // Ensure the fetched message is valid before attempting deletion
+                if (fetchedMessage) {
+                    await fetchedMessage.delete().catch(err => {
+                        console.error(`Failed to delete message: ${err.message}`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error processing spam check:', error);
+            }
         }
 
         if (!userWarnings[author.id]) userWarnings[author.id] = 0;
 
         if (userWarnings[author.id] < MAX_WARNINGS) {
-            sendWarning(channel, `${author}, Gausah SPAM ya todd 😠, tar gua pukul palalu.`);
+            sendWarning(channel, `${author}, please stop spamming.`);
             userWarnings[author.id]++;
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
 }
+
 
 async function handleCreateVoiceChannel(message, serverConfig) {
     const { guild, author, content } = message;
