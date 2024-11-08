@@ -32,7 +32,7 @@ module.exports = {
                 } else {
                     console.log(`Channel '${channel.name}' tidak kosong atau sudah dihapus.`);
                 }
-            }, 300000); // 5 menit
+            }, 300000); // 5 menit 
         }
     },
 };
