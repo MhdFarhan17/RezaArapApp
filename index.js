@@ -50,6 +50,10 @@ client.on('guildMemberRemove', member => {
     logMemberLeave(client, member.guild.id, member.user.tag, member.user.id);
 });
 
+client.on('voiceStateUpdate', (oldState, newState) => {
+    require('./events/voiceChannelDelete').execute(oldState, newState);
+});
+
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
 
