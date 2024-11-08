@@ -43,7 +43,7 @@ async function handleSpamCheck(message, content) {
     }
 
     // Add the current message to the log and filter out older ones beyond the SPAM_TIMEFRAME
-    userMessages[author.id].push({ content, timestamp: now });
+    userMessages[author.id].push({ content, timestamp: now, messageId: message.id });
     userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
     // Check for identical messages within the SPAM_TIMEFRAME
@@ -51,27 +51,32 @@ async function handleSpamCheck(message, content) {
 
     if (identicalMessages.length > SPAM_THRESHOLD) {
         try {
-            // Attempt to fetch and delete the spam messages
-            const fetchedMessages = await channel.messages.fetch({ limit: 50 });
-            const messagesToDelete = fetchedMessages.filter(m => m.content === content && m.author.id === author.id);
-
-            for (const [_, msg] of messagesToDelete) {
-                await msg.delete().catch(console.error);
+            // Only delete messages starting from the third instance
+            for (let i = 2; i < identicalMessages.length; i++) {
+                const msgToDelete = await channel.messages.fetch(identicalMessages[i].messageId).catch(console.error);
+                if (msgToDelete) {
+                    await msgToDelete.delete().catch(console.error);
+                }
             }
         } catch (error) {
-            console.error(`Failed to delete message: ${error.message}`);
+            if (error.code !== 10008) { // Ignore "Unknown Message" errors
+                console.error(`Failed to delete message: ${error.message}`);
+            }
         }
 
-        // Issue a warning if it's the first time or if the cooldown has passed
-        if (!userWarnings[author.id] || now - userWarnings[author.id] > WARNING_RESET_TIME) {
+        // Check if the user has reached the warning limit
+        if (!userWarnings[author.id]) {
+            userWarnings[author.id] = { count: 0, lastWarningTime: 0 };
+        }
+
+        if (userWarnings[author.id].count < MAX_WARNINGS || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
             sendWarning(channel, `${author}, Gausah SPAM ya tod 😡, ntar gua pukul pala lu!`);
-            userWarnings[author.id] = now; // Update the timestamp of the last warning issued
+            userWarnings[author.id].count++;
+            userWarnings[author.id].lastWarningTime = now; // Update the last warning time
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
     }
 }
-
-
 
 async function handleCreateVoiceChannel(message, serverConfig) {
     const { guild, author, content } = message;
