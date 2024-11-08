@@ -12,7 +12,6 @@ const userMessages = {};
 const userWarnings = {};
 const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 2;
-const MAX_WARNINGS = 1;
 const WARNING_RESET_TIME = 15000;
 
 function getServerConfig(guildId) {
@@ -26,7 +25,8 @@ function sendWarning(channel, content, timeout = 60000) {
 }
 
 function isLink(content) {
-    return youtubeRegex.test(content) || spotifyRegex.test(content) || tiktokRegex.test(content) || twitchRegex.test(content);
+    const urlPattern = /https?:\/\/[^\s]+/gi; // Regular expression to detect URLs
+    return urlPattern.test(content);
 }
 
 function containsBannedWords(content) {
@@ -209,11 +209,15 @@ module.exports = {
         if (!serverConfig) return;
 
         const shareLinkChannelId = serverConfig.shareLinkChannelId;
-        const allowedChannelId = serverConfig.allowedChannelIds[0];
 
-        if (channel.id === allowedChannelId && isLink(content)) {
-            await message.delete().catch(console.error);
-            sendWarning(channel, `Gak boleh kirim link disini bro 🙏, kalau mau kirim link silahkan ke <#${shareLinkChannelId}>`);
+        // Check if the message is sent in an allowed channel and contains a link
+        if (serverConfig.allowedChannelIds.includes(channel.id) && isLink(content)) {
+            try {
+                await message.delete();
+                sendWarning(channel, `Gak boleh kirim link disini bro 🙏, kalau mau kirim link silahkan ke <#${shareLinkChannelId}>`);
+            } catch (error) {
+                console.error(`Failed to delete message or send warning: ${error.message}`);
+            }
             return;
         }
 
