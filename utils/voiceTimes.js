@@ -1,18 +1,15 @@
-require('../utils/db'); // Ini menginisialisasi koneksi MongoDB dari db.js
+require('../utils/db');
 
 const mongoose = require('mongoose');
 
-// Define the schema
 const voiceTimeSchema = new mongoose.Schema({
     userId: { type: String, required: true, unique: true },
     totalTime: { type: Number, default: 0 },
     joinTime: { type: Number, default: null },
 });
 
-// Create the model
 const VoiceTime = mongoose.model('VoiceTime', voiceTimeSchema);
 
-// Load all voice times from MongoDB
 async function loadVoiceTimes() {
     const voiceTimes = await VoiceTime.find();
     return voiceTimes.reduce((acc, doc) => {
@@ -21,7 +18,6 @@ async function loadVoiceTimes() {
     }, {});
 }
 
-// Save or update the user's voice time data in MongoDB
 async function saveVoiceTime(userId, totalTime, joinTime = null) {
     await VoiceTime.updateOne(
         { userId },

@@ -1,12 +1,11 @@
 const { loadVoiceTimes, saveVoiceTime } = require('../utils/voiceTimes');
 const { logVoiceChannelEvent } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
-const { ChannelType } = require('discord.js'); // Pastikan ini di-import
+const { ChannelType } = require('discord.js');
 
 let voiceTimes = {};
 const excludedBots = ['Jockie Music', 'Jockie Music (1)', 'Jockie Music (2)'];
 
-// Fungsi untuk inisialisasi voice times dan cek member yang aktif di voice channel saat bot mulai
 async function initializeVoiceTimes(client) {
     voiceTimes = await loadVoiceTimes();
     const guild = client.guilds.cache.get(server1.guildId) || client.guilds.cache.get(server2.guildId);
@@ -51,7 +50,6 @@ module.exports = {
         const isMutedOrDeafened = newState.selfMute || newState.selfDeaf;
 
         if (!oldState.channel && newState.channel) {
-            // Member bergabung ke voice channel
             if (!isMutedOrDeafened) {
                 voiceTimes[member.id].joinTime = now;
                 console.log(`Started tracking for ${member.user.tag}`);
@@ -59,7 +57,6 @@ module.exports = {
             logVoiceChannelEvent(client, guildId, 'Member Joined Voice Channel', member.user.id, null, newState.channel.id);
 
         } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
-            // Member keluar dari voice channel
             const sessionTime = now - voiceTimes[member.id].joinTime;
             voiceTimes[member.id].totalTime += sessionTime;
             await saveVoiceTime(member.id, voiceTimes[member.id].totalTime, null);
@@ -68,7 +65,6 @@ module.exports = {
             logVoiceChannelEvent(client, guildId, 'Member Left Voice Channel', member.user.id, oldState.channel.id, null);
 
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
-            // Member berpindah channel
             if (voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;
@@ -76,17 +72,14 @@ module.exports = {
                 console.log(`Switching channels, saved time for ${member.user.tag}: ${sessionTime / 1000}s`);
             }
 
-            // Set joinTime ulang hanya jika member tidak dalam kondisi mute/deaf
             voiceTimes[member.id].joinTime = isMutedOrDeafened ? null : now;
 
             const oldChannelName = oldState.channel ? oldState.channel.name : 'Unknown';
             const newChannelName = newState.channel ? newState.channel.name : 'Unknown';
             console.log(`Member ${member.user.tag} moved from ${oldChannelName} to ${newChannelName}`);
-
             logVoiceChannelEvent(client, guildId, 'Member Switched Voice Channels', member.user.id, oldState.channel.id, newState.channel.id);
 
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
-            // Member berubah status mute/deaf
             if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
                 voiceTimes[member.id].totalTime += sessionTime;

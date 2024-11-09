@@ -13,11 +13,11 @@ module.exports = {
 
         const welcomeChannelId = serverConfig.welcomeChannelId;
         const antiRaidRoleId = serverConfig.antiRaidRoleId;
-
         const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
-        joinTimestamps.push(Date.now());
+        logMemberJoin(client, member.guild.id, member.user.tag, member.user.id);
 
+        joinTimestamps.push(Date.now());
         const recentJoins = joinTimestamps.filter(timestamp => Date.now() - timestamp < 60000);
 
         if (recentJoins.length > 5 && antiRaidRoleId) {
@@ -33,5 +33,6 @@ module.exports = {
             welcomeChannel.send(`Selamat datang, ${member.user.tag}! 🎉 Jangan lupa baca peraturan server.`)
                 .catch(console.error);
         }
+
     }
 };

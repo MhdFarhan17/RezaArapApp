@@ -5,7 +5,7 @@ const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
-const { server1, server2, youtubeRegex, spotifyRegex, tiktokRegex, twitchRegex, bannedWords, fontGeneratorId} = require('../utils/constants');
+const { server1, server2, bannedWords} = require('../utils/constants');
 
 const userCreatedChannels = {};
 const userMessages = {};
@@ -25,8 +25,10 @@ function sendWarning(channel, content, timeout = 60000) {
 }
 
 function isLink(content) {
-    const urlPattern = /https?:\/\/[^\s]+/gi; // Regular expression to detect URLs
-    return urlPattern.test(content);
+    const urlPattern = /https?:\/\/[^\s]+/gi;
+    const discordGifPattern = /https?:\/\/tenor\.com\/view\/[^\s]+|https?:\/\/media\.discordapp\.net\/attachments\/[^\s]+/gi; // Pengecualian untuk GIF Discord atau Tenor
+
+    return urlPattern.test(content) && !discordGifPattern.test(content);
 }
 
 function containsBannedWords(content) {
@@ -37,21 +39,17 @@ async function handleSpamCheck(message, content) {
     const { author, channel } = message;
     const now = Date.now();
 
-    // Initialize the user message log if not present
     if (!userMessages[author.id]) {
         userMessages[author.id] = [];
     }
 
-    // Add the current message to the log and filter out older ones beyond the SPAM_TIMEFRAME
     userMessages[author.id].push({ content, timestamp: now, messageId: message.id });
     userMessages[author.id] = userMessages[author.id].filter(msg => now - msg.timestamp < SPAM_TIMEFRAME);
 
-    // Check for identical messages within the SPAM_TIMEFRAME
     const identicalMessages = userMessages[author.id].filter(msg => msg.content === content);
 
     if (identicalMessages.length > SPAM_THRESHOLD) {
         try {
-            // Only delete messages starting from the third instance
             for (let i = 2; i < identicalMessages.length; i++) {
                 const msgToDelete = await channel.messages.fetch(identicalMessages[i].messageId).catch(err => {
                     if (err.code === 10008) {
@@ -75,7 +73,6 @@ async function handleSpamCheck(message, content) {
             console.error(`Error handling spam check: ${error.message}`);
         }
 
-        // Issue a warning if the warning conditions are met
         if (!userWarnings[author.id] || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
             sendWarning(channel, `${author}, Gausah SPAM ya tod 😡, ntar gua pukul pala lu!`);
             userWarnings[author.id] = { count: 1, lastWarningTime: now };
@@ -126,7 +123,7 @@ async function handleCreateVoiceChannel(message, serverConfig) {
         userCreatedChannels[author.id] = voiceChannel.id;
         const limitMessage = maxMembers ? ` dengan batas maksimal ${maxMembers} anggota` : ' tanpa batasan anggota';
         message.reply(`Voice Channel **${channelName}** berhasil dibuat${limitMessage}!`);
-        
+
         const member = guild.members.cache.get(author.id);
         if (member.voice.channel) await member.voice.setChannel(voiceChannel);
     } catch (error) {
@@ -210,7 +207,6 @@ module.exports = {
 
         const shareLinkChannelId = serverConfig.shareLinkChannelId;
 
-        // Check if the message is sent in an allowed channel and contains a link
         if (serverConfig.allowedChannelIds.includes(channel.id) && isLink(content)) {
             try {
                 await message.delete();

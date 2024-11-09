@@ -4,7 +4,6 @@ const path = require('path');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
-const { logMemberJoin, logMemberLeave } = require('./logs/moderationLog'); // Import fungsi log
 require('dotenv').config();
 
 const token = process.env.DISCORD_TOKEN;
@@ -25,10 +24,8 @@ const client = new Client({
     ]
 });
 
-// Load event files
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
 for (const file of eventFiles) {
     const event = require(path.join(eventsPath, file));
     if (event.name && event.execute) {
@@ -40,16 +37,6 @@ for (const file of eventFiles) {
     }
 }
 
-// Event untuk log anggota baru
-client.on('guildMemberAdd', member => {
-    logMemberJoin(client, member.guild.id, member.user.tag, member.user.id);
-});
-
-// Event untuk log anggota yang keluar
-client.on('guildMemberRemove', member => {
-    logMemberLeave(client, member.guild.id, member.user.tag, member.user.id);
-});
-
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
 
@@ -59,10 +46,8 @@ client.once('ready', async () => {
         return;
     }
 
-    // Inisialisasi voice times untuk member yang sudah aktif di voice channel saat bot mulai
     await initializeVoiceTimes(client);
 
-    // Get allowed channel for announcements
     const allowedChannelId = server1.allowedChannelIds[0];
     const allowedChannel = guild.channels.cache.get(allowedChannelId);
     if (!allowedChannel) {
@@ -70,7 +55,6 @@ client.once('ready', async () => {
         return;
     }
 
-    // Get leaderboard channel for sending leaderboard messages
     const leaderboardChannelId = server1.leaderboardChannelId;
     const leaderboardChannel = guild.channels.cache.get(leaderboardChannelId);
     if (!leaderboardChannel) {
@@ -78,7 +62,6 @@ client.once('ready', async () => {
         return;
     }
 
-    // Schedule daily leaderboard in the leaderboard channel
     cron.schedule('0 0 * * *', async () => {
         try {
             console.log('Sending daily leaderboard at 00.00 WIB ...');
@@ -88,7 +71,6 @@ client.once('ready', async () => {
         }
     }, { timezone: "Asia/Jakarta" });
 
-    // Schedule Malam Minggu message in the allowed channel
     cron.schedule('0 19 * * 6', async () => {
         try {
             const embed = new EmbedBuilder()
@@ -110,7 +92,6 @@ client.once('ready', async () => {
         }
     });
 
-    // Schedule Friday prayer reminder in the allowed channel
     cron.schedule('20 11 * * 5', async () => {
         try {
             const embed = new EmbedBuilder()

@@ -11,7 +11,6 @@ mongoose.connect(process.env.MONGODB_URI, {
     console.error('Database connection failed:', error.message);
 });
 
-// Event listener untuk memantau status koneksi
 mongoose.connection.on('connected', () => {
     console.log('Mongoose connected to MongoDB');
 });
@@ -24,15 +23,13 @@ mongoose.connection.on('disconnected', () => {
     console.log('Mongoose disconnected from MongoDB');
 });
 
-// Fungsi untuk memutuskan koneksi dengan MongoDB
 function closeConnection() {
     mongoose.connection.close(() => {
         console.log('Mongoose connection closed');
-        process.exit(0); // Menutup aplikasi dengan status 0 (berhasil)
+        process.exit(0);
     });
 }
 
-// Menutup koneksi saat aplikasi dihentikan
 process.on('SIGINT', closeConnection).on('SIGTERM', closeConnection);
 
 module.exports = mongoose;

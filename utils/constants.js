@@ -29,5 +29,5 @@ module.exports = {
     spotifyRegex: /https?:\/\/(open\.spotify\.com)\/.+/,
     tiktokRegex: /https?:\/\/(www\.)?tiktok\.com\/.+/,
     twitchRegex: /https?:\/\/(www\.)?(twitch\.tv)\/.+/,
-    bannedWords: ['kontol', 'memek', 'judi', 'sex', 'ngewe', 'ngentot', 'anjing', 'babi', 'tolol', 'jembut']
+    bannedWords: ['kontol', 'memek', 'judi', 'sex', 'ngewe', 'ngentot', 'anjing', 'babi', 'jembut']
 };

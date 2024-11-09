@@ -12,7 +12,6 @@ module.exports = {
         const goodbyeChannelId = serverConfig.goodbyeChannelId;
         const goodbyeChannel = member.guild.channels.cache.get(goodbyeChannelId);
 
-        // Log anggota yang keluar
         logMemberLeave(client, guildId, member.user.tag, member.user.id);
 
         if (goodbyeChannel) {

@@ -79,8 +79,23 @@ module.exports = {
                     break;
 
                 // Contoh respon teks
+                case 'pagi':
+                    message.channel.send(`Selamat pagi! 🌞 Jangan lupa sarapan biar makin semangat! Semoga harimu penuh keberkahan, ${message.author}! 🤗`).catch(console.error);
+                    break;
+                case 'siang':
+                    message.channel.send(`Siang juga! 🌤️ Jangan lupa makan siang dan isi tenaga ya, ${message.author}! Tetap semangat menghadapi sisa hari ini! 💪`).catch(console.error);
+                    break;
+                case 'sore':
+                    message.channel.send(`Selamat sore! 🌇 Semoga soremu seindah langit senja. Waktunya santai sejenak sebelum lanjut aktivitas, ${message.author}! 🍵`).catch(console.error);
+                    break;
+                case 'malam':
+                    message.channel.send(`Malam juga, ${message.author}! 🌙 Semoga tidurmu nyenyak dan mimpi indah ya. Good night and recharge your energy! 🛌💤`).catch(console.error);
+                    break;
                 case 'mek':
-                    message.channel.send(`Ape lu mak mek mak mek anjink ${message.author}!`).catch(console.error);
+                    message.channel.send(`Ape lu mak mek mak mek ${message.author}!`).catch(console.error);
+                    break;
+                case 'berak':
+                    message.channel.send(`Kalau habis berak itu disiram ngntoddd, taeeeknya bleberan`).catch(console.error);
                     break;
                 case 'cape':
                     message.channel.send(`Kalau cape itu istirahat, jangan malah main game terus.`).catch(console.error);
@@ -93,11 +108,11 @@ module.exports = {
                     break;
                 case 'valo':
                     const valoRoleId = '1236564378585661441';
-                    message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
+                    message.channel.send(`Login valo gak sih <@&${valoRoleId}>`).catch(console.error);
                     break;
                 case 'roblox':
                     const robloxRoleId = '1236563915497013318';
-                    message.channel.send(`Ayo main Roblox gess <@&${robloxRoleId}>`).catch(console.error);
+                    message.channel.send(`Ayo main Roblox <@&${robloxRoleId}>`).catch(console.error);
                     break;
                 
                 case 'egrol':
@@ -107,7 +122,7 @@ module.exports = {
                     if (targetMember) {
                         message.channel.send(`Seseorang memanggil kamu ${targetMember}, karena kamu adalah seorang "Boosted Egg Roll"`).catch(console.error);
                     } else {
-                        message.channel.send('Parah banget sih onty kesh, gabisa tag kamu loh 😭😭😭').catch(console.error);
+                        message.channel.send('lagi gak bisa tag kesh').catch(console.error);
                     }
                     break;
 
@@ -117,7 +132,7 @@ module.exports = {
                     if (targetMember2) {
                         message.channel.send(`Seseorang memanggil kamu ${targetMember2}, karena kamu adalah seorang "Eboy" yang sudah terverified GitGud.`).catch(console.error);
                     } else {
-                        message.channel.send('Sedih aku teh gabisa tag kamu eboy Vlum😭😭😭.').catch(console.error);
+                        message.channel.send('gak bisa tag vlum').catch(console.error);
                     }
                     break;
                 
@@ -125,9 +140,9 @@ module.exports = {
                     const targetMemberId3 = '835177633569964092';
                     const targetMember3 = message.guild.members.cache.get(targetMemberId3);
                     if (targetMember3) {
-                        message.channel.send(`Seseorang memanggil kamu ${targetMember3}, karena muka kamu mirip titit kuda.`).catch(console.error);
+                        message.channel.send(`Seseorang memanggil kamu ${targetMember3}`).catch(console.error);
                     } else {
-                        message.channel.send('Suryaaaaaaaaa, aku gabisa tag kamu 😭😭😭').catch(console.error);
+                        message.channel.send('lagi gak bisa tag surya').catch(console.error);
                     }
                     break;
                 default:
