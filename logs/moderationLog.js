@@ -113,17 +113,18 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logRoleChange(client, guildId, userId, roleName, action) {
+    logRoleChange(client, guildId, userTag, userId, roleName, roleId, action) {
         const userMention = `<@${userId}>`;
+        const title = action === 'Added' ? 'Role Ditambahkan' : 'Role Dihapus';
 
         const embed = new EmbedBuilder()
             .setColor(action === 'Added' ? Colors.Green : Colors.Red)
-            .setTitle(`Role ${action}`)
+            .setTitle(title)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Role**', value: roleName, inline: false }
             )
-            .setFooter({ text: `User ID: ${userId}` })
+            .setFooter({ text: `Role ID: ${roleId}` })
             .setTimestamp();
 
         sendLog(client, guildId, embed);
