@@ -124,7 +124,7 @@ module.exports = {
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Role**', value: roleName, inline: false }
             )
-            .setFooter({ text: `Role ID: ${roleId} | User ID: ${userId}` })
+            .setFooter({ text: `Role ID: ${roleId}` })
             .setTimestamp();
 
         sendLog(client, guildId, embed);
