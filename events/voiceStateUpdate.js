@@ -54,7 +54,7 @@ module.exports = {
                 voiceTimes[member.id].joinTime = now;
                 console.log(`Started tracking for ${member.user.tag}`);
             }
-            logVoiceChannelEvent(client, guildId, 'Joined Voice Channel', member.user.id, null, newState.channel.id);
+            logVoiceChannelEvent(client, guildId, '**Joined** Voice Channel', member.user.id, null, newState.channel.id);
 
         } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
             const sessionTime = now - voiceTimes[member.id].joinTime;
@@ -62,7 +62,7 @@ module.exports = {
             await saveVoiceTime(member.id, voiceTimes[member.id].totalTime, null);
             delete voiceTimes[member.id].joinTime;
             console.log(`Stopped tracking for ${member.user.tag}. Session: ${sessionTime / 1000}s`);
-            logVoiceChannelEvent(client, guildId, 'Left Voice Channel', member.user.id, oldState.channel.id, null);
+            logVoiceChannelEvent(client, guildId, '**Left** Voice Channel', member.user.id, oldState.channel.id, null);
 
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             if (voiceTimes[member.id].joinTime) {
@@ -77,7 +77,7 @@ module.exports = {
             const oldChannelName = oldState.channel ? oldState.channel.name : 'Unknown';
             const newChannelName = newState.channel ? newState.channel.name : 'Unknown';
             console.log(`Member ${member.user.tag} moved from ${oldChannelName} to ${newChannelName}`);
-            logVoiceChannelEvent(client, guildId, 'Switched Voice Channels', member.user.id, oldState.channel.id, newState.channel.id);
+            logVoiceChannelEvent(client, guildId, '**Switched** Voice Channels', member.user.id, oldState.channel.id, newState.channel.id);
 
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
