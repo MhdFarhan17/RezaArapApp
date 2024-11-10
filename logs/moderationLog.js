@@ -130,28 +130,34 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logChannelChange(client, guildId, action, channelId, channelName) {
+    logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
         let color;
-        if (action.toLowerCase() === 'Deleted') {
+        if (action.toLowerCase() === 'deleted') {
             color = Colors.Red;
-        } else if (action.toLowerCase() === 'Created') {
+        } else if (action.toLowerCase() === 'created') {
             color = Colors.Green;
         } else {
             color = Colors.Blue;
         }
-
-        const channelMention = `<#${channelId}> (${channelName || 'Unknown'})`;
-
+    
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle(`Perubahan Channel: ${action}`)
-            .addFields(
-                { name: '**Channel**', value: channelMention, inline: false },
-                { name: '**Action**', value: action, inline: false }
-            )
+            .setTitle(`Voice Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
-
+    
+        if (action.toLowerCase() === 'renamed') {
+            embed.addFields(
+                { name: '**Before**', value: channelNameBefore || 'Unknown', inline: false },
+                { name: '**After**', value: channelNameAfter || 'Unknown', inline: false }
+            );
+        } else {
+            embed.addFields(
+                { name: '**Channel**', value: channelNameBefore || 'Unknown', inline: false }
+            );
+        }
+    
         sendLog(client, guildId, embed);
     }
+    
 };

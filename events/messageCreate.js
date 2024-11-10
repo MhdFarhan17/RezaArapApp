@@ -3,6 +3,7 @@ const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
+const { logChannelChange } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
 const { server1, server2, bannedWords} = require('../utils/constants');
@@ -123,6 +124,7 @@ async function handleCreateVoiceChannel(message, serverConfig) {
         userCreatedChannels[author.id] = voiceChannel.id;
         const limitMessage = maxMembers ? ` dengan batas maksimal ${maxMembers} anggota` : ' tanpa batasan anggota';
         message.reply(`Voice Channel **${channelName}** berhasil dibuat${limitMessage}!`);
+        logChannelChange(message.client, guild.id, 'Created', voiceChannel.id, voiceChannel.name);
 
         const member = guild.members.cache.get(author.id);
         if (member.voice.channel) await member.voice.setChannel(voiceChannel);
@@ -188,6 +190,7 @@ async function handleSetVoiceChannelName(message) {
     try {
         await voiceChannel.edit({ name: newName });
         message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`);
+        logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, `${oldName} ➔ ${newName}`);
     } catch (error) {
         console.error('Error mengubah nama Voice Channel:', error);
         sendWarning(message.channel, 'Gagal mengubah nama Voice Channel.');

@@ -1,9 +1,9 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const cron = require('node-cron');
+const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 
 const token = process.env.DISCORD_TOKEN;
@@ -28,12 +28,20 @@ const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
     const event = require(path.join(eventsPath, file));
-    if (event.name && event.execute) {
-        event.once
-            ? client.once(event.name, (...args) => event.execute(...args, client))
-            : client.on(event.name, (...args) => event.execute(...args, client));
+    if (Array.isArray(event)) {
+        event.forEach(evt => {
+            if (evt.name && evt.execute) {
+                evt.once
+                    ? client.once(evt.name, (...args) => evt.execute(...args, client))
+                    : client.on(evt.name, (...args) => evt.execute(...args, client));
+            }
+        });
     } else {
-        console.warn(`Event ${file} is missing a valid name or execute function.`);
+        if (event.name && event.execute) {
+            event.once
+                ? client.once(event.name, (...args) => event.execute(...args, client))
+                : client.on(event.name, (...args) => event.execute(...args, client));
+        }
     }
 }
 
