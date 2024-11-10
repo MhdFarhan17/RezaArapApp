@@ -130,7 +130,7 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logChannelChange(client, guildId, action, channelId, oldName = null, newName = null) {
+    logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
         let color;
         if (action.toLowerCase() === 'deleted') {
             color = Colors.Red;
@@ -148,8 +148,8 @@ module.exports = {
     
         if (action.toLowerCase() === 'renamed') {
             embed.addFields(
-                { name: '**Before**', value: oldName || 'Unknown', inline: false },
-                { name: '**After**', value: newName || 'Unknown', inline: false }
+                { name: '**Before**', value: channelNameBefore || 'Unknown', inline: false },
+                { name: '**After**', value: channelNameAfter || 'Unknown', inline: false }
             );
         } else {
             embed.addFields(
