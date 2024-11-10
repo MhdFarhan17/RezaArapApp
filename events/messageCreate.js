@@ -191,7 +191,7 @@ async function handleSetVoiceChannelName(message) {
     try {
         await voiceChannel.edit({ name: newName });
         message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`);
-        logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, `Before: ${oldName} → After: ${newName}`);
+        logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, oldName, newName);
     } catch (error) {
         console.error('Error mengubah nama Voice Channel:', error);
         sendWarning(message.channel, 'Gagal mengubah nama Voice Channel.');
