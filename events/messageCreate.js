@@ -124,7 +124,7 @@ async function handleCreateVoiceChannel(message, serverConfig) {
         userCreatedChannels[author.id] = voiceChannel.id;
         const limitMessage = maxMembers ? ` dengan batas maksimal ${maxMembers} anggota` : ' tanpa batasan anggota';
         message.reply(`Voice Channel **${channelName}** berhasil dibuat${limitMessage}!`);
-        logChannelChange(message.client, guild.id, 'Created', voiceChannel.id, voiceChannel.name);
+        // logChannelChange(message.client, guild.id, 'Created', voiceChannel.id, voiceChannel.name);
 
         const member = guild.members.cache.get(author.id);
         if (member.voice.channel) await member.voice.setChannel(voiceChannel);

@@ -13,9 +13,11 @@ module.exports = {
     channelUpdate: {
         name: 'channelUpdate',
         async execute(oldChannel, newChannel, client) {
+            const oldName = oldChannel.name;
+            const newName = newChannel.name;
             if (!newChannel.guild) return; // Pastikan event terjadi di dalam server (guild)
             if (oldChannel.name !== newChannel.name) {
-                logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, `${oldChannel.name} ➔ ${newChannel.name}`);
+                logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldName, newName);
                 console.log(`Channel '${oldChannel.name}' diubah menjadi '${newChannel.name}'.`);
             }
         }
