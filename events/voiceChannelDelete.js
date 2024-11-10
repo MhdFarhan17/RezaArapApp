@@ -23,7 +23,7 @@ module.exports = {
                     try {
                         await updatedChannel.delete();
                         console.log(`Temporary voice channel '${updatedChannel.name}' telah dihapus karena tidak ada aktivitas.`);
-                        logChannelChange(client, guildId, 'Deleted', updatedChannel.id, updatedChannel.name);
+                        logChannelChange(client, guildId, 'Deleted', updatedChannel.id, channelName);
                     } catch (error) {
                         console.error(`Gagal menghapus channel '${updatedChannel.name}':`, error);
                     }

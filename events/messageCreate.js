@@ -182,6 +182,7 @@ async function handleSetVoiceChannelName(message) {
         return sendWarning(message.channel, 'Hanya pembuat yang bisa mengubah nama Voice Channel ini.');
     }
 
+    const oldName = voiceChannel.name;
     const newName = content.split(' ').slice(1).join(' ').trim();
     if (!newName) {
         return sendWarning(message.channel, 'Masukkan nama channel yang valid.');
@@ -190,7 +191,7 @@ async function handleSetVoiceChannelName(message) {
     try {
         await voiceChannel.edit({ name: newName });
         message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`);
-        logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, `${oldName} ➔ ${newName}`);
+        logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, `Before: ${oldName} → After: ${newName}`);
     } catch (error) {
         console.error('Error mengubah nama Voice Channel:', error);
         sendWarning(message.channel, 'Gagal mengubah nama Voice Channel.');
