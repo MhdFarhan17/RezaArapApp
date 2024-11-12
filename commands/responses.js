@@ -80,15 +80,21 @@ module.exports = {
 
                 // Contoh respon teks
                 case 'pagi':
+                case 'selamat pagi':
+                case 'good morning':
                     message.channel.send(`Selamat pagi! 🌞 Jangan lupa sarapan biar makin semangat! Semoga harimu penuh keberkahan, ${message.author}! 🤗`).catch(console.error);
                     break;
                 case 'siang':
+                case 'selamat siang':
                     message.channel.send(`Siang juga! 🌤️ Jangan lupa makan siang dan isi tenaga ya, ${message.author}! Tetap semangat menghadapi sisa hari ini! 💪`).catch(console.error);
                     break;
                 case 'sore':
+                case 'selamat sore':
                     message.channel.send(`Selamat sore! 🌇 Semoga soremu seindah langit senja. Waktunya santai sejenak sebelum lanjut aktivitas, ${message.author}! 🍵`).catch(console.error);
                     break;
                 case 'malam':
+                case 'selamat malam':
+                case 'good night':
                     message.channel.send(`Malam juga, ${message.author}! 🌙 Semoga tidurmu nyenyak dan mimpi indah ya. Good night and recharge your energy! 🛌💤`).catch(console.error);
                     break;
                 case 'mek':

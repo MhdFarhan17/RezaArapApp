@@ -17,7 +17,7 @@ function sendLog(client, guildId, embed) {
 
 module.exports = {
     logVoiceChannelEvent(client, guildId, action, userId, channelIdFrom, channelIdTo = null) {
-        const color = action.includes("Member Left Voice Channel") || action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green;
+        const color = action.includes("Left Voice Channel") || action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
                         : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
@@ -67,7 +67,7 @@ module.exports = {
         const channelMention = channel ? `<#${channel.id}>` : 'Unknown';
 
         const embed = new EmbedBuilder()
-            .setColor(Colors.Green)
+            .setColor(Colors.Blue)
             .setTitle('Message Edited')
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
