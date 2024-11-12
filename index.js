@@ -45,13 +45,6 @@ for (const file of eventFiles) {
     }
 }
 
-const VcRenamed = require('./events/VcRenamed');
-const VcDeleted = require('./events/VcDeleted');
-
-client.on('channelUpdate', (oldChannel, newChannel) => VcRenamed.execute(oldChannel, newChannel, client));
-client.on('channelDelete', (oldChannel) => VcDeleted.execute(oldChannel, client));
-
-
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
 
