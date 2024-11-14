@@ -113,6 +113,8 @@ module.exports = {
                     message.channel.send(`Ayo main sih guys, jangan diem-diem bae! @everyone`).catch(console.error);
                     break;
                 case 'valo':
+                case 'mabar valo':
+                case 'valorant':
                     const valoRoleId = '1236564378585661441';
                     message.channel.send(`Login valo gak sih <@&${valoRoleId}>`).catch(console.error);
                     break;
@@ -120,7 +122,18 @@ module.exports = {
                     const robloxRoleId = '1236563915497013318';
                     message.channel.send(`Ayo main Roblox <@&${robloxRoleId}>`).catch(console.error);
                     break;
-                
+                case 'ml':
+                case 'mabar ml':
+                case 'mole':
+                    const MLRoleId = '1254019853501599817';
+                    message.channel.send(`Ayo mabar Mobile Legends <@&${MLRoleId}>`).catch(console.error);
+                    break;   
+                case 'pubg':
+                case 'babaji':
+                case 'pubg pc':
+                    const pubgRoleId = '1236954189016334398';
+                    message.channel.send(`Ayo Mabar PUBG PC <@&${pubgRoleId}>`).catch(console.error);
+                    break;            
                 case 'egrol':
                 case 'egirl':
                     const targetMemberId = '707278921757884439';
