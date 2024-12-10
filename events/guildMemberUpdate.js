@@ -2,6 +2,8 @@ const { logRoleChange } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
 const { EmbedBuilder } = require('discord.js');
 
+const boostedMembersCache = new Set();
+
 module.exports = {
     name: 'guildMemberUpdate',
     async execute(oldMember, newMember, client) {
@@ -39,12 +41,15 @@ module.exports = {
         const wasBoosting = oldMember.premiumSince !== null;
         const isBoosting = newMember.premiumSince !== null;
 
-        if (!wasBoosting && isBoosting) {
+        // Jika member mulai boost
+        if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
+            boostedMembersCache.add(newMember.id); // Tambahkan ke cache
             const embed = new EmbedBuilder()
                 .setColor(0xFF73FA) // Warna pink
                 .setTitle('🎉 🎊 BOOSTER PARTY 🎊 🎉')
-                .setDescription(`🎆 **${newMember.user.tag}** just boosted the server! Thank you for your support! 💖`)
+                .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+                .setImage('attachment://boost.gif')
                 .setFooter({ text: 'Server Boosted 🚀' })
                 .setTimestamp();
 
@@ -53,11 +58,13 @@ module.exports = {
 
         // Jika member berhenti boost
         if (wasBoosting && !isBoosting) {
+            boostedMembersCache.delete(newMember.id); // Hapus dari cache
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000) // Warna merah
                 .setTitle('😢 Boost Ended')
-                .setDescription(`**${newMember.user.tag}** has stopped boosting the server. We’ll miss your support! 💔`)
+                .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+                .setImage('attachment://boost.gif')
                 .setFooter({ text: 'Server Boost Removed' })
                 .setTimestamp();
 

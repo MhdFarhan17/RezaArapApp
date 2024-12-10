@@ -24,23 +24,25 @@ const client = new Client({
     ]
 });
 
+const boostedMembersCache = new Set();
+
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
     const event = require(path.join(eventsPath, file));
     if (Array.isArray(event)) {
         event.forEach(evt => {
-            if (evt.name && evt.execute) {
+            if (event.name && event.execute) {
                 evt.once
-                    ? client.once(evt.name, (...args) => evt.execute(...args, client))
-                    : client.on(evt.name, (...args) => evt.execute(...args, client));
+                    ? client.once(event.name, (...args) => event.execute(...args, client))
+                    : client.on(event.name, (...args) => event.execute(...args, client));
             }
         });
     } else {
         if (event.name && event.execute) {
             event.once
-                ? client.once(event.name, (...args) => evt.execute(...args, client))
-                : client.on(event.name, (...args) => evt.execute(...args, client));
+                ? client.once(event.name, (...args) => event.execute(...args, client))
+                : client.on(event.name, (...args) => event.execute(...args, client));
         }
     }
 }
@@ -48,7 +50,6 @@ for (const file of eventFiles) {
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
 
-    // Inisialisasi dan deteksi boost saat bot aktif
     [server1, server2].forEach(async (serverConfig) => {
         const guild = client.guilds.cache.get(serverConfig.guildId);
         if (!guild) {
@@ -56,7 +57,7 @@ client.once('ready', async () => {
             return;
         }
 
-        const boostChannelId = serverConfig.boostChannelId;
+        const boostChannelId = serverConfig.boostNotifId;
         const boostChannel = guild.channels.cache.get(boostChannelId);
 
         if (!boostChannel) {
@@ -64,19 +65,23 @@ client.once('ready', async () => {
             return;
         }
 
-        // Fetch all members to check for active boosts
         const members = await guild.members.fetch();
         members.forEach((member) => {
-            if (member.premiumSince) {
+            if (member.premiumSince && !boostedMembersCache.has(member.id)) {
+                boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
                     .setTitle('✨ Active Boosters ✨')
-                    .setDescription(`🎆 **${member.user.tag}** is actively boosting the server! Thanks a ton! 💖`)
+                    .setDescription(`**${member.user.tag}** is actively boosting the server! Thanks`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                    .setFooter({ text: 'Server Boosted 🚀'})
+                    .setImage('attachment://boost.gif')
+                    .setFooter({ text: 'Server Boosted 🚀' })
                     .setTimestamp();
 
-                boostChannel.send({ embeds: [embed] });
+                boostChannel.send({
+                    embeds: [embed],
+                    files: [{ attachment: path.join(__dirname, 'images', 'booster.gif'), name: 'booster.gif' }]
+                });
             }
         });
     });
