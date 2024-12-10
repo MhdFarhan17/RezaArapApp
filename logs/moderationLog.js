@@ -22,9 +22,12 @@ module.exports = {
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
                         : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
 
+        const user = client.users.cache.get(userId);
+
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle('Voice Channel Activity')
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**Action**', value: action, inline: false },
                 { name: '**User**', value: userMention, inline: false },
@@ -38,6 +41,7 @@ module.exports = {
 
     async logMessageDelete(client, guildId, userId, channelId, messageContent) {
         const userMention = `<@${userId}>`;
+        const user = client.users.cache.get(userId);
         let channel = client.channels.cache.get(channelId);
         if (!channel) {
             channel = await client.channels.fetch(channelId).catch(() => null);
@@ -47,6 +51,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Message Deleted')
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Channel**', value: channelMention, inline: false },
@@ -60,6 +65,7 @@ module.exports = {
 
     async logMessageEdit(client, guildId, userId, channelId, oldContent, newContent) {
         const userMention = `<@${userId}>`;
+        const user = client.users.cache.get(userId);
         let channel = client.channels.cache.get(channelId);
         if (!channel) {
             channel = await client.channels.fetch(channelId).catch(() => null);
@@ -69,6 +75,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Blue)
             .setTitle('Message Edited')
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Channel**', value: channelMention, inline: false },
@@ -83,10 +90,12 @@ module.exports = {
 
     logMemberJoin(client, guildId, userTag, userId) {
         const userMention = `<@${userId}>`;
+        const user = client.users.cache.get(userId);
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setTitle('Member Joined')
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Username**', value: userTag, inline: false }
@@ -99,10 +108,12 @@ module.exports = {
 
     logMemberLeave(client, guildId, userTag, userId) {
         const userMention = `<@${userId}>`;
+        const user = client.users.cache.get(userId);
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Member Left')
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Username**', value: userTag, inline: false }
@@ -115,11 +126,13 @@ module.exports = {
 
     logRoleChange(client, guildId, userTag, userId, roleName, roleId, action) {
         const userMention = `<@${userId}>`;
+        const user = client.users.cache.get(userId);
         const title = action === 'Added' ? 'Role Ditambahkan' : 'Role Dihapus';
 
         const embed = new EmbedBuilder()
             .setColor(action === 'Added' ? Colors.Green : Colors.Red)
             .setTitle(title)
+            .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Role**', value: roleName, inline: false }

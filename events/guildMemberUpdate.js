@@ -1,6 +1,7 @@
 const { logRoleChange } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
 const { EmbedBuilder } = require('discord.js');
+const path = require('path');
 
 const boostedMembersCache = new Set();
 
@@ -20,6 +21,7 @@ module.exports = {
         const oldRoles = new Set(oldMember.roles.cache.map(role => role.id));
         const newRoles = new Set(newMember.roles.cache.map(role => role.id));
 
+        // Periksa role yang ditambahkan
         for (const roleId of newRoles) {
             if (!oldRoles.has(roleId)) {
                 const role = newMember.guild.roles.cache.get(roleId);
@@ -29,6 +31,7 @@ module.exports = {
             }
         }
 
+        // Periksa role yang dihapus
         for (const roleId of oldRoles) {
             if (!newRoles.has(roleId)) {
                 const role = oldMember.guild.roles.cache.get(roleId);
@@ -41,39 +44,37 @@ module.exports = {
         const wasBoosting = oldMember.premiumSince !== null;
         const isBoosting = newMember.premiumSince !== null;
 
-        // Jika member mulai boost
         if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
-            boostedMembersCache.add(newMember.id); // Tambahkan ke cache
+            boostedMembersCache.add(newMember.id);
             const embed = new EmbedBuilder()
                 .setColor(0xFF73FA) // Warna pink
-                .setTitle('🎉 🎊 BOOSTER PARTY 🎊 🎉')
+                .setTitle('𝐁𝐎𝐎𝐒𝐓𝐄𝐑 𝐏𝐀𝐑𝐓𝐘')
                 .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://boost.gif')
-                .setFooter({ text: 'Server Boosted 🚀' })
+                .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                 .setTimestamp();
 
             boostChannel.send({
                 embeds: [embed],
-                files: [{ attachment: path.join(__dirname, 'images', 'boost.gif'), name: 'boost.gif' }]
+                files: [{ attachment: path.join(__dirname, '../images', 'boost.gif'), name: 'boost.gif' }]
             });
         }
 
-        // Jika member berhenti boost
-        if (wasBoosting && !isBoosting) {
-            boostedMembersCache.delete(newMember.id); // Hapus dari cache
+        if (wasBoosting && !isBoosting && boostedMembersCache.has(newMember.id)) {
+            boostedMembersCache.delete(newMember.id);
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000) // Warna merah
-                .setTitle('😢 Boost Ended')
+                .setTitle('𝐁𝐨𝐨𝐬𝐭 𝐄𝐧𝐝𝐞𝐝')
                 .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://boost.gif')
+                .setImage('attachment://end.gif')
                 .setFooter({ text: 'Server Boost Removed' })
                 .setTimestamp();
 
             boostChannel.send({
                 embeds: [embed],
-                files: [{ attachment: path.join(__dirname, 'images', 'boost.gif'), name: 'boost.gif' }]
+                files: [{ attachment: path.join(__dirname, '../images', 'end.gif'), name: 'end.gif' }]
             });
         }
     }

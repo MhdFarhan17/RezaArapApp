@@ -71,11 +71,11 @@ client.once('ready', async () => {
                 boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
-                    .setTitle('✨ Active Boosters ✨')
-                    .setDescription(`**${member.user.tag}** is actively boosting the server! Thanks`)
+                    .setTitle('𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫𝐬')
+                    .setDescription(`**${member.user.tag}** is actively boosting the server!`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .setImage('attachment://boost.gif')
-                    .setFooter({ text: 'Server Boosted 🚀' })
+                    .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                     .setTimestamp();
 
                 boostChannel.send({
