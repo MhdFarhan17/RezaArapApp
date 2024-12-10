@@ -10,8 +10,8 @@ module.exports = {
         antiRaidRoleId: ['1290267440164634665'],
         tempVoiceCategoryId: '1291854096646541364',
         commandChannelId: '1291829623423762474',
-        shareLinkChannelId: '1303005047864692878'
-        // boostChannelId: '1316031754657599590'
+        shareLinkChannelId: '1303005047864692878',
+        boostChannelId: '1316039713072873482'
     },
     // Konfigurasi untuk Server 2
     server2: {
