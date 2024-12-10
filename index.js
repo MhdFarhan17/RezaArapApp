@@ -56,7 +56,7 @@ client.once('ready', async () => {
             return;
         }
 
-        const boostChannelId = serverConfig.boostNotifId;
+        const boostChannelId = serverConfig.boostChannelId;
         const boostChannel = guild.channels.cache.get(boostChannelId);
 
         if (!boostChannel) {

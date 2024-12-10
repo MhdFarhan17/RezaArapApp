@@ -10,7 +10,7 @@ module.exports = {
         if (![server1.guildId, server2.guildId].includes(guildId)) return;
 
         const serverConfig = guildId === server1.guildId ? server1 : server2;
-        const boostChannelId = serverConfig.boostNotifId;
+        const boostChannelId = serverConfig.boostChannelId;
         const boostChannel = newMember.guild.channels.cache.get(boostChannelId);
 
         if (!boostChannel) return;
