@@ -74,7 +74,6 @@ client.once('ready', async () => {
                     .setTitle('✨ Active Boosters ✨')
                     .setDescription(`**${member.user.tag}** is actively boosting the server! Thanks`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                    .setImage('attachment://boost.gif')
                     .setFooter({ text: 'Server Boosted 🚀' })
                     .setTimestamp();
 

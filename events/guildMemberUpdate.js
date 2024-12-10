@@ -49,7 +49,6 @@ module.exports = {
                 .setTitle('🎉 🎊 BOOSTER PARTY 🎊 🎉')
                 .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://boost.gif')
                 .setFooter({ text: 'Server Boosted 🚀' })
                 .setTimestamp();
 
@@ -64,7 +63,6 @@ module.exports = {
                 .setTitle('😢 Boost Ended')
                 .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://boost.gif')
                 .setFooter({ text: 'Server Boost Removed' })
                 .setTimestamp();
 
