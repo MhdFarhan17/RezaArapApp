@@ -7,7 +7,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 
 const token = process.env.DISCORD_TOKEN;
-const { server1 } = require('./utils/constants');
+const { server1, server2 } = require('./utils/constants');
 
 if (!token) {
     console.error('Bot token tidak ditemukan! Pastikan DISCORD_TOKEN sudah diatur di file .env');
@@ -39,14 +39,47 @@ for (const file of eventFiles) {
     } else {
         if (event.name && event.execute) {
             event.once
-                ? client.once(event.name, (...args) => event.execute(...args, client))
-                : client.on(event.name, (...args) => event.execute(...args, client));
+                ? client.once(event.name, (...args) => evt.execute(...args, client))
+                : client.on(event.name, (...args) => evt.execute(...args, client));
         }
     }
 }
 
 client.once('ready', async () => {
     console.log('Bot Discord YB sudah ready!');
+
+    // Inisialisasi dan deteksi boost saat bot aktif
+    [server1, server2].forEach(async (serverConfig) => {
+        const guild = client.guilds.cache.get(serverConfig.guildId);
+        if (!guild) {
+            console.error(`Guild dengan ID ${serverConfig.guildId} tidak ditemukan.`);
+            return;
+        }
+
+        const boostChannelId = serverConfig.boostNotifId;
+        const boostChannel = guild.channels.cache.get(boostChannelId);
+
+        if (!boostChannel) {
+            console.error(`Boost notification channel dengan ID ${boostChannelId} tidak ditemukan.`);
+            return;
+        }
+
+        // Fetch all members to check for active boosts
+        const members = await guild.members.fetch();
+        members.forEach((member) => {
+            if (member.premiumSince) {
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF73FA)
+                    .setTitle('✨ Active Boosters ✨')
+                    .setDescription(`🎆 **${member.user.tag}** is actively boosting the server! Thanks a ton! 💖`)
+                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+                    .setFooter({ text: 'Server Boosted 🚀'})
+                    .setTimestamp();
+
+                boostChannel.send({ embeds: [embed] });
+            }
+        });
+    });
 
     const guild = client.guilds.cache.get(server1.guildId);
     if (!guild) {
@@ -90,7 +123,7 @@ client.once('ready', async () => {
                     '**Masih Jomblo? 🤡**\n' +
                     'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord GITGUD! Main game, ngobrol seru, atau nikmati literatur sendirian. Kamu keren meski jomblo, bro! 💪😎\n\n'
                 )
-                .setFooter({ text: 'Selamat Malam Minggu!🎉' })
+                .setFooter({ text: 'Selamat Malam Minggu🎉' })
                 .setTimestamp();
 
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });

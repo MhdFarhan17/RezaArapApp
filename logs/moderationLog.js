@@ -142,7 +142,7 @@ module.exports = {
     
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle(`Voice Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
+            .setTitle(`Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
     
