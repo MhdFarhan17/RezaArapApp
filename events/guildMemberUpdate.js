@@ -48,7 +48,7 @@ module.exports = {
             boostedMembersCache.add(newMember.id);
             const embed = new EmbedBuilder()
                 .setColor(0xFF73FA) // Warna pink
-                .setTitle('𝐁𝐎𝐎𝐒𝐓𝐄𝐑 𝐏𝐀𝐑𝐓𝐘')
+                .setTitle('🎉𝐁𝐎𝐎𝐒𝐓𝐄𝐑 𝐏𝐀𝐑𝐓𝐘🎉')
                 .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://booster.gif')

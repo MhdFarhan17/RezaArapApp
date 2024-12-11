@@ -1,18 +1,19 @@
 const { EmbedBuilder, Colors } = require('discord.js');
 const { server1, server2 } = require('../utils/constants');
+const path = require('path'); // Tambahkan modul path untuk mengelola file
 
 function getServerConfig(guildId) {
     return guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 }
 
-function sendLog(client, guildId, embed) {
+function sendLog(client, guildId, embed, files = []) {
     const serverConfig = getServerConfig(guildId);
     if (!serverConfig) return console.error(`Server config for guildId ${guildId} not found.`);
     
     const logChannel = client.channels.cache.get(serverConfig.moderationLogChannelId);
     if (!logChannel) return console.error(`Log channel with ID ${serverConfig.moderationLogChannelId} not found.`);
     
-    logChannel.send({ embeds: [embed] }).catch(err => console.error(`Failed to send log: ${err.message}`));
+    logChannel.send({ embeds: [embed], files }).catch(err => console.error(`Failed to send log: ${err.message}`));
 }
 
 module.exports = {
@@ -100,10 +101,13 @@ module.exports = {
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Username**', value: userTag, inline: false }
             )
-            .setFooter({ text: `User ID: ${userId}` })
+            .setImage('attachment://welcomemember.gif') // Tambahkan GIF di bagian embed
+            .setFooter({ text: `Welcome to GITGUD || User ID: ${userId}` })
             .setTimestamp();
 
-        sendLog(client, guildId, embed);
+        sendLog(client, guildId, embed, [
+            { attachment: path.join(__dirname, '../gifs', 'welcomemember.gif'), name: 'welcomemember.gif' }
+        ]);
     },
 
     logMemberLeave(client, guildId, userTag, userId) {
@@ -118,7 +122,7 @@ module.exports = {
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Username**', value: userTag, inline: false }
             )
-            .setFooter({ text: `User ID: ${userId}` })
+            .setFooter({ text: `Selamat Tinggal 👋 || User ID: ${userId}` })
             .setTimestamp();
 
         sendLog(client, guildId, embed);
@@ -172,5 +176,4 @@ module.exports = {
     
         sendLog(client, guildId, embed);
     }
-    
 };

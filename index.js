@@ -71,16 +71,14 @@ client.once('ready', async () => {
                 boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
-                    .setTitle('𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫')
-                    .setDescription(`**${member.user.tag}** is actively boosting the server!`)
+                    .setTitle('🌟 𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫 🌟')
+                    .setDescription(`Thank you **${member.user.tag}** is actively boosting the server GITGUD.`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                    .setImage('attachment://activboost.gif')
                     .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                     .setTimestamp();
 
                 boostChannel.send({
-                    embeds: [embed],
-                    files: [{ attachment: path.join(__dirname, 'gifs', 'activboost.gif'), name: 'activboost.gif' }]
+                    embeds: [embed]
                 });
             }
         });
@@ -128,7 +126,7 @@ client.once('ready', async () => {
                     '**Masih Jomblo? 🤡**\n' +
                     'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord GITGUD! Main game, ngobrol seru, atau nikmati literatur sendirian. Kamu keren meski jomblo, bro! 💪😎\n\n'
                 )
-                .setFooter({ text: 'Selamat Malam Minggu🎉' })
+                .setFooter({ text: 'Selamat Malam Minggu🎉🎉' })
                 .setTimestamp();
 
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });

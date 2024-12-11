@@ -75,7 +75,7 @@ module.exports = {
 
                 case 'info':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'info.png')]
+                        files: [join(__dirname, '..', 'images', 'infona.png')]
                     }).then(() => console.log('Gambar Info berhasil dikirim!'))
                       .catch(console.error);
                     break;
