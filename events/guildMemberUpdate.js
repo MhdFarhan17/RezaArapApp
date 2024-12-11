@@ -48,7 +48,7 @@ module.exports = {
             boostedMembersCache.add(newMember.id);
             const embed = new EmbedBuilder()
                 .setColor(0xFF73FA) // Warna pink
-                .setTitle('🎉𝐁𝐎𝐎𝐒𝐓𝐄𝐑 𝐏𝐀𝐑𝐓𝐘🎉')
+                .setTitle('🎉BOOSTER PARTY🎉')
                 .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://booster.gif')
@@ -65,7 +65,7 @@ module.exports = {
             boostedMembersCache.delete(newMember.id);
             const embed = new EmbedBuilder()
                 .setColor(0xFF0000) // Warna merah
-                .setTitle('𝐁𝐨𝐨𝐬𝐭 𝐄𝐧𝐝𝐞𝐝')
+                .setTitle('BOOST ENDED')
                 .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://end.gif')

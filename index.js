@@ -71,7 +71,7 @@ client.once('ready', async () => {
                 boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
-                    .setTitle('🌟 𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫 🌟')
+                    .setTitle('🌟 Active Booster 🌟')
                     .setDescription(`Thank you **${member.user.tag}** is actively boosting the server GITGUD.`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
