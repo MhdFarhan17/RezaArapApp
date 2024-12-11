@@ -24,56 +24,86 @@ module.exports = {
             switch (content) {
                 case 'gg':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'gg_images.png')]
+                        files: [join(__dirname, '..', 'images', 'gg.png')]
                     }).then(() => console.log('Gambar GG berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'mabar':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'mabar_images.png')]
+                        files: [join(__dirname, '..', 'images', 'mabar.png')]
                     }).then(() => console.log('Gambar Mabar berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'ez':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'ez_images.png')]
+                        files: [join(__dirname, '..', 'images', 'ezz.png')]
                     }).then(() => console.log('Gambar EZ berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'nt':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'nt_images.png')]
+                        files: [join(__dirname, '..', 'images', 'nt.png')]
                     }).then(() => console.log('Gambar NT berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'p':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'p_images.png')]
+                        files: [join(__dirname, '..', 'images', 'p.png')]
                     }).then(() => console.log('Gambar P berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'hai':
+                case 'halo':
+                case 'hello':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'hai_images.png')]
+                        files: [join(__dirname, '..', 'images', 'hello.png')]
                     }).then(() => console.log('Gambar Hai berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'tidur':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'tidur_images.png')]
+                        files: [join(__dirname, '..', 'images', 'tidur.png')]
                     }).then(() => console.log('Gambar Tidur berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'info':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'info_images.png')]
+                        files: [join(__dirname, '..', 'images', 'info.png')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+
+                case 'berak':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'berak.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+
+                case 'galau':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'galau.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+
+                case 'ngakak':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'ngakak.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+                    
+                case 'ah':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'ngntd.jpg')]
                     }).then(() => console.log('Gambar Info berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -99,9 +129,6 @@ module.exports = {
                     break;
                 case 'mek':
                     message.channel.send(`Ape lu mak mek mak mek ${message.author}!`).catch(console.error);
-                    break;
-                case 'berak':
-                    message.channel.send(`Kalau habis berak itu disiram ngntoddd, taeeeknya bleberan`).catch(console.error);
                     break;
                 case 'cape':
                     message.channel.send(`Kalau cape itu istirahat, jangan malah main game terus.`).catch(console.error);

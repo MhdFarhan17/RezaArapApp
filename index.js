@@ -31,9 +31,9 @@ const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'
 for (const file of eventFiles) {
     const event = require(path.join(eventsPath, file));
     if (Array.isArray(event)) {
-        event.forEach(evt => {
+        event.forEach(event => {
             if (event.name && event.execute) {
-                evt.once
+                event.once
                     ? client.once(event.name, (...args) => event.execute(...args, client))
                     : client.on(event.name, (...args) => event.execute(...args, client));
             }
@@ -71,7 +71,7 @@ client.once('ready', async () => {
                 boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
-                    .setTitle('𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫𝐬')
+                    .setTitle('𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫')
                     .setDescription(`**${member.user.tag}** is actively boosting the server!`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .setImage('attachment://boost.gif')
@@ -80,7 +80,7 @@ client.once('ready', async () => {
 
                 boostChannel.send({
                     embeds: [embed],
-                    files: [{ attachment: path.join(__dirname, 'images', 'boost.gif'), name: 'boost.gif' }]
+                    files: [{ attachment: path.join(__dirname, 'gifs', 'boost.gif'), name: 'boost.gif' }]
                 });
             }
         });

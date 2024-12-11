@@ -51,13 +51,13 @@ module.exports = {
                 .setTitle('𝐁𝐎𝐎𝐒𝐓𝐄𝐑 𝐏𝐀𝐑𝐓𝐘')
                 .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://boost.gif')
+                .setImage('attachment://booster.gif')
                 .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                 .setTimestamp();
 
             boostChannel.send({
                 embeds: [embed],
-                files: [{ attachment: path.join(__dirname, '../images', 'boost.gif'), name: 'boost.gif' }]
+                files: [{ attachment: path.join(__dirname, '../gifs', 'booster.gif'), name: 'booster.gif' }]
             });
         }
 
@@ -69,12 +69,12 @@ module.exports = {
                 .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://end.gif')
-                .setFooter({ text: 'Server Boost Removed' })
+                .setFooter({ text: 'Server Boost Ended' })
                 .setTimestamp();
 
             boostChannel.send({
                 embeds: [embed],
-                files: [{ attachment: path.join(__dirname, '../images', 'end.gif'), name: 'end.gif' }]
+                files: [{ attachment: path.join(__dirname, '../gifs', 'end.gif'), name: 'end.gif' }]
             });
         }
     }
