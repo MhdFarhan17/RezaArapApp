@@ -74,13 +74,13 @@ client.once('ready', async () => {
                     .setTitle('𝐀𝐜𝐭𝐢𝐯𝐞 𝐁𝐨𝐨𝐬𝐭𝐞𝐫')
                     .setDescription(`**${member.user.tag}** is actively boosting the server!`)
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                    .setImage('attachment://boost.gif')
+                    .setImage('attachment://activboost.gif')
                     .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                     .setTimestamp();
 
                 boostChannel.send({
                     embeds: [embed],
-                    files: [{ attachment: path.join(__dirname, 'gifs', 'boost.gif'), name: 'boost.gif' }]
+                    files: [{ attachment: path.join(__dirname, 'gifs', 'activboost.gif'), name: 'activboost.gif' }]
                 });
             }
         });
