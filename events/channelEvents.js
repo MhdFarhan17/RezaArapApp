@@ -2,64 +2,55 @@ const { logChannelChange } = require('../logs/moderationLog');
 
 module.exports = {
     name: 'channelEvents',
+
+    // Event untuk channel dibuat
     async channelCreate(channel, client) {
-        if (!channel.guild) return;
-    
+        if (!channel.guild) return; // Abaikan jika bukan dalam server
+
         try {
-            const fetchedChannel = await client.channels.fetch(channel.id).catch(() => null);
-            const channelName = fetchedChannel ? fetchedChannel.name : channel.name || 'Unknown';
-    
+            // Menggunakan nama channel langsung
+            const channelName = channel.name || 'Unknown';
+            
+            // Log event channel dibuat
             logChannelChange(client, channel.guild.id, 'Created', channel.id, channelName);
             console.log(`Channel '${channelName}' telah dibuat.`);
         } catch (error) {
-            console.error(`Error fetching created channel: ${error.message}`);
+            console.error(`Error handling channelCreate: ${error.message}`);
         }
     },
 
+    // Event untuk channel dihapus
     async channelDelete(channel, client) {
-        if (!channel.guild) return;
-    
+        if (!channel.guild) return; // Abaikan jika bukan dalam server
+
         try {
-            const fetchedChannel = await client.channels.fetch(channel.id).catch(() => null);
-            const channelName = fetchedChannel ? fetchedChannel.name : channel.name || 'Unknown';
-    
+            // Channel yang dihapus tidak punya name, fallback ke 'Unknown'
+            const channelName = channel.name || 'Unknown';
+            
+            // Log event channel dihapus
             logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channelName);
             console.log(`Channel '${channelName}' telah dihapus.`);
         } catch (error) {
-            console.error(`Error fetching deleted channel: ${error.message}`);
+            console.error(`Error handling channelDelete: ${error.message}`);
         }
     },
 
+    // Event untuk channel diupdate (ganti nama)
     async channelUpdate(oldChannel, newChannel, client) {
-        if (!newChannel.guild) return;
-    
-        const permissionChanges = [];
-    
-        // Membandingkan permissionOverwrites secara manual
-        const oldPermissions = oldChannel.permissionOverwrites?.cache || new Map();
-        const newPermissions = newChannel.permissionOverwrites?.cache || new Map();
-    
-        newPermissions.forEach((overwrite, id) => {
-            const oldOverwrite = oldPermissions.get(id);
-            if (!oldOverwrite || !oldOverwrite.equals(overwrite)) {
-                const type = overwrite.type === 0 ? 'role' : 'user';
-                const changes = overwrite.allow.toArray().map(perm => ({ type, id, permission: perm, allow: true }))
-                    .concat(overwrite.deny.toArray().map(perm => ({ type, id, permission: perm, allow: false })));
-                permissionChanges.push(...changes);
+        if (!newChannel.guild) return; // Abaikan jika bukan dalam server
+
+        try {
+            // Deteksi perubahan nama channel
+            if (oldChannel.name !== newChannel.name) {
+                const oldName = oldChannel.name || 'Unknown';
+                const newName = newChannel.name || 'Unknown';
+
+                // Log perubahan nama channel
+                logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldName, newName);
+                console.log(`Channel '${oldName}' diubah menjadi '${newName}'.`);
             }
-        });
-    
-        // Log perubahan izin
-        if (permissionChanges.length > 0) {
-            logChannelChange(client, newChannel.guild.id, 'Updated', newChannel.id, { permissionChanges });
-            console.log(`Permissions pada channel '${newChannel.name}' telah diperbarui.`);
+        } catch (error) {
+            console.error(`Error handling channelUpdate: ${error.message}`);
         }
-    
-        // Log perubahan nama channel
-        if (oldChannel.name !== newChannel.name) {
-            logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldChannel.name, newChannel.name);
-            console.log(`Channel '${oldChannel.name}' diubah menjadi '${newChannel.name}'.`);
-        }
-    }    
-    
+    }
 };

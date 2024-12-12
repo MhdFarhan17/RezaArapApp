@@ -181,10 +181,7 @@ client.on('channelDelete', (channel) => {
 client.on('channelUpdate', (oldChannel, newChannel) => {
     if (newChannel.guild) {
         if (oldChannel.name !== newChannel.name) {
-            logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldChannel.name, newChannel.name);
-        }
-        if (!oldChannel.permissionOverwrites.equals(newChannel.permissionOverwrites)) {
-            logChannelChange(client, newChannel.guild.id, 'Updated', newChannel.id, 'Permissions Updated');
+            logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldName, newName);
         }
     }
 });

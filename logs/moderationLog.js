@@ -147,9 +147,10 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logChannelChange(client, guildId, action, channelId, details = null, channelNameBefore = null, channelNameAfter = null) {
+    logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
         let color;
     
+        // Pilih warna berdasarkan jenis tindakan
         switch (action.toLowerCase()) {
             case 'deleted':
                 color = Colors.Red;
@@ -158,50 +159,35 @@ module.exports = {
                 color = Colors.Green;
                 break;
             case 'renamed':
-            case 'updated':
                 color = Colors.Blue;
                 break;
             default:
                 color = Colors.Grey;
         }
     
+        // Buat embed log
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle(`Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
     
-        // Untuk tindakan Renamed
+        // Log untuk renamed channel
         if (action.toLowerCase() === 'renamed') {
             embed.addFields(
-                { name: '**Before Name**', value: channelNameBefore || 'Unknown', inline: true },
-                { name: '**After Name**', value: channelNameAfter || 'Unknown', inline: true }
+                { name: '**Old Name**', value: channelNameBefore || 'Unknown', inline: true },
+                { name: '**New Name**', value: channelNameAfter || 'Unknown', inline: true }
             );
         }
-        // Untuk tindakan Updated (perubahan izin atau lainnya)
-        else if (action.toLowerCase() === 'updated') {
-            if (details && typeof details === 'object' && details.permissionChanges) {
-                const permissionChanges = details.permissionChanges.map(change => {
-                    const target = change.type === 'role' ? `<@&${change.id}>` : `<@${change.id}>`;
-                    return `${target}: ${change.allow ? 'Allowed' : 'Denied'} ${change.permission}`;
-                }).join('\n');
-    
-                embed.addFields(
-                    { name: '**Permission Changes**', value: permissionChanges || 'No changes detected', inline: false }
-                );
-            } else {
-                embed.addFields(
-                    { name: '**Details**', value: details || 'No changes detected', inline: false }
-                );
-            }
-        }
-        // Untuk tindakan Created atau Deleted
+        // Log untuk created atau deleted channel
         else {
             embed.addFields(
                 { name: '**Channel Name**', value: channelNameBefore || 'Unknown', inline: false }
             );
         }
     
+        // Kirim log ke channel log
         sendLog(client, guildId, embed);
-    }        
+    }
+           
 };
