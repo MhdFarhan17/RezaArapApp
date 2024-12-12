@@ -82,7 +82,7 @@ client.once('ready', async () => {
                         { name: 'Boost Active Since', value: `<t:${Math.floor(member.premiumSince / 1000)}:R>`, inline: true },
                         { name: 'Server', value: member.guild.name, inline: true }
                     )
-                    .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .setFooter({ 
                         text: 'actively boosting the server! 🚀🚀🚀'
                     })
