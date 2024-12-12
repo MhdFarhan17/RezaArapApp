@@ -79,13 +79,11 @@ module.exports = {
                 })
                 .setDescription(`**${newMember.user.username}**, thank you for supporting us in the past! We hope to see you back soon!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://end.gif')
                 .setFooter({ text: 'Boost Ended 🚫' })
                 .setTimestamp();
 
             boostChannel.send({
-                embeds: [embed],
-                files: [{ attachment: path.join(__dirname, '../gifs', 'end.gif'), name: 'end.gif' }]
+                embeds: [embed]
             });
         }
 
