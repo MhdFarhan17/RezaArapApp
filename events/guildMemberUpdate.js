@@ -58,7 +58,7 @@ module.exports = {
                 .setDescription(`Thank you **${newMember.user.username}** for boosting the server! Your support helps us grow!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://booster.gif')
-                .setFooter({ text: 'Server Boosted 🚀🚀🚀', iconURL: 'https://tenor.com/bWaS6.gif' })
+                .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                 .setTimestamp();
 
             boostChannel.send({
@@ -80,7 +80,7 @@ module.exports = {
                 .setDescription(`**${newMember.user.username}**, thank you for supporting us in the past! We hope to see you back soon!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://end.gif')
-                .setFooter({ text: 'Boost Ended 🚫', iconURL: 'https://tenor.com/biYQD.gif' })
+                .setFooter({ text: 'Boost Ended 🚫' })
                 .setTimestamp();
 
             boostChannel.send({
@@ -110,7 +110,7 @@ module.exports = {
                     )
                     .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                     .setImage('attachment://booster.gif')
-                    .setFooter({ text: 'Server Boosted 🚀🚀🚀', iconURL: 'https://tenor.com/pzNNdrPTVgw.gif' })
+                    .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                     .setTimestamp();
 
                 boostChannel.send({

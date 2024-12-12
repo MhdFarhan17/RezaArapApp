@@ -71,21 +71,20 @@ client.once('ready', async () => {
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
                     .setAuthor({ 
-                        name: `${member.user.username} actively boosting the server! 🚀`, 
+                        name: `${member.user.username}`, 
                         iconURL: member.user.displayAvatarURL({ dynamic: true }) 
                     })
                     .setDescription(
-                        `**Thank you, ${member.user.username}, for boosting the server!**\n` +
+                        `Thank you, **${member.user.username}**, for boosting the server!\n` +
                         `Your support helps us grow and keep the community awesome!`
                     )
                     .addFields(
                         { name: 'Boost Active Since', value: `<t:${Math.floor(member.premiumSince / 1000)}:R>`, inline: true },
                         { name: 'Server', value: member.guild.name, inline: true }
                     )
-                    .setThumbnail('https://tenor.com/pzNNdrPTVgw.gif')
+                    .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                     .setFooter({ 
-                        text: 'We appreciate your support!', 
-                        iconURL: 'https://tenor.com/r4ly3icb790.gif'
+                        text: 'actively boosting the server! 🚀🚀🚀'
                     })
                     .setTimestamp();
         
@@ -171,23 +170,23 @@ client.once('ready', async () => {
 });
 
 // Monitor channel events
-// client.on('channelCreate', (channel) => {
-//     if (channel.guild) logChannelChange(client, channel.guild.id, 'Created', channel.id, channel.name);
-// });
+client.on('channelCreate', (channel) => {
+    if (channel.guild) logChannelChange(client, channel.guild.id, 'Created', channel.id, channel.name);
+});
 
-// client.on('channelDelete', (channel) => {
-//     if (channel.guild) logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channel.name);
-// });
+client.on('channelDelete', (channel) => {
+    if (channel.guild) logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channel.name);
+});
 
-// client.on('channelUpdate', (oldChannel, newChannel) => {
-//     if (newChannel.guild) {
-//         if (oldChannel.name !== newChannel.name) {
-//             logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldChannel.name, newChannel.name);
-//         }
-//         if (!oldChannel.permissionOverwrites.equals(newChannel.permissionOverwrites)) {
-//             logChannelChange(client, newChannel.guild.id, 'Updated', newChannel.id, 'Permissions Updated');
-//         }
-//     }
-// });
+client.on('channelUpdate', (oldChannel, newChannel) => {
+    if (newChannel.guild) {
+        if (oldChannel.name !== newChannel.name) {
+            logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldChannel.name, newChannel.name);
+        }
+        if (!oldChannel.permissionOverwrites.equals(newChannel.permissionOverwrites)) {
+            logChannelChange(client, newChannel.guild.id, 'Updated', newChannel.id, 'Permissions Updated');
+        }
+    }
+});
 
 client.login(token);
