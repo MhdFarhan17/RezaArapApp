@@ -1,56 +1,55 @@
 const { logChannelChange } = require('../logs/moderationLog');
+const { server1, server2 } = require('../utils/constants');
 
 module.exports = {
     name: 'channelEvents',
 
-    // Event untuk channel dibuat
     async channelCreate(channel, client) {
-        if (!channel.guild) return; // Abaikan jika bukan dalam server
+        if (!channel.guild) return;
+
+        // Pastikan hanya untuk Server 1 dan Server 2
+        if (![server1.guildId, server2.guildId].includes(channel.guild.id)) return;
 
         try {
-            // Menggunakan nama channel langsung
             const channelName = channel.name || 'Unknown';
-            
-            // Log event channel dibuat
             logChannelChange(client, channel.guild.id, 'Created', channel.id, channelName);
-            console.log(`Channel '${channelName}' telah dibuat.`);
+            console.log(`Channel '${channelName}' telah dibuat di server '${channel.guild.name}'.`);
         } catch (error) {
-            console.error(`Error handling channelCreate: ${error.message}`);
+            console.error(`Error processing created channel: ${error.message}`);
         }
     },
 
-    // Event untuk channel dihapus
     async channelDelete(channel, client) {
-        if (!channel.guild) return; // Abaikan jika bukan dalam server
+        if (!channel.guild) return;
+
+        // Pastikan hanya untuk Server 1 dan Server 2
+        if (![server1.guildId, server2.guildId].includes(channel.guild.id)) return;
 
         try {
-            // Channel yang dihapus tidak punya name, fallback ke 'Unknown'
             const channelName = channel.name || 'Unknown';
-            
-            // Log event channel dihapus
             logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channelName);
-            console.log(`Channel '${channelName}' telah dihapus.`);
+            console.log(`Channel '${channelName}' telah dihapus dari server '${channel.guild.name}'.`);
         } catch (error) {
-            console.error(`Error handling channelDelete: ${error.message}`);
+            console.error(`Error processing deleted channel: ${error.message}`);
         }
     },
 
-    // Event untuk channel diupdate (ganti nama)
     async channelUpdate(oldChannel, newChannel, client) {
-        if (!newChannel.guild) return; // Abaikan jika bukan dalam server
+        if (!newChannel.guild) return;
+
+        // Pastikan hanya untuk Server 1 dan Server 2
+        if (![server1.guildId, server2.guildId].includes(newChannel.guild.id)) return;
 
         try {
-            // Deteksi perubahan nama channel
+            // Perubahan nama channel
             if (oldChannel.name !== newChannel.name) {
                 const oldName = oldChannel.name || 'Unknown';
                 const newName = newChannel.name || 'Unknown';
-
-                // Log perubahan nama channel
                 logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldName, newName);
-                console.log(`Channel '${oldName}' diubah menjadi '${newName}'.`);
+                console.log(`Channel '${oldName}' diubah menjadi '${newName}' di server '${newChannel.guild.name}'.`);
             }
         } catch (error) {
-            console.error(`Error handling channelUpdate: ${error.message}`);
+            console.error(`Error processing updated channel: ${error.message}`);
         }
     }
 };
