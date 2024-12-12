@@ -171,19 +171,44 @@ client.once('ready', async () => {
 
 // Monitor channel events
 client.on('channelCreate', (channel) => {
-    if (channel.guild) logChannelChange(client, channel.guild.id, 'Created', channel.id, channel.name);
+    if (!channel.guild) return;
+
+    try {
+        const channelName = channel.name || 'Unknown';
+        logChannelChange(client, channel.guild.id, 'Created', channel.id, channelName);
+        console.log(`Channel '${channelName}' telah dibuat di server '${channel.guild.name}'.`);
+    } catch (error) {
+        console.error(`Error handling channelCreate: ${error.message}`);
+    }
 });
 
 client.on('channelDelete', (channel) => {
-    if (channel.guild) logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channel.name);
+    if (!channel.guild) return;
+
+    try {
+        const channelName = channel.name || 'Unknown';
+        logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channelName);
+        console.log(`Channel '${channelName}' telah dihapus dari server '${channel.guild.name}'.`);
+    } catch (error) {
+        console.error(`Error handling channelDelete: ${error.message}`);
+    }
 });
 
 client.on('channelUpdate', (oldChannel, newChannel) => {
-    if (newChannel.guild) {
+    if (!newChannel.guild) return;
+
+    try {
+        // Handle Renamed Channel
         if (oldChannel.name !== newChannel.name) {
+            const oldName = oldChannel.name || 'Unknown';
+            const newName = newChannel.name || 'Unknown';
             logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldName, newName);
+            console.log(`Channel '${oldName}' diubah menjadi '${newName}' di server '${newChannel.guild.name}'.`);
         }
+    } catch (error) {
+        console.error(`Error handling channelUpdate: ${error.message}`);
     }
 });
+
 
 client.login(token);
