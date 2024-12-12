@@ -3,7 +3,7 @@ const { server1, server2 } = require('../utils/constants');
 const { EmbedBuilder } = require('discord.js');
 const path = require('path');
 
-const boostedMembersCache = new Set();
+const boostedMembersCache = new Map();
 
 module.exports = {
     name: 'guildMemberUpdate',
@@ -44,15 +44,21 @@ module.exports = {
         const wasBoosting = oldMember.premiumSince !== null;
         const isBoosting = newMember.premiumSince !== null;
 
+        // Notifikasi untuk member yang baru boost server
         if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
-            boostedMembersCache.add(newMember.id);
+            const boostTimestamp = Math.floor(newMember.premiumSince / 1000);
+            boostedMembersCache.set(newMember.id, boostTimestamp);
+
             const embed = new EmbedBuilder()
-                .setColor(0xFF73FA) // Warna pink
-                .setTitle('🎉BOOSTER PARTY🎉')
-                .setDescription(`**${newMember.user.tag}** just boosted the server! Thank you for your support!`)
+                .setColor(0xFF73FA)
+                .setAuthor({
+                    name: `${newMember.user.username}`,
+                    iconURL: newMember.user.displayAvatarURL({ dynamic: true })
+                })
+                .setDescription(`Thank you **${newMember.user.username}** for boosting the server! Your support helps us grow!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://booster.gif')
-                .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
+                .setFooter({ text: 'Server Boosted 🚀🚀🚀', iconURL: 'https://tenor.com/bWaS6.gif' })
                 .setTimestamp();
 
             boostChannel.send({
@@ -61,21 +67,57 @@ module.exports = {
             });
         }
 
+        // Notifikasi untuk member yang berhenti boost server
         if (wasBoosting && !isBoosting && boostedMembersCache.has(newMember.id)) {
             boostedMembersCache.delete(newMember.id);
+
             const embed = new EmbedBuilder()
-                .setColor(0xFF0000) // Warna merah
-                .setTitle('BOOST ENDED')
-                .setDescription(`**${newMember.user.tag}** has stopped boosting the server.`)
+                .setColor(0xED4245)
+                .setAuthor({
+                    name: `${newMember.user.username}`,
+                    iconURL: newMember.user.displayAvatarURL({ dynamic: true })
+                })
+                .setDescription(`**${newMember.user.username}**, thank you for supporting us in the past! We hope to see you back soon!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                 .setImage('attachment://end.gif')
-                .setFooter({ text: 'Server Boost Ended' })
+                .setFooter({ text: 'Boost Ended 🚫', iconURL: 'https://tenor.com/biYQD.gif' })
                 .setTimestamp();
 
             boostChannel.send({
                 embeds: [embed],
                 files: [{ attachment: path.join(__dirname, '../gifs', 'end.gif'), name: 'end.gif' }]
             });
+        }
+
+        // Notifikasi untuk member yang memperpanjang atau memulai periode boost baru
+        if (isBoosting) {
+            const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);
+            const cachedBoostTimestamp = boostedMembersCache.get(newMember.id);
+
+            if (!cachedBoostTimestamp || currentBoostTimestamp > cachedBoostTimestamp) {
+                boostedMembersCache.set(newMember.id, currentBoostTimestamp);
+
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF73FA)
+                    .setAuthor({
+                        name: `${newMember.user.username}`,
+                        iconURL: newMember.user.displayAvatarURL({ dynamic: true })
+                    })
+                    .setDescription(`**${newMember.user.username}**, thank you for renewing your support! We’re so grateful to have you!`)
+                    .addFields(
+                        { name: 'Boost Active Since', value: `<t:${boostTimestamp}:R>` },
+                        { name: 'Server', value: member.guild.name, inline: true }
+                    )
+                    .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+                    .setImage('attachment://booster.gif')
+                    .setFooter({ text: 'Server Boosted 🚀🚀🚀', iconURL: 'https://tenor.com/pzNNdrPTVgw.gif' })
+                    .setTimestamp();
+
+                boostChannel.send({
+                    embeds: [embed],
+                    files: [{ attachment: path.join(__dirname, '../gifs', 'booster.gif'), name: 'booster.gif' }]
+                });
+            }
         }
     }
 };

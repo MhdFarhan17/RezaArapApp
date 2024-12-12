@@ -4,8 +4,8 @@ const cron = require('node-cron');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { logChannelChange } = require('./logs/moderationLog');
 require('dotenv').config();
-
 const token = process.env.DISCORD_TOKEN;
 const { server1, server2 } = require('./utils/constants');
 
@@ -59,7 +59,6 @@ client.once('ready', async () => {
 
         const boostChannelId = serverConfig.boostChannelId;
         const boostChannel = guild.channels.cache.get(boostChannelId);
-
         if (!boostChannel) {
             console.error(`Boost notification channel dengan ID ${boostChannelId} tidak ditemukan.`);
             return;
@@ -71,17 +70,29 @@ client.once('ready', async () => {
                 boostedMembersCache.add(member.id);
                 const embed = new EmbedBuilder()
                     .setColor(0xFF73FA)
-                    .setTitle('🌟 Active Booster 🌟')
-                    .setDescription(`Thank you **${member.user.tag}** is actively boosting the server GITGUD.`)
-                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                    .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
+                    .setAuthor({ 
+                        name: `${member.user.username} actively boosting the server! 🚀`, 
+                        iconURL: member.user.displayAvatarURL({ dynamic: true }) 
+                    })
+                    .setDescription(
+                        `**Thank you, ${member.user.username}, for boosting the server!**\n` +
+                        `Your support helps us grow and keep the community awesome!`
+                    )
+                    .addFields(
+                        { name: 'Boost Active Since', value: `<t:${Math.floor(member.premiumSince / 1000)}:R>`, inline: true },
+                        { name: 'Server', value: member.guild.name, inline: true }
+                    )
+                    .setThumbnail('https://tenor.com/pzNNdrPTVgw.gif')
+                    .setFooter({ 
+                        text: 'We appreciate your support!', 
+                        iconURL: 'https://tenor.com/r4ly3icb790.gif'
+                    })
                     .setTimestamp();
-
-                boostChannel.send({
-                    embeds: [embed]
-                });
+        
+                boostChannel.send({ embeds: [embed] });
             }
         });
+        
     });
 
     const guild = client.guilds.cache.get(server1.guildId);
@@ -119,14 +130,14 @@ client.once('ready', async () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0x5bc6ff)
-                .setTitle('🌟Malam Minggu Telah Tiba!🌟')
+                .setTitle('🌟 Malam Minggu Telah Tiba! 🌟')
                 .setDescription(
                     '**Udah Punya Pacar? 💖**\n' +
-                    'Ayo, manfaatkan momen ini untuk membuatnya tersenyum! Nggak cuma nge-chat doang, ajak si doi jalan, nonton bareng, atau makan malam romantis. Biar makin lengket dan makin bucin! 😘💕\n\n' +
+                    'Manfaatkan momen ini untuk membuatnya tersenyum! Ajak si doi jalan, nonton bareng, atau makan malam romantis.\n\n' +
                     '**Masih Jomblo? 🤡**\n' +
-                    'Eits, tenang aja! Malam Minggu bukan cuma buat yang punya pasangan kok. Ayo, manfaatkan malam ini buat me-time atau hangout bareng teman-teman Discord GITGUD! Main game, ngobrol seru, atau nikmati literatur sendirian. Kamu keren meski jomblo, bro! 💪😎\n\n'
+                    'Tenang! Malam ini adalah waktu yang tepat untuk me-time atau hangout bareng teman di Discord!'
                 )
-                .setFooter({ text: 'Selamat Malam Minggu🎉🎉' })
+                .setFooter({ text: 'Selamat Malam Minggu 🎉' })
                 .setTimestamp();
 
             await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
@@ -140,12 +151,13 @@ client.once('ready', async () => {
         try {
             const embed = new EmbedBuilder()
                 .setColor(0x06FC04)
-                .setTitle('Persiapan Sholat Jumat 🕌 ')
+                .setTitle('Persiapan Sholat Jumat 🕌')
                 .setDescription(
-                    '📢 **Wahai para ikhwan!** Sudah saatnya mempersiapkan diri untuk menunaikan Sholat Jumat. Jangan lupa mandi sunnah, pakai pakaian terbaikmu, wangi-wangian, dan bergegaslah menuju masjid. 🌿\n\n' +
-                    '🕋 Sholat Jumat adalah momen penuh keberkahan, mari raih pahala yang berlipat dengan hadir tepat waktu dan mendengarkan khotbah dengan khusyuk. Semoga hari ini membawa banyak kebaikan bagi kita semua. 🤲✨'
+                    '📢 **Sudah saatnya mempersiapkan diri untuk Sholat Jumat!**\n' +
+                    'Lakukan mandi sunnah, pakai pakaian terbaik, dan bergegas menuju masjid.\n\n' +
+                    '🕋 Sholat Jumat adalah momen penuh keberkahan. Jangan sampai tertinggal!'
                 )
-                .setFooter({ text: 'Ingat, Sholat Jumat itu wajib bagi kaum laki-laki. Jangan sampai tertinggal!' })
+                .setFooter({ text: 'Ingat, Sholat Jumat wajib bagi kaum laki-laki!' })
                 .setTimestamp();
 
             await allowedChannel.send({ embeds: [embed] });
@@ -157,5 +169,25 @@ client.once('ready', async () => {
 
     console.log('Scheduled weekly notifications and daily leaderboard.');
 });
+
+// Monitor channel events
+// client.on('channelCreate', (channel) => {
+//     if (channel.guild) logChannelChange(client, channel.guild.id, 'Created', channel.id, channel.name);
+// });
+
+// client.on('channelDelete', (channel) => {
+//     if (channel.guild) logChannelChange(client, channel.guild.id, 'Deleted', channel.id, channel.name);
+// });
+
+// client.on('channelUpdate', (oldChannel, newChannel) => {
+//     if (newChannel.guild) {
+//         if (oldChannel.name !== newChannel.name) {
+//             logChannelChange(client, newChannel.guild.id, 'Renamed', newChannel.id, oldChannel.name, newChannel.name);
+//         }
+//         if (!oldChannel.permissionOverwrites.equals(newChannel.permissionOverwrites)) {
+//             logChannelChange(client, newChannel.guild.id, 'Updated', newChannel.id, 'Permissions Updated');
+//         }
+//     }
+// });
 
 client.login(token);

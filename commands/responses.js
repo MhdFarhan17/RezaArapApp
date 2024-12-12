@@ -107,6 +107,30 @@ module.exports = {
                     }).then(() => console.log('Gambar Info berhasil dikirim!'))
                       .catch(console.error);
                     break;
+                case 'sepi':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'sepi.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+                case 'senja':
+                case 'kopi senja':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'senja.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+                case 'cupu':
+                case 'baru main':
+                    message.channel.send({
+                        files: [join(__dirname, '..', 'images', 'cupu.jpg')]
+                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
+                      .catch(console.error);
+                    break;
+
+
+
+
 
                 // Contoh respon teks
                 case 'pagi':

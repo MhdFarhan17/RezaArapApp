@@ -147,14 +147,21 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
+    logChannelChange(client, guildId, action, channelId, details = null, channelNameBefore = null, channelNameAfter = null) {
         let color;
-        if (action.toLowerCase() === 'deleted') {
-            color = Colors.Red;
-        } else if (action.toLowerCase() === 'created') {
-            color = Colors.Green;
-        } else {
-            color = Colors.Blue;
+        switch (action.toLowerCase()) {
+            case 'deleted':
+                color = Colors.Red;
+                break;
+            case 'created':
+                color = Colors.Green;
+                break;
+            case 'renamed':
+            case 'updated':
+                color = Colors.Blue;
+                break;
+            default:
+                color = Colors.Grey;
         }
     
         const embed = new EmbedBuilder()
@@ -165,9 +172,24 @@ module.exports = {
     
         if (action.toLowerCase() === 'renamed') {
             embed.addFields(
-                { name: '**Before**', value: channelNameBefore || 'Unknown', inline: false },
-                { name: '**After**', value: channelNameAfter || 'Unknown', inline: false }
+                { name: '**Before Name**', value: channelNameBefore || 'Unknown', inline: true },
+                { name: '**After Name**', value: channelNameAfter || 'Unknown', inline: true }
             );
+        } else if (action.toLowerCase() === 'updated') {
+            if (details && typeof details === 'object' && details.permissionChanges) {
+                const permissionChanges = details.permissionChanges.map(change => {
+                    const target = change.type === 'role' ? `<@&${change.id}>` : `<@${change.id}>`;
+                    return `${target}: ${change.allow ? 'Allowed' : 'Denied'} ${change.permission}`;
+                }).join('\n');
+    
+                embed.addFields(
+                    { name: '**Permission Changes**', value: permissionChanges || 'No changes detected', inline: false }
+                );
+            } else {
+                embed.addFields(
+                    { name: '**Details**', value: details || 'No changes detected', inline: false }
+                );
+            }
         } else {
             embed.addFields(
                 { name: '**Channel**', value: channelNameBefore || 'Unknown', inline: false }
@@ -175,5 +197,5 @@ module.exports = {
         }
     
         sendLog(client, guildId, embed);
-    }
+    }    
 };

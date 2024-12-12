@@ -23,8 +23,7 @@ async function initializeVoiceTimes(client) {
                 voiceTimes[member.id] = { totalTime: 0 };
             }
 
-            const isMutedOrDeafened = member.voice.selfMute || member.voice.selfDeaf;
-            if (!isMutedOrDeafened) {
+            if (!member.voice.selfMute && !member.voice.selfDeaf) {
                 voiceTimes[member.id].joinTime = Date.now();
                 console.log(`Resumed tracking for ${member.user.tag} on bot restart.`);
             }
@@ -49,21 +48,24 @@ module.exports = {
         const now = Date.now();
         const isMutedOrDeafened = newState.selfMute || newState.selfDeaf;
 
+        // Member joins a voice channel
         if (!oldState.channel && newState.channel) {
-            if (!isMutedOrDeafened) {
-                voiceTimes[member.id].joinTime = now;
-                console.log(`Started tracking for ${member.user.tag}`);
-            }
+            voiceTimes[member.id].joinTime = now;
+            console.log(`Started tracking for ${member.user.tag}`);
             logVoiceChannelEvent(client, guildId, 'Joined Voice Channel', member.user.id, null, newState.channel.id);
 
-        } else if (oldState.channel && !newState.channel && voiceTimes[member.id].joinTime) {
-            const sessionTime = now - voiceTimes[member.id].joinTime;
-            voiceTimes[member.id].totalTime += sessionTime;
-            await saveVoiceTime(member.id, voiceTimes[member.id].totalTime, null);
-            delete voiceTimes[member.id].joinTime;
-            console.log(`Stopped tracking for ${member.user.tag}. Session: ${sessionTime / 1000}s`);
+        // Member leaves a voice channel
+        } else if (oldState.channel && !newState.channel) {
+            if (voiceTimes[member.id].joinTime) {
+                const sessionTime = now - voiceTimes[member.id].joinTime;
+                voiceTimes[member.id].totalTime += sessionTime;
+                await saveVoiceTime(member.id, voiceTimes[member.id].totalTime, null);
+                delete voiceTimes[member.id].joinTime;
+                console.log(`Stopped tracking for ${member.user.tag}. Session: ${sessionTime / 1000}s`);
+            }
             logVoiceChannelEvent(client, guildId, 'Left Voice Channel', member.user.id, oldState.channel.id, null);
 
+        // Member switches between voice channels
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             if (voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
@@ -72,13 +74,13 @@ module.exports = {
                 console.log(`Switching channels, saved time for ${member.user.tag}: ${sessionTime / 1000}s`);
             }
 
-            voiceTimes[member.id].joinTime = isMutedOrDeafened ? null : now;
-
+            voiceTimes[member.id].joinTime = now;
             const oldChannelName = oldState.channel ? oldState.channel.name : 'Unknown';
             const newChannelName = newState.channel ? newState.channel.name : 'Unknown';
             console.log(`Member ${member.user.tag} moved from ${oldChannelName} to ${newChannelName}`);
             logVoiceChannelEvent(client, guildId, 'Switched Voice Channels', member.user.id, oldState.channel.id, newState.channel.id);
 
+        // Member mutes or unmutes themselves
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
