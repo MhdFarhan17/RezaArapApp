@@ -149,6 +149,7 @@ module.exports = {
 
     logChannelChange(client, guildId, action, channelId, details = null, channelNameBefore = null, channelNameAfter = null) {
         let color;
+    
         switch (action.toLowerCase()) {
             case 'deleted':
                 color = Colors.Red;
@@ -170,12 +171,15 @@ module.exports = {
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
     
+        // Untuk tindakan Renamed
         if (action.toLowerCase() === 'renamed') {
             embed.addFields(
                 { name: '**Before Name**', value: channelNameBefore || 'Unknown', inline: true },
                 { name: '**After Name**', value: channelNameAfter || 'Unknown', inline: true }
             );
-        } else if (action.toLowerCase() === 'updated') {
+        }
+        // Untuk tindakan Updated (perubahan izin atau lainnya)
+        else if (action.toLowerCase() === 'updated') {
             if (details && typeof details === 'object' && details.permissionChanges) {
                 const permissionChanges = details.permissionChanges.map(change => {
                     const target = change.type === 'role' ? `<@&${change.id}>` : `<@${change.id}>`;
@@ -190,12 +194,14 @@ module.exports = {
                     { name: '**Details**', value: details || 'No changes detected', inline: false }
                 );
             }
-        } else {
+        }
+        // Untuk tindakan Created atau Deleted
+        else {
             embed.addFields(
-                { name: '**Channel**', value: channelNameBefore || 'Unknown', inline: false }
+                { name: '**Channel Name**', value: channelNameBefore || 'Unknown', inline: false }
             );
         }
     
         sendLog(client, guildId, embed);
-    }    
+    }        
 };

@@ -84,7 +84,7 @@ client.once('ready', async () => {
                     )
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .setFooter({ 
-                        text: 'actively boosting the server! 🚀🚀🚀'
+                        text: 'Actively boosting the server! 🚀🚀🚀'
                     })
                     .setTimestamp();
         

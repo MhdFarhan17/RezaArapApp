@@ -106,7 +106,7 @@ module.exports = {
                     .setDescription(`**${newMember.user.username}**, thank you for renewing your support! We’re so grateful to have you!`)
                     .addFields(
                         { name: 'Boost Active Since', value: `<t:${boostTimestamp}:R>` },
-                        { name: 'Server', value: member.guild.name, inline: true }
+                        { name: 'Server', value: newMember.guild.name, inline: true }
                     )
                     .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
                     .setImage('attachment://booster.gif')
