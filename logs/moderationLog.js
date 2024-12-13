@@ -149,8 +149,7 @@ module.exports = {
 
     logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
         let color;
-    
-        // Pilih warna berdasarkan jenis tindakan
+
         switch (action.toLowerCase()) {
             case 'deleted':
                 color = Colors.Red;
@@ -164,30 +163,38 @@ module.exports = {
             default:
                 color = Colors.Grey;
         }
+
+        const guild = client.guilds.cache.get(guildId);
     
-        // Buat embed log
+        if (!guild) {
+            console.error(`Guild dengan ID ${guildId} tidak ditemukan.`);
+            return;
+        }
+
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle(`Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
-    
-        // Log untuk renamed channel
+
+        embed.setAuthor({
+            name: guild.name,
+            iconURL: guild.iconURL({ dynamic: true }) || undefined
+        });
+
         if (action.toLowerCase() === 'renamed') {
             embed.addFields(
                 { name: '**Old Name**', value: channelNameBefore || 'Unknown', inline: true },
                 { name: '**New Name**', value: channelNameAfter || 'Unknown', inline: true }
             );
         }
-        // Log untuk created atau deleted channel
+
         else {
             embed.addFields(
                 { name: '**Channel Name**', value: channelNameBefore || 'Unknown', inline: false }
             );
         }
-    
-        // Kirim log ke channel log
+
         sendLog(client, guildId, embed);
-    }
-           
+    }    
 };

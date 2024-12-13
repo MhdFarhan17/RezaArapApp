@@ -75,7 +75,7 @@ client.once('ready', async () => {
                         iconURL: member.user.displayAvatarURL({ dynamic: true }) 
                     })
                     .setDescription(
-                        `Thank you, **${member.user.username}**, for boosting the server!\n` +
+                        `Thank you **${member.user.username}**, for boosting the server!\n` +
                         `Your support helps us grow and keep the community awesome!`
                     )
                     .addFields(
@@ -152,11 +152,11 @@ client.once('ready', async () => {
                 .setColor(0x06FC04)
                 .setTitle('Persiapan Sholat Jumat 🕌')
                 .setDescription(
-                    '📢 **Sudah saatnya mempersiapkan diri untuk Sholat Jumat!**\n' +
+                    '**Sudah saatnya mempersiapkan diri untuk Sholat Jumat!**\n' +
                     'Lakukan mandi sunnah, pakai pakaian terbaik, dan bergegas menuju masjid.\n\n' +
-                    '🕋 Sholat Jumat adalah momen penuh keberkahan. Jangan sampai tertinggal!'
+                    'Sholat Jumat adalah momen penuh keberkahan. Jangan sampai tertinggal!'
                 )
-                .setFooter({ text: 'Ingat, Sholat Jumat wajib bagi kaum laki-laki!' })
+                .setFooter({ text: 'Ingat, Sholat Jumat wajib bagi laki-laki!' })
                 .setTimestamp();
 
             await allowedChannel.send({ embeds: [embed] });
