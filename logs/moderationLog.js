@@ -34,7 +34,7 @@ module.exports = {
             .setAuthor({ name: 'Voice Channel Activity', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: action, value: '\u200b', inline: false },
+                { name: "**action**", value: action, inline: false },
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Channel**', value: channelInfo, inline: false }
             )
@@ -57,7 +57,7 @@ module.exports = {
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
                 { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: true },
-                { name: '**Message Content**', value: messageContent || '[No Content]', inline: false }
+                { name: '**Message**', value: messageContent || '[No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -78,8 +78,8 @@ module.exports = {
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
                 { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: true },
-                { name: '**Old Content**', value: oldContent || '[No Content]', inline: false },
-                { name: '**New Content**', value: newContent || '[No Content]', inline: false }
+                { name: '**Old Message**', value: oldContent || '[No Content]', inline: false },
+                { name: '**New Message**', value: newContent || '[No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
