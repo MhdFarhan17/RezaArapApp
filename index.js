@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
+const { resetVoiceTimes } = require('./utils/resetVoiceTimes'); // Path sesuai
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { logChannelChange } = require('./logs/moderationLog');
+const { VoiceTime } = require('./utils/voiceTimes'); // Model VoiceTime
 require('dotenv').config();
 const token = process.env.DISCORD_TOKEN;
 const { server1, server2 } = require('./utils/constants');
@@ -75,8 +77,7 @@ client.once('ready', async () => {
                         iconURL: member.user.displayAvatarURL({ dynamic: true }) 
                     })
                     .setDescription(
-                        `Thank you **${member.user.username}**, for boosting the server!\n` +
-                        `Your support helps us grow and keep the community awesome!`
+                        `Thank you **${member.user.username}**, for actively boosting the server!`
                     )
                     .addFields(
                         { name: 'Boost Active Since', value: `<t:${Math.floor(member.premiumSince / 1000)}:R>`, inline: true },
@@ -91,7 +92,6 @@ client.once('ready', async () => {
                 boostChannel.send({ embeds: [embed] });
             }
         });
-        
     });
 
     const guild = client.guilds.cache.get(server1.guildId);
@@ -102,74 +102,70 @@ client.once('ready', async () => {
 
     await initializeVoiceTimes(client);
 
-    const allowedChannelId = server1.allowedChannelIds[0];
-    const allowedChannel = guild.channels.cache.get(allowedChannelId);
-    if (!allowedChannel) {
-        console.error(`Allowed channel dengan ID ${allowedChannelId} tidak ditemukan!`);
-        return;
-    }
-
     const leaderboardChannelId = server1.leaderboardChannelId;
-    const leaderboardChannel = guild.channels.cache.get(leaderboardChannelId);
+    const leaderboardChannel = client.channels.cache.get(leaderboardChannelId);
+
     if (!leaderboardChannel) {
         console.error(`Leaderboard channel dengan ID ${leaderboardChannelId} tidak ditemukan!`);
         return;
     }
 
+    // Kirim leaderboard pukul 00.00 WIB
     cron.schedule('0 0 * * *', async () => {
         try {
-            console.log('Sending daily leaderboard at 00.00 WIB ...');
+            console.log('Mengirim leaderboard pada pukul 00.00 WIB...');
             await sendLeaderboard(client);
         } catch (error) {
-            console.error(`Failed to send leaderboard: ${error.message}`);
+            console.error(`Gagal mengirim leaderboard: ${error.message}`);
         }
     }, { timezone: "Asia/Jakarta" });
 
-    cron.schedule('0 19 * * 6', async () => {
+    // Notifikasi reset pukul 00.15 WIB
+    cron.schedule('15 0 1 * *', async () => {
         try {
-            const embed = new EmbedBuilder()
-                .setColor(0x5bc6ff)
-                .setTitle('🌟 Malam Minggu Telah Tiba! 🌟')
-                .setDescription(
-                    '**Udah Punya Pacar? 💖**\n' +
-                    'Manfaatkan momen ini untuk membuatnya tersenyum! Ajak si doi jalan, nonton bareng, atau makan malam romantis.\n\n' +
-                    '**Masih Jomblo? 🤡**\n' +
-                    'Tenang! Malam ini adalah waktu yang tepat untuk me-time atau hangout bareng teman di Discord!'
-                )
-                .setFooter({ text: 'Selamat Malam Minggu 🎉' })
-                .setTimestamp();
-
-            await allowedChannel.send({ content: '<@&1222532824075337838>', embeds: [embed] });
-            console.log('Pesan Malam Minggu terkirim!');
+            if (leaderboardChannel) {
+                await leaderboardChannel.send(
+                    '⚠️ **Pemberitahuan Penting** ⚠️\n' +
+                    'Data voice times akan di-reset pada pukul 00.30 WIB. Harap dicatat bahwa perhitungan waktu akan dimulai ulang setelah reset.'
+                );
+                console.log('Notifikasi reset terkirim.');
+            }
         } catch (error) {
-            console.error(`Gagal mengirim pesan Malam Minggu: ${error.message}`);
+            console.error(`Gagal mengirim notifikasi reset: ${error.message}`);
         }
-    });
+    }, { timezone: "Asia/Jakarta" });
 
-    cron.schedule('20 11 * * 5', async () => {
+    // Reset voiceTimes pukul 00.30 WIB dan mulai perhitungan ulang
+    cron.schedule('30 0 1 * *', async () => {
         try {
-            const embed = new EmbedBuilder()
-                .setColor(0x06FC04)
-                .setTitle('Persiapan Sholat Jumat 🕌')
-                .setDescription(
-                    '**Sudah saatnya mempersiapkan diri untuk Sholat Jumat!**\n' +
-                    'Lakukan mandi sunnah, pakai pakaian terbaik, dan bergegas menuju masjid.\n\n' +
-                    'Sholat Jumat adalah momen penuh keberkahan. Jangan sampai tertinggal!'
-                )
-                .setFooter({ text: 'Ingat, Sholat Jumat wajib bagi laki-laki!' })
-                .setTimestamp();
+            console.log('Mereset data voiceTimes pada pukul 00.30 WIB...');
+            await resetVoiceTimes();
 
-            await allowedChannel.send({ embeds: [embed] });
-            console.log('Pesan persiapan Sholat Jumat terkirim!');
+            console.log('Memulai perhitungan ulang untuk member yang aktif di voice channel...');
+            const members = await guild.members.fetch();
+
+            members.forEach(async (member) => {
+                if (member.voice.channel && !member.voice.mute && !member.voice.deaf) {
+                    const joinTime = Date.now();
+                    await VoiceTime.updateOne(
+                        { userId: member.id },
+                        { joinTime, totalTime: 0 },
+                        { upsert: true }
+                    );
+                    console.log(`Perhitungan ulang dimulai untuk member ${member.user.tag}.`);
+                }
+            });
+
+            console.log('VoiceTimes data di-reset dan perhitungan ulang selesai.');
         } catch (error) {
-            console.error(`Gagal mengirim pesan persiapan Sholat Jumat: ${error.message}`);
+            console.error(`Gagal mereset atau memulai ulang tracking: ${error.message}`);
         }
-    });
+    }, { timezone: "Asia/Jakarta" });
 
-    console.log('Scheduled weekly notifications and daily leaderboard.');
+    console.log('Semua jadwal telah diatur.');
 });
 
-// Monitor channel events
+// Event listener tetap sama, tidak ada perubahan
 client.on('channelCreate', (channel) => {
     if (!channel.guild) return;
 
@@ -198,7 +194,6 @@ client.on('channelUpdate', (oldChannel, newChannel) => {
     if (!newChannel.guild) return;
 
     try {
-        // Handle Renamed Channel
         if (oldChannel.name !== newChannel.name) {
             const oldName = oldChannel.name || 'Unknown';
             const newName = newChannel.name || 'Unknown';
@@ -209,6 +204,5 @@ client.on('channelUpdate', (oldChannel, newChannel) => {
         console.error(`Error handling channelUpdate: ${error.message}`);
     }
 });
-
 
 client.login(token);

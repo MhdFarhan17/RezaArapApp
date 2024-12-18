@@ -1,4 +1,5 @@
 const { join } = require('path');
+const { server1, server2 } = require('../utils/constants');
 
 const responseCount = {};
 const RESPONSE_LIMIT = 1;
@@ -6,6 +7,14 @@ const RESET_TIME = 7000;
 
 module.exports = {
     handleResponses(message) {
+        const guildId = message.guild.id;
+        const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
+
+        if (!serverConfig) {
+            console.log(`Bot tidak dikonfigurasi untuk server dengan ID ${guildId}`);
+            return;
+        }
+
         const content = message.content.toLowerCase();
 
         if (!responseCount[content]) {
@@ -21,202 +30,121 @@ module.exports = {
                 }, RESET_TIME);
             }
 
-            switch (content) {
-                case 'gg':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'gg.png')]
-                    }).then(() => console.log('Gambar GG berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+            this.sendResponse(message, content, serverConfig);
+        }
+    },
 
-                case 'mabar':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'mabar.png')]
-                    }).then(() => console.log('Gambar Mabar berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+    sendResponse(message, content, serverConfig) {
+        const images = {
+            'gg': 'gg.png',
+            'good game': 'gg.png',
+            'mabar': 'mabar.png',
+            'main bareng': 'mabar.png',
+            'ez': 'ezz.png',
+            'mudah sekali': 'ezz.png',
+            'nt': 'nt.png',
+            'nice try': 'nt.png',
+            'p': 'p.png',
+            'hai': 'hello.png',
+            'halo': 'hello.png',
+            'hello': 'hello.png',
+            'tidur': 'tidur.png',
+            'mau bobo': 'tidur.png',
+            'info': 'info.png',
+            'berak': 'berak.jpg',
+            'galau': 'galau.jpg',
+            'ngakak': 'ngakak.jpg',
+            'ah': 'ngntd.jpg',
+            'sepi': 'sepi.jpg',
+            'senja': 'senja.jpg',
+            'kopi senja': 'senja.jpg',
+            'cupu': 'cupu.jpg',
+            'baru main': 'cupu.jpg',
+        };
 
-                case 'ez':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'ezz.png')]
-                    }).then(() => console.log('Gambar EZ berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+        const responses = {
+            'pagi': `Selamat pagi! 🌞 Jangan lupa sarapan biar makin semangat! ${message.author}!`,
+            'siang': `Siang juga! 🌤️ Jangan lupa makan siang dan isi tenaga ya, ${message.author}! Tetap semangat menghadapi sisa hari ini!`,
+            'sore': `Selamat sore! 🌇 Semoga soremu seindah langit senja. ${message.author}!`,
+            'malam': `Malam juga, ${message.author}! 🌙 Good night and recharge your energy!`,
+            'mek': `Ape lu mak mek mak mek ${message.author}!`,
+            'cape': `Kalau cape itu istirahat, jangan malah main game terus ngtod ${message.author}!`,
+            'gws': `Semoga lekas membaik ya 😇`,
+            'main': `Ayo main sih guys, jangan diem-diem bae! @everyone`,
+        };
 
-                case 'nt':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'nt.png')]
-                    }).then(() => console.log('Gambar NT berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+        // Jika kata kunci cocok dengan salah satu gambar
+        if (images[content]) {
+            message.channel.send({
+                files: [join(__dirname, '..', 'images', images[content])]
+            }).then(() => console.log(`Gambar ${content} berhasil dikirim!`))
+              .catch(console.error);
+        }
+        // Jika kata kunci cocok dengan respons teks
+        else if (responses[content]) {
+            message.channel.send(responses[content]).catch(console.error);
+        }
+        // Untuk member triggers
+        else if (['egrol', 'eboy', 'titit'].includes(content)) {
+            const memberId = serverConfig.memberTriggers[content];
+            if (memberId) {
+                const member = message.guild.members.cache.get(memberId);
+                if (member) {
+                    message.channel.send(`Seseorang memanggil kamu ${member}, coba kamu sapa dulu.`).catch(console.error);
+                } else {
+                    message.channel.send('Seseorang yang kamu coba panggil lagi gak ada').catch(console.error);
+                }
+            }
+        }
+        // Untuk kata kunci game spesifik
+        else {
+            this.handleGameKeywords(content, message, serverConfig);
+        }
+    },
 
-                case 'p':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'p.png')]
-                    }).then(() => console.log('Gambar P berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+    handleGameKeywords(content, message, serverConfig) {
+        const gameKeywords = {
+            'gta v': 'gtaRoleId',
+            'kota': 'gtaRoleId',
+            'gta rp': 'gtaRoleId',
+            'valorant': 'valoRoleId',
+            'valo': 'valoRoleId',
+            'mobile legends': 'mlRoleId',
+            'mole': 'mlRoleId',
+            'ml': 'mlRoleId',
+            'pubg': 'pubgRoleId',
+            'babaji': 'pubgRoleId',
+            'pubg pc': 'pubgRoleId',
+            'overwatch': 'overwatch2RoleId',
+            'overwatch 2': 'overwatch2RoleId',
+            'roblox': "robloxRoleId",
+            'apex' : "apexRoleId",
+            'apex legend' : "apexRoleId",
+            'cs' : "csRoleId",
+            'counter strike' : "csRoleId",
+            'fortnite' : "fortniteRoleId",
+            'minecraft' : "minecraftRoleId",
+            'pubgm' : "pubgmobileRoleId",
+            'babajim' : "pubgmobileRoleId",
+            'babaji mobile' : "pubgmobileRoleId",
+        };
 
-                case 'hai':
-                case 'halo':
-                case 'hello':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'hello.png')]
-                    }).then(() => console.log('Gambar Hai berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+        for (const [key, roleKey] of Object.entries(gameKeywords)) {
+            if (content.includes(key)) {
+                const roleId = serverConfig[roleKey];
+                if (!roleId) {
+                    console.log(`Pengaturan role ID untuk "${key}" tidak ditemukan di server ${message.guild.id}`);
+                    return;
+                }
 
-                case 'tidur':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'tidur.png')]
-                    }).then(() => console.log('Gambar Tidur berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
+                const role = message.guild.roles.cache.get(roleId);
+                if (!role) {
+                    console.log(`Role dengan ID ${roleId} tidak ditemukan di server ${message.guild.id}`);
+                    return;
+                }
 
-                case 'info':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'info.png')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-
-                case 'berak':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'berak.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-
-                case 'galau':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'galau.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-
-                case 'ngakak':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'ngakak.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-                    
-                case 'ah':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'ngntd.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-                case 'sepi':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'sepi.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-                case 'senja':
-                case 'kopi senja':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'senja.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-                case 'cupu':
-                case 'baru main':
-                    message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'cupu.jpg')]
-                    }).then(() => console.log('Gambar Info berhasil dikirim!'))
-                      .catch(console.error);
-                    break;
-
-
-
-
-
-                // Contoh respon teks
-                case 'pagi':
-                case 'selamat pagi':
-                case 'good morning':
-                    message.channel.send(`Selamat pagi! 🌞 Jangan lupa sarapan biar makin semangat! Semoga harimu penuh keberkahan, ${message.author}! 🤗`).catch(console.error);
-                    break;
-                case 'siang':
-                case 'selamat siang':
-                    message.channel.send(`Siang juga! 🌤️ Jangan lupa makan siang dan isi tenaga ya, ${message.author}! Tetap semangat menghadapi sisa hari ini! 💪`).catch(console.error);
-                    break;
-                case 'sore':
-                case 'selamat sore':
-                    message.channel.send(`Selamat sore! 🌇 Semoga soremu seindah langit senja. Waktunya santai sejenak sebelum lanjut aktivitas, ${message.author}! 🍵`).catch(console.error);
-                    break;
-                case 'malam':
-                case 'selamat malam':
-                case 'good night':
-                    message.channel.send(`Malam juga, ${message.author}! 🌙 Semoga tidurmu nyenyak dan mimpi indah ya. Good night and recharge your energy! 🛌💤`).catch(console.error);
-                    break;
-                case 'mek':
-                    message.channel.send(`Ape lu mak mek mak mek ${message.author}!`).catch(console.error);
-                    break;
-                case 'cape':
-                    message.channel.send(`Kalau cape itu istirahat, jangan malah main game terus.`).catch(console.error);
-                    break;
-                case 'gws':
-                    message.channel.send(`Get Well Soon ya Tod!`).catch(console.error);
-                    break;
-                case 'main':
-                    message.channel.send(`Ayo main sih guys, jangan diem-diem bae! @everyone`).catch(console.error);
-                    break;
-                case 'valo':
-                case 'mabar valo':
-                case 'valorant':
-                    const valoRoleId = '1236564378585661441';
-                    message.channel.send(`Login valo gak sih <@&${valoRoleId}>`).catch(console.error);
-                    break;
-                case 'roblox':
-                    const robloxRoleId = '1236563915497013318';
-                    message.channel.send(`Ayo main Roblox <@&${robloxRoleId}>`).catch(console.error);
-                    break;
-                case 'ml':
-                case 'mabar ml':
-                case 'mole':
-                    const MLRoleId = '1254019853501599817';
-                    message.channel.send(`Ayo mabar Mobile Legends <@&${MLRoleId}>`).catch(console.error);
-                    break;   
-                case 'pubg':
-                case 'babaji':
-                case 'pubg pc':
-                    const pubgRoleId = '1236954189016334398';
-                    message.channel.send(`Ayo Mabar PUBG PC <@&${pubgRoleId}>`).catch(console.error);
-                    break;            
-                case 'egrol':
-                case 'egirl':
-                    const targetMemberId = '707278921757884439';
-                    const targetMember = message.guild.members.cache.get(targetMemberId);
-                    if (targetMember) {
-                        message.channel.send(`Seseorang memanggil kamu ${targetMember}, karena kamu adalah seorang "Boosted Egg Roll"`).catch(console.error);
-                    } else {
-                        message.channel.send('lagi gak bisa tag kesh').catch(console.error);
-                    }
-                    break;
-
-                case 'eboy':
-                    const targetMemberId2 = '439407175555612680';
-                    const targetMember2 = message.guild.members.cache.get(targetMemberId2);
-                    if (targetMember2) {
-                        message.channel.send(`Seseorang memanggil kamu ${targetMember2}, karena kamu adalah seorang "Eboy" yang sudah terverified GitGud.`).catch(console.error);
-                    } else {
-                        message.channel.send('gak bisa tag vlum').catch(console.error);
-                    }
-                    break;
-                
-                case 'titit':
-                    const targetMemberId3 = '835177633569964092';
-                    const targetMember3 = message.guild.members.cache.get(targetMemberId3);
-                    if (targetMember3) {
-                        message.channel.send(`Seseorang memanggil kamu ${targetMember3}`).catch(console.error);
-                    } else {
-                        message.channel.send('lagi gak bisa tag surya').catch(console.error);
-                    }
-                    break;
-                default:
-                    break;
+                message.channel.send(`Login ${key} gak sih <@&${roleId}>`).catch(console.error);
+                break;
             }
         }
     }

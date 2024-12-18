@@ -1,6 +1,5 @@
 const { EmbedBuilder, Colors } = require('discord.js');
 const { server1, server2 } = require('../utils/constants');
-const path = require('path'); // Tambahkan modul path untuk mengelola file
 
 function getServerConfig(guildId) {
     return guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
@@ -17,7 +16,7 @@ function sendLog(client, guildId, embed, files = []) {
 }
 
 module.exports = {
-    logVoiceChannelEvent(client, guildId, action, userId, channelIdFrom, channelIdTo = null) {
+    logVoiceChannelEvent(client, guildId, action, userId, userTag, channelIdFrom, channelIdTo = null) {
         const color = action.includes("Left Voice Channel") || action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green;
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo ? `<#${channelIdFrom}> to <#${channelIdTo}>`
@@ -27,10 +26,10 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle('Voice Channel Activity')
+            .setAuthor({ name: 'Voice Channel Activity', iconURL: user ? user.displayAvatarURL({ dynamic: true }) : null })
             .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
-                { name: '**Action**', value: action, inline: false },
+                { value: action, inline: false },
                 { name: '**User**', value: userMention, inline: false },
                 { name: '**Channel**', value: channelInfo, inline: false }
             )
@@ -40,7 +39,7 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    async logMessageDelete(client, guildId, userId, channelId, messageContent) {
+    async logMessageDelete(client, guildId, userId, userTag, channelId, messageContent) {
         const userMention = `<@${userId}>`;
         const user = client.users.cache.get(userId);
         let channel = client.channels.cache.get(channelId);
@@ -51,7 +50,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
-            .setTitle('Message Deleted')
+            .setAuthor({ name: 'Message Deleted', iconURL: user ? user.displayAvatarURL({ dynamic: true }) : null })
             .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
@@ -64,7 +63,7 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    async logMessageEdit(client, guildId, userId, channelId, oldContent, newContent) {
+    async logMessageEdit(client, guildId, userId, userTag, channelId, oldContent, newContent) {
         const userMention = `<@${userId}>`;
         const user = client.users.cache.get(userId);
         let channel = client.channels.cache.get(channelId);
@@ -75,7 +74,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Blue)
-            .setTitle('Message Edited')
+            .setAuthor({ name: 'Message Edited', iconURL: user ? user.displayAvatarURL({ dynamic: true }) : null })
             .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
                 { name: '**User**', value: userMention, inline: false },
@@ -89,25 +88,30 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logMemberJoin(client, guildId, userTag, userId) {
+    logMemberJoin(client, guildId, userTag, userId, member) {
         const userMention = `<@${userId}>`;
         const user = client.users.cache.get(userId);
+        const accountCreatedAt = user ? user.createdAt : null;
+        const now = new Date();
+        const accountAgeInDays = Math.floor((now - accountCreatedAt) / (1000 * 60 * 60 * 24));
 
+        const years = Math.floor(accountAgeInDays / 365);
+        const months = Math.floor((accountAgeInDays % 365) / 30);
+        const days = accountAgeInDays % 30;
+    
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
+            .setAuthor({ name: '${userTag}', iconURL: user ? user.displayAvatarURL({ dynamic: true }) : null })
             .setTitle('Member Joined')
             .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
-                { name: '**User**', value: userMention, inline: false },
-                { name: '**Username**', value: userTag, inline: false }
+                { name: 'User', value: `${userMention} ${userTag}`, inline: false },
+                { name: 'Account Age', value: `${years} year${years > 1 ? 's' : ''}, ${months} month${months > 1 ? 's' : ''}, ${days} day${days > 1 ? 's' : ''}`, inline: false }
             )
-            .setImage('attachment://welcomemember.gif') // Tambahkan GIF di bagian embed
             .setFooter({ text: `Welcome to GITGUD || User ID: ${userId}` })
             .setTimestamp();
-
-        sendLog(client, guildId, embed, [
-            { attachment: path.join(__dirname, '../gifs', 'welcomemember.gif'), name: 'welcomemember.gif' }
-        ]);
+    
+        sendLog(client, guildId, embed);
     },
 
     logMemberLeave(client, guildId, userTag, userId) {
@@ -116,6 +120,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
+            .setAuthor({ name: '${userTag}', iconURL: user ? user.displayAvatarURL({ dynamic: true }) : null })
             .setTitle('Member Left')
             .setThumbnail(user ? user.displayAvatarURL({ dynamic: true }) : null)
             .addFields(
@@ -131,7 +136,7 @@ module.exports = {
     logRoleChange(client, guildId, userTag, userId, roleName, roleId, action) {
         const userMention = `<@${userId}>`;
         const user = client.users.cache.get(userId);
-        const title = action === 'Added' ? 'Role Ditambahkan' : 'Role Dihapus';
+        const title = action === 'Added' ? 'Role Added' : 'Role Deleted';
 
         const embed = new EmbedBuilder()
             .setColor(action === 'Added' ? Colors.Green : Colors.Red)

@@ -2,6 +2,7 @@ const { logRoleChange } = require('../logs/moderationLog');
 const { server1, server2 } = require('../utils/constants');
 const { EmbedBuilder } = require('discord.js');
 const path = require('path');
+const fs = require('fs');
 
 const boostedMembersCache = new Map();
 
@@ -46,7 +47,7 @@ module.exports = {
 
         // Notifikasi untuk member yang baru boost server
         if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
-            const boostTimestamp = Math.floor(newMember.premiumSince / 1000);
+            const boostTimestamp = Math.floor(newMember.premiumSince / 1000);  // Menghitung boostTimestamp hanya jika premiumSince ada
             boostedMembersCache.set(newMember.id, boostTimestamp);
 
             const embed = new EmbedBuilder()
@@ -55,16 +56,21 @@ module.exports = {
                     name: `${newMember.user.username}`,
                     iconURL: newMember.user.displayAvatarURL({ dynamic: true })
                 })
-                .setDescription(`Thank you **${newMember.user.username}** for boosting the server! Your support helps us grow!`)
+                .setDescription(`Thank you **${newMember.user.username}** for boosting the server!`)
                 .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                .setImage('attachment://booster.gif')
                 .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                 .setTimestamp();
 
-            boostChannel.send({
-                embeds: [embed],
-                files: [{ attachment: path.join(__dirname, '../gifs', 'booster.gif'), name: 'booster.gif' }]
-            });
+            const boosterGifPath = path.join(__dirname, '../gifs', 'booster.gif');
+            if (fs.existsSync(boosterGifPath)) {
+                boostChannel.send({
+                    embeds: [embed],
+                    files: [{ attachment: boosterGifPath, name: 'booster.gif' }]
+                });
+            } else {
+                console.error('File booster.gif tidak ditemukan!');
+                boostChannel.send({ embeds: [embed] });
+            }
         }
 
         // Notifikasi untuk member yang berhenti boost server
@@ -82,14 +88,12 @@ module.exports = {
                 .setFooter({ text: 'Boost Ended 🚫' })
                 .setTimestamp();
 
-            boostChannel.send({
-                embeds: [embed]
-            });
+            boostChannel.send({ embeds: [embed] });
         }
 
         // Notifikasi untuk member yang memperpanjang atau memulai periode boost baru
         if (isBoosting) {
-            const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);
+            const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);  // Menghitung timestamp saat member boost
             const cachedBoostTimestamp = boostedMembersCache.get(newMember.id);
 
             if (!cachedBoostTimestamp || currentBoostTimestamp > cachedBoostTimestamp) {
@@ -103,18 +107,14 @@ module.exports = {
                     })
                     .setDescription(`**${newMember.user.username}**, thank you for renewing your support! We’re so grateful to have you!`)
                     .addFields(
-                        { name: 'Boost Active Since', value: `<t:${boostTimestamp}:R>` },
+                        { name: 'Boost Active Since', value: `<t:${currentBoostTimestamp}:R>` },
                         { name: 'Server', value: newMember.guild.name, inline: true }
                     )
                     .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
-                    .setImage('attachment://booster.gif')
                     .setFooter({ text: 'Server Boosted 🚀🚀🚀' })
                     .setTimestamp();
 
-                boostChannel.send({
-                    embeds: [embed],
-                    files: [{ attachment: path.join(__dirname, '../gifs', 'booster.gif'), name: 'booster.gif' }]
-                });
+                boostChannel.send({ embeds: [embed] });
             }
         }
     }
