@@ -26,17 +26,18 @@ module.exports = {
         const user = client.users.cache.get(userId);
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo
-            ? `<#${channelIdFrom}>\n to \n<#${channelIdTo}>`
+            ? `<#${channelIdFrom}>  ➡️  <#${channelIdTo}>`
             : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
+
     
         const embed = new EmbedBuilder()
             .setColor(action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green)
             .setAuthor({ name: 'Voice Channel Activity', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: "**action**", value: action, inline: false },
+                { name: "**Action**", value: action, inline: false },
                 { name: '**User**', value: userMention, inline: false },
-                { name: '**Channel**', value: channelInfo, inline: false }
+                { name: '**Channel**', value: channelInfo, inline: true }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();

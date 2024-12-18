@@ -31,6 +31,7 @@ function sendResponse(message, content, serverConfig) {
         'kopi senja': 'senja.jpg',
         'cupu': 'cupu.jpg',
         'baru main': 'cupu.jpg',
+        'ga jago': 'cupu.jpg',
     };
 
     const responses = {

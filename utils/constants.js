@@ -11,7 +11,7 @@ module.exports = {
         tempVoiceCategoryId: '1291854096646541364',
         commandChannelId: '1291829623423762474',
         shareLinkChannelId: '1303005047864692878',
-        boostChannelId: '1316039713072873482',
+        boostChannelId: '1318912772029022260',
         valoRoleId: '1236564378585661441',
         robloxRoleId: '1236563915497013318',
         gtavRoleId: '1240878609896312902',
