@@ -26,22 +26,21 @@ module.exports = {
         const user = client.users.cache.get(userId);
         const userMention = `<@${userId}>`;
         const channelInfo = channelIdFrom && channelIdTo
-            ? `<#${channelIdFrom}> to <#${channelIdTo}>`
+            ? `<#${channelIdFrom}>\n to \n<#${channelIdTo}>`
             : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
-
+    
         const embed = new EmbedBuilder()
             .setColor(action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green)
-            .setTitle('Voice Channel Event')
-            .setAuthor({ name: user?.tag || 'Unknown User', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
+            .setAuthor({ name: 'Voice Channel Activity', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: '**Action**', value: action, inline: true },
-                { name: '**User**', value: userMention, inline: true },
-                { name: '**Channel**', value: channelInfo, inline: true }
+                { name: action, value: '\u200b', inline: false },
+                { name: '**User**', value: userMention, inline: false },
+                { name: '**Channel**', value: channelInfo, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-
+    
         sendLog(client, guildId, embed);
     },
 
@@ -53,8 +52,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
-            .setTitle('Message Deleted')
-            .setAuthor({ name: user?.tag || 'Unknown User', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
+            .setAuthor({ name: 'Message Deleted', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
@@ -75,8 +73,7 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Blue)
-            .setTitle('Message Edited')
-            .setAuthor({ name: user?.tag || 'Unknown User', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
+            .setAuthor({ name: 'Message Edited', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
@@ -93,18 +90,25 @@ module.exports = {
     logMemberJoin(client, guildId, userId, userTag) {
         const user = client.users.cache.get(userId);
         const userMention = `<@${userId}>`;
-
+        const createdAt = user?.createdAt || new Date();
+        const now = new Date();
+        const accountAge = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
+        const years = Math.floor(accountAge / 365);
+        const months = Math.floor((accountAge % 365) / 30);
+        const days = accountAge % 30;
+        const accountAgeFormatted = `${years} years, ${months} months, ${days} days`;
+    
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
-            .setTitle('Member Joined')
-            .setAuthor({ name: user?.tag || userTag, iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
+            .setAuthor({ name: 'Member Joined', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: '**User**', value: `${userMention} (${userTag})`, inline: false }
+                { name: '**User**', value: `${userMention} ${userTag}`, inline: false },
+                { name: '**Account Age**', value: accountAgeFormatted, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-
+    
         sendLog(client, guildId, embed);
     },
 
