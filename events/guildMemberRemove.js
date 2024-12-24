@@ -1,9 +1,9 @@
 const { server1, server2 } = require('../utils/constants');
-const { logMemberLeave } = require('../logs/moderationLog'); // Import fungsi log
+const { logMemberLeave } = require('../logs/moderationLog');
 
 module.exports = {
     name: 'guildMemberRemove',
-    execute(member, client) {
+    async execute(member, client) {
         const guildId = member.guild.id;
         const serverConfig = guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 
@@ -12,11 +12,20 @@ module.exports = {
         const goodbyeChannelId = serverConfig.goodbyeChannelId;
         const goodbyeChannel = member.guild.channels.cache.get(goodbyeChannelId);
 
-        logMemberLeave(client, guildId, member.user.tag, member.user.id);
+        try {
+            // Log member leave
+            const user = await client.users.fetch(member.user.id);
+            logMemberLeave(client, guildId, user.id, user.tag);
 
-        if (goodbyeChannel) {
-            goodbyeChannel.send(`Selamat tinggal, ${member.user.tag}. Kami akan merindukanmu! 😢`)
-                .catch(console.error);
+            // Goodbye message
+            if (goodbyeChannel) {
+                goodbyeChannel.send(`Selamat tinggal, ${user.tag}. Kami akan merindukanmu! 😢`)
+                    .catch(console.error);
+            } else {
+                console.warn(`Goodbye channel untuk guild ${guildId} tidak ditemukan.`);
+            }
+        } catch (error) {
+            console.error(`Error during guildMemberRemove execution: ${error.message}`);
         }
     }
 };

@@ -5,6 +5,15 @@ function getServerConfig(guildId) {
     return guildId === server1.guildId ? server1 : guildId === server2.guildId ? server2 : null;
 }
 
+async function fetchUser(client, userId) {
+    try {
+        return client.users.cache.get(userId) || await client.users.fetch(userId);
+    } catch (error) {
+        console.error(`Failed to fetch user with ID ${userId}: ${error.message}`);
+        return null;
+    }
+}
+
 function sendLog(client, guildId, embed, files = []) {
     const serverConfig = getServerConfig(guildId);
     if (!serverConfig || !serverConfig.moderationLogChannelId) {
@@ -22,14 +31,13 @@ function sendLog(client, guildId, embed, files = []) {
 }
 
 module.exports = {
-    logVoiceChannelEvent(client, guildId, action, userId, channelIdFrom, channelIdTo = null) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+    async logVoiceChannelEvent(client, guildId, action, userId, channelIdFrom, channelIdTo = null) {
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : 'Unknown User';
         const channelInfo = channelIdFrom && channelIdTo
             ? `<#${channelIdFrom}>  ➡️  <#${channelIdTo}>`
             : channelIdFrom ? `<#${channelIdFrom}>` : channelIdTo ? `<#${channelIdTo}>` : 'N/A';
 
-    
         const embed = new EmbedBuilder()
             .setColor(action.includes("Left") || action.includes("Remove") ? Colors.Red : Colors.Green)
             .setAuthor({ name: 'Voice Channel Activity', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
@@ -41,13 +49,13 @@ module.exports = {
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-    
+
         sendLog(client, guildId, embed);
     },
 
     async logMessageDelete(client, guildId, userId, channelId, messageContent, attachments = []) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : 'Unknown User';
         const channel = client.channels.cache.get(channelId);
         const files = attachments.map(attachment => ({ attachment: attachment.url, name: attachment.name }));
 
@@ -67,8 +75,8 @@ module.exports = {
     },
 
     async logMessageEdit(client, guildId, userId, channelId, oldContent, newContent, attachments = []) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : 'Unknown User';
         const channel = client.channels.cache.get(channelId);
         const files = attachments.map(attachment => ({ attachment: attachment.url, name: attachment.name }));
 
@@ -88,9 +96,10 @@ module.exports = {
         sendLog(client, guildId, embed, files);
     },
 
-    logMemberJoin(client, guildId, userId, userTag) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+    async logMemberJoin(client, guildId, userId, userTag) {
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : userTag;
+
         const createdAt = user?.createdAt || new Date();
         const now = new Date();
         const accountAge = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
@@ -98,32 +107,29 @@ module.exports = {
         const months = Math.floor((accountAge % 365) / 30);
         const days = accountAge % 30;
         const accountAgeFormatted = `${years} years, ${months} months, ${days} days`;
-    
+
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setAuthor({ name: 'Member Joined', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
-            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: '**User**', value: `${userMention} ${userTag}`, inline: false },
+                { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false },
                 { name: '**Account Age**', value: accountAgeFormatted, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-    
+
         sendLog(client, guildId, embed);
     },
 
-    logMemberLeave(client, guildId, userId, userTag) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+    async logMemberLeave(client, guildId, userId, userTag) {
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : userTag;
 
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Member Left')
-            .setAuthor({ name: user?.tag || userTag, iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
-            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
-                { name: '**User**', value: `${userMention} (${userTag})`, inline: false }
+                { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
@@ -131,15 +137,13 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logRoleChange(client, guildId, userId, roleName, action) {
-        const user = client.users.cache.get(userId);
-        const userMention = `<@${userId}>`;
+    async logRoleChange(client, guildId, userId, roleName, action) {
+        const user = await fetchUser(client, userId);
+        const userMention = user ? `<@${userId}>` : 'Unknown User';
 
         const embed = new EmbedBuilder()
             .setColor(action === 'Added' ? Colors.Green : Colors.Red)
             .setTitle(`Role ${action}`)
-            .setAuthor({ name: user?.tag || 'Unknown User', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
-            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
                 { name: '**Role**', value: roleName, inline: true }
@@ -150,7 +154,7 @@ module.exports = {
         sendLog(client, guildId, embed);
     },
 
-    logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
+    async logChannelChange(client, guildId, action, channelId, channelNameBefore = null, channelNameAfter = null) {
         let color;
 
         switch (action.toLowerCase()) {
@@ -168,7 +172,7 @@ module.exports = {
         }
 
         const guild = client.guilds.cache.get(guildId);
-    
+
         if (!guild) {
             console.error(`Guild dengan ID ${guildId} tidak ditemukan.`);
             return;
@@ -190,14 +194,12 @@ module.exports = {
                 { name: '**Old Name**', value: channelNameBefore || 'Unknown', inline: true },
                 { name: '**New Name**', value: channelNameAfter || 'Unknown', inline: true }
             );
-        }
-
-        else {
+        } else {
             embed.addFields(
                 { name: '**Channel Name**', value: channelNameBefore || 'Unknown', inline: false }
             );
         }
 
         sendLog(client, guildId, embed);
-    }    
+    }
 };

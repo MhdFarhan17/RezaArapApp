@@ -16,7 +16,11 @@ const SPAM_THRESHOLD = 2;
 const WARNING_RESET_TIME = 15000;
 
 function getServerConfig(guildId) {
-    return [server1, server2].find(server => server.guildId === guildId);
+    const config = [server1, server2].find(server => server.guildId === guildId);
+    if (!config) {
+        console.warn(`Server dengan ID ${guildId} tidak memiliki konfigurasi.`);
+    }
+    return config;
 }
 
 function sendWarning(channel, content, timeout = 60000) {
@@ -75,7 +79,7 @@ async function handleSpamCheck(message, content) {
         }
 
         if (!userWarnings[author.id] || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
-            sendWarning(channel, `${author}, Gausah SPAM ya tod 😡, ntar gua pukul pala lu!`);
+            sendWarning(channel, `${author}, Gausah SPAM kakak, nanti aku gorok lehernya!`);
             userWarnings[author.id] = { count: 1, lastWarningTime: now };
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
@@ -264,7 +268,7 @@ module.exports = {
 
         if (containsBannedWords(content)) {
             await message.delete().catch(console.error);
-            sendWarning(channel, `${message.author}, Pesan kamu mengandung kata yang tidak diperbolehkan dan telah dihapus. Mohon untuk menjaga tutur kata di server ini ya!`);
+            sendWarning(channel, `${message.author}, ketikannya dijaga ya kakak, banyak ada kecil disini jadi jangan ketik yang ga sopan ya. :FeelsBulliedMan:`);
             return;
         }
 
