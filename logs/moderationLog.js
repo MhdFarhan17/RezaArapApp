@@ -65,7 +65,7 @@ module.exports = {
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
-                { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: true },
+                { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: false },
                 { name: '**Message**', value: messageContent || '[No Content]', inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
@@ -86,7 +86,7 @@ module.exports = {
             .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: userMention, inline: true },
-                { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: true },
+                { name: '**Channel**', value: channel ? `<#${channel.id}>` : 'Unknown', inline: false },
                 { name: '**Old Message**', value: oldContent || '[No Content]', inline: false },
                 { name: '**New Message**', value: newContent || '[No Content]', inline: false }
             )
@@ -138,19 +138,20 @@ module.exports = {
     },
 
     async logRoleChange(client, guildId, userId, roleName, action) {
-        const user = await fetchUser(client, userId);
-        const userMention = user ? `<@${userId}>` : 'Unknown User';
-
+        const user = await client.users.fetch(userId).catch(() => null);
+        const userMention = user ? `<@${user.id}>` : 'Unknown User';
+        const userTag = user ? user.tag : 'Unknown User';
+    
         const embed = new EmbedBuilder()
-            .setColor(action === 'Added' ? Colors.Green : Colors.Red)
+            .setColor(action === 'added' ? Colors.Green : Colors.Red)
             .setTitle(`Role ${action}`)
             .addFields(
-                { name: '**User**', value: userMention, inline: true },
-                { name: '**Role**', value: roleName, inline: true }
+                { name: '**User**', value: `${userMention} (${userTag})`, inline: false },
+                { name: '**Role**', value: roleName, inline: false }
             )
             .setFooter({ text: `User ID: ${userId}` })
             .setTimestamp();
-
+    
         sendLog(client, guildId, embed);
     },
 

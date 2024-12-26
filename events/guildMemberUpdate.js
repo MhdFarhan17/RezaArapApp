@@ -19,6 +19,7 @@ module.exports = {
 
         if (!boostChannel) return;
 
+        // Ambil daftar role lama dan baru
         const oldRoles = new Set(oldMember.roles.cache.map(role => role.id));
         const newRoles = new Set(newMember.roles.cache.map(role => role.id));
 
@@ -28,7 +29,8 @@ module.exports = {
                 const role = newMember.guild.roles.cache.get(roleId);
                 const roleName = role ? role.name : 'Unknown';
 
-                logRoleChange(client, guildId, newMember.user.tag, newMember.user.id, roleName, roleId, 'Added');
+                // Log role yang ditambahkan
+                logRoleChange(client, guildId, newMember.user.id, roleName, 'Added');
             }
         }
 
@@ -38,7 +40,8 @@ module.exports = {
                 const role = oldMember.guild.roles.cache.get(roleId);
                 const roleName = role ? role.name : 'Unknown';
 
-                logRoleChange(client, guildId, oldMember.user.tag, oldMember.user.id, roleName, roleId, 'Removed');
+                // Log role yang dihapus
+                logRoleChange(client, guildId, oldMember.user.id, roleName, 'Removed');
             }
         }
 

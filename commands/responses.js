@@ -26,7 +26,7 @@ module.exports = {
                 case 'good gaem':
                 case 'gg':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'gg_images.png')]
+                        files: [join(__dirname, '..', 'images', 'gg.png')]
                     }).then(() => console.log('Gambar GG berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -34,14 +34,14 @@ module.exports = {
                 case 'main bareng':
                 case 'mabar':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'mabar_images.png')]
+                        files: [join(__dirname, '..', 'images', 'mabar.png')]
                     }).then(() => console.log('Gambar Mabar berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'ez':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'ez_images.png')]
+                        files: [join(__dirname, '..', 'images', 'ezz.png')]
                     }).then(() => console.log('Gambar EZ berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -49,14 +49,14 @@ module.exports = {
                 case 'nicetry':
                 case 'nt':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'nt_images.png')]
+                        files: [join(__dirname, '..', 'images', 'nt.png')]
                     }).then(() => console.log('Gambar NT berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'p':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'p_images.png')]
+                        files: [join(__dirname, '..', 'images', 'p.png')]
                     }).then(() => console.log('Gambar P berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -65,7 +65,7 @@ module.exports = {
                 case 'hello':
                 case 'hai':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'hai_images.png')]
+                        files: [join(__dirname, '..', 'images', 'hello.png')]
                     }).then(() => console.log('Gambar Hai berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -73,14 +73,14 @@ module.exports = {
                 case 'mau tidur':
                 case 'tidur':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'tidur_images.png')]
+                        files: [join(__dirname, '..', 'images', 'tidur.png')]
                     }).then(() => console.log('Gambar Tidur berhasil dikirim!'))
                       .catch(console.error);
                     break;
 
                 case 'info':
                     message.channel.send({
-                        files: [join(__dirname, '..', 'images', 'info_images.png')]
+                        files: [join(__dirname, '..', 'images', 'info.png')]
                     }).then(() => console.log('Gambar Info berhasil dikirim!'))
                       .catch(console.error);
                     break;
@@ -137,19 +137,33 @@ module.exports = {
                     break;
 
                 // Contoh respon teks
+                case 'pagi':
+                    message.channel.send(`Selamat pagi! 🌞 Jangan lupa sarapan biar makin semangat! ${message.author}!`).catch(console.error);
+                    break;
+                case 'siang':
+                    message.channel.send(`Siang juga! 🌤️ Jangan lupa makan siang dan isi tenaga ya! Tetap semangat menghadapi sisa hari ini! ${message.author}!`).catch(console.error);
+                    break;
+                case 'sore':
+                    message.channel.send(`Selamat sore! 🌇 Semoga soremu seindah langit senja. ${message.author}!`).catch(console.error);
+                    break;
+                case 'malam':
+                    message.channel.send(`Malam juga! 🌙 Good night and recharge your energy! ${message.author}!`).catch(console.error);
+                    break;
+
+                case 'cape':
+                    message.channel.send(`Kalau cape itu istirahat, jangan malah main game terus ngtod! ${message.author}!`).catch(console.error);
+                    break;
+
                 case 'mek':
                     message.channel.send(`Ape lu mak mek mak mek anjink ${message.author}!`).catch(console.error);
                     break;
-                    
-                case 'eboy':
-                    message.channel.send(`Weyy Vlum, sedih banget aku udah gabisa mention kamu lagi😭. Dasar Eboyy!!`).catch(console.error);
-                    break;
+
                 case 'good job':
                     message.channel.send(`Terima kasih, ${message.author}! Kamu juga hebat!`).catch(console.error);
                     break;
 
                 case 'gws':
-                    message.channel.send(`Get Well Soon ya Tod!`).catch(console.error);
+                    message.channel.send(`Semoga lekas membaik ya 😇`).catch(console.error);
                     break;
 
                 case 'main':
@@ -161,10 +175,6 @@ module.exports = {
                     message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
                     break;
 
-                case 'roblox':
-                    const robloxRoleId = '1236563915497013318'; // Ganti dengan ID role yang diinginkan
-                    message.channel.send(`Ayo main Roblox gess <@&${robloxRoleId}>`).catch(console.error);
-                    break;
                 
                 // case 'egrol':
                 // case 'egirl':
