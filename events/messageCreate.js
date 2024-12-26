@@ -268,7 +268,7 @@ module.exports = {
 
         if (containsBannedWords(content)) {
             await message.delete().catch(console.error);
-            sendWarning(channel, `${message.author}, ketikannya dijaga ya kakak, banyak ada kecil disini jadi jangan ketik yang ga sopan ya. :FeelsBulliedMan:`);
+            sendWarning(channel, `${message.author}, ketikannya dijaga ya kakak, banyak ada kecil disini jadi jangan ketik yang ga sopan ya.`);
             return;
         }
 

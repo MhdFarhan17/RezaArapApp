@@ -141,9 +141,10 @@ module.exports = {
         const user = await client.users.fetch(userId).catch(() => null);
         const userMention = user ? `<@${user.id}>` : 'Unknown User';
         const userTag = user ? user.tag : 'Unknown User';
+        const color = action === 'Added' ? Colors.Green : Colors.Red;
     
         const embed = new EmbedBuilder()
-            .setColor(action === 'added' ? Colors.Green : Colors.Red)
+            .setColor(color)
             .setTitle(`Role ${action}`)
             .addFields(
                 { name: '**User**', value: `${userMention} (${userTag})`, inline: false },
