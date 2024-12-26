@@ -41,7 +41,7 @@ module.exports = {
         tempVoiceCategoryId: '1291484735763251241',
         commandChannelId: '1291481116716433462',
         shareLinkChannelId: '1288615004714565652',
-        boostChannelId: '1316031754657599590',
+        boostChannelId: '1321799935095738389',
         valoRoleId: '1288727358794235986',
         overwatch2RoleId: '1289144676317794304',
         mlRoleId: '1289144290999668828',
