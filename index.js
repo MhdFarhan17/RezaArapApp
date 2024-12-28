@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const { sendLeaderboard } = require('./logs/sendLeaderboard');
-const { resetVoiceTimes } = require('./utils/resetVoiceTimes'); // Path sesuai
+const { resetVoiceTimes } = require('./utils/resetVoiceTimes');
 const { initializeVoiceTimes } = require('./events/voiceStateUpdate');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { logChannelChange } = require('./logs/moderationLog');
-const { VoiceTime } = require('./utils/voiceTimes'); // Model VoiceTime
+const { VoiceTime } = require('./utils/voiceTimes');
 require('dotenv').config();
 const token = process.env.DISCORD_TOKEN;
 const { server1, server2 } = require('./utils/constants');

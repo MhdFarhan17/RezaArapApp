@@ -28,8 +28,6 @@ module.exports = {
             if (!oldRoles.has(roleId)) {
                 const role = newMember.guild.roles.cache.get(roleId);
                 const roleName = role ? role.name : 'Unknown';
-
-                // Log role yang ditambahkan
                 logRoleChange(client, guildId, newMember.user.id, roleName, 'Added');
             }
         }
@@ -39,8 +37,6 @@ module.exports = {
             if (!newRoles.has(roleId)) {
                 const role = oldMember.guild.roles.cache.get(roleId);
                 const roleName = role ? role.name : 'Unknown';
-
-                // Log role yang dihapus
                 logRoleChange(client, guildId, oldMember.user.id, roleName, 'Removed');
             }
         }
@@ -50,7 +46,7 @@ module.exports = {
 
         // Notifikasi untuk member yang baru boost server
         if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
-            const boostTimestamp = Math.floor(newMember.premiumSince / 1000);  // Menghitung boostTimestamp hanya jika premiumSince ada
+            const boostTimestamp = Math.floor(newMember.premiumSince / 1000);
             boostedMembersCache.set(newMember.id, boostTimestamp);
 
             const embed = new EmbedBuilder()
@@ -96,7 +92,7 @@ module.exports = {
 
         // Notifikasi untuk member yang memperpanjang atau memulai periode boost baru
         if (isBoosting) {
-            const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);  // Menghitung timestamp saat member boost
+            const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);
             const cachedBoostTimestamp = boostedMembersCache.get(newMember.id);
 
             if (!cachedBoostTimestamp || currentBoostTimestamp > cachedBoostTimestamp) {

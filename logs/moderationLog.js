@@ -111,6 +111,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setAuthor({ name: 'Member Joined', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
+            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false },
                 { name: '**Account Age**', value: accountAgeFormatted, inline: false }
@@ -128,6 +129,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(Colors.Red)
             .setTitle('Member Left')
+            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false }
             )
@@ -146,6 +148,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor(color)
             .setTitle(`Role ${action}`)
+            .setThumbnail(user?.displayAvatarURL({ dynamic: true }) || null)
             .addFields(
                 { name: '**User**', value: `${userMention} (${userTag})`, inline: false },
                 { name: '**Role**', value: roleName, inline: false }

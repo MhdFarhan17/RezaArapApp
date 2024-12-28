@@ -79,7 +79,7 @@ async function handleSpamCheck(message, content) {
         }
 
         if (!userWarnings[author.id] || now - userWarnings[author.id].lastWarningTime > WARNING_RESET_TIME) {
-            sendWarning(channel, `${author}, Gausah SPAM kakak, nanti aku gorok lehernya!`);
+            sendWarning(channel, `${author} Gausah SPAM kakak, nanti aku gorok lehernya!`);
             userWarnings[author.id] = { count: 1, lastWarningTime: now };
             logMessageDelete(message.client, message.guild.id, author.id, channel.id, content);
         }
@@ -268,7 +268,7 @@ module.exports = {
 
         if (containsBannedWords(content)) {
             await message.delete().catch(console.error);
-            sendWarning(channel, `${message.author}, ketikannya dijaga ya kakak, banyak ada kecil disini jadi jangan ketik yang ga sopan ya.`);
+            sendWarning(channel, `${message.author} ketikannya dijaga ya kakak, banyak anak kecil disini 😇`);
             return;
         }
 
