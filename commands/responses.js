@@ -1,5 +1,5 @@
 const { join } = require('path');
-const { server1, server2 } = require('./utils/constants');
+const { server1, server2 } = require('../utils/constants');
 
 const responseCount = {};
 const RESPONSE_LIMIT = 1;
