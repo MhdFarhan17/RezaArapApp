@@ -29,7 +29,7 @@ module.exports = {
 
             // Definisikan logika untuk respon gambar atau teks
             switch (content) {
-                case 'good gaem':
+                case 'good game':
                 case 'gg':
                     message.channel.send({
                         files: [join(__dirname, '..', 'images', 'gg.png')]
@@ -52,7 +52,7 @@ module.exports = {
                       .catch(console.error);
                     break;
 
-                case 'nicetry':
+                case 'nice try':
                 case 'nt':
                     message.channel.send({
                         files: [join(__dirname, '..', 'images', 'nt.png')]
@@ -186,14 +186,14 @@ module.exports = {
             }
 
             const triggers = [
-                { keywords: ['valo', 'valorant'], roleId: config.valoRoleId },
-                { keywords: ['ml', 'mole', 'mobile legends'], roleId: config.mlRoleId },
+                { keywords: ['valorant', 'valo', 'palo'], roleId: config.valoRoleId },
+                { keywords: ['mobile legends', 'mole', 'ml'], roleId: config.mlRoleId },
                 { keywords: ['roblox'], roleId: config.robloxRoleId },
                 { keywords: ['gta v', 'kota', 'gta rp'], roleId: config.gtavRoleId },
-                { keywords: ['babaji', 'papji', 'pubg pc'], roleId: config.pubgRoleId },
-                { keywords: ['cs', 'cs 2', 'counter strike'], roleId: config.csRoleId },
-                { keywords: ['overwatch', 'overwatch 2'], roleId: config.overwatch2RoleId },
-                { keywords: ['apex', 'apex legends'], roleId: config.apexRoleId },
+                { keywords: ['pubg pc', 'papji', 'babaji'], roleId: config.pubgRoleId },
+                { keywords: ['counter strike', 'cs 2', 'cs'], roleId: config.csRoleId },
+                { keywords: ['overwatch 2', 'overwatch'], roleId: config.overwatch2RoleId },
+                { keywords: ['apex legends', 'apex'], roleId: config.apexRoleId },
                 { keywords: ['fortnite'], roleId: config.fortniteRoleId },
                 { keywords: ['minecraft'], roleId: config.minecraftRoleId },
             ];
