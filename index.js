@@ -136,7 +136,7 @@ client.once('ready', async () => {
     }, { timezone: "Asia/Jakarta" });
 
     // Reset voiceTimes pukul 00.30 WIB dan mulai perhitungan ulang
-    cron.schedule('30 0 1 * *', async () => {
+    cron.schedule('58 23 1 * *', async () => {
         try {
             console.log('Mereset data voiceTimes pada pukul 00.30 WIB...');
             await resetVoiceTimes();

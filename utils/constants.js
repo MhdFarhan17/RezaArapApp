@@ -22,13 +22,8 @@ module.exports = {
         csRoleId: '1236954357568765993',
         dotaRoleId: '1236564475897712640',
         fortniteRoleId: '1236564476669722655',
-        minecraftRole: '1236955019379474465',
+        minecraftRoleId: '1236955019379474465',
         pubgmobileRoleId: '1240891424199934002',
-        memberTriggers: {
-            egrol: '707278921757884439',
-            eboy: '439407175555612680',
-            titit: '835177633569964092',
-        }
     },
     // Konfigurasi untuk Server 2
     server2: {

@@ -1,4 +1,5 @@
 const { join } = require('path');
+const { server1, server2 } = require('./utils/constants');
 
 const responseCount = {};
 const RESPONSE_LIMIT = 1;
@@ -6,18 +7,23 @@ const RESET_TIME = 7000;
 
 module.exports = {
     handleResponses(message) {
+        const serverId = message.guild.id;
         const content = message.content.toLowerCase();
+        const config = serverId === server1.guildId ? server1 :
+                       serverId === server2.guildId ? server2 :
+                       null;
+        if (!config) return;
 
-        if (!responseCount[content]) {
-            responseCount[content] = { count: 0, timer: null };
+        const userKey = `${content}-${message.author.id}`;
+        if (!responseCount[userKey]) {
+            responseCount[userKey] = { count: 0, timer: null };
         }
-
-        if (responseCount[content].count < RESPONSE_LIMIT) {
-            responseCount[content].count++;
-            if (!responseCount[content].timer) {
-                responseCount[content].timer = setTimeout(() => {
-                    responseCount[content].count = 0;
-                    responseCount[content].timer = null;
+        if (responseCount[userKey].count < RESPONSE_LIMIT) {
+            responseCount[userKey].count++;
+            if (!responseCount[userKey].timer) {
+                responseCount[userKey].timer = setTimeout(() => {
+                    responseCount[userKey].count = 0;
+                    responseCount[userKey].timer = null;
                 }, RESET_TIME);
             }
 
@@ -170,45 +176,35 @@ module.exports = {
                     message.channel.send(`Ayo main sih ges, jan diem-diem bae! @everyone`).catch(console.error);
                     break;
 
-                case 'valo':
-                    const valoRoleId = '1236564378585661441'; // Ganti dengan ID role yang diinginkan
-                    message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
-                    break;
-
-                
-                // case 'egrol':
-                // case 'egirl':
-                //     const targetMemberId = '707278921757884439'; // Ganti dengan ID member yang ingin Anda mention
-                //     const targetMember = message.guild.members.cache.get(targetMemberId);
-                //     if (targetMember) {
-                //         message.channel.send(`Seseorang memanggil kamu ${targetMember}, karena kamu adalah seorang "Boosted Egg Roll"`).catch(console.error);
-                //     } else {
-                //         message.channel.send('Member tidak ditemukan untuk sebutan "Boosted Egg Roll". Pastikan ID member sudah benar.').catch(console.error);
-                //     }
-                //     break;
-
-                // case 'eboni':
-                //     const targetMemberId2 = '439407175555612680'; // Ganti dengan ID member yang ingin Anda mention
-                //     const targetMember2 = message.guild.members.cache.get(targetMemberId2);
-                //     if (targetMember2) {
-                //         message.channel.send(`Seseorang memanggil kamu ${targetMember2}, karena kamu adalah seorang "Eboni sekaligus eboy valo"`).catch(console.error);
-                //     } else {
-                //         message.channel.send('Member tidak ditemukan untuk sebutan "eboni". Pastikan ID member sudah benar.').catch(console.error);
-                //     }
+                // case 'valo':
+                //     const valoRoleId = '1236564378585661441'; // Ganti dengan ID role yang diinginkan
+                //     message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
                 //     break;
                 
-                // case 'titit':
-                //     const targetMemberId3 = '835177633569964092'; // Ganti dengan ID member yang ingin Anda mention
-                //     const targetMember3 = message.guild.members.cache.get(targetMemberId3);
-                //     if (targetMember3) {
-                //         message.channel.send(`Seseorang memanggil kamu ${targetMember3}, karena muka kamu mirip tititnya mulyono. /n #bang fancy yang bilang`).catch(console.error);
-                //     } else {
-                //         message.channel.send('Member tidak ditemukan untuk sebutan "titit". Pastikan ID member sudah benar.').catch(console.error);
-                //     }
-                //     break;
-                // Jika tidak ada kata yang cocok, tidak ada tindakan
                 default:
                     break;
+            }
+
+            const triggers = [
+                { keywords: ['valo', 'valorant'], roleId: config.valoRoleId },
+                { keywords: ['ml', 'mole', 'mobile legends'], roleId: config.mlRoleId },
+                { keywords: ['roblox'], roleId: config.robloxRoleId },
+                { keywords: ['gta v', 'kota', 'gta rp'], roleId: config.gtavRoleId },
+                { keywords: ['babaji', 'papji', 'pubg pc'], roleId: config.pubgRoleId },
+                { keywords: ['cs', 'cs 2', 'counter strike'], roleId: config.csRoleId },
+                { keywords: ['overwatch', 'overwatch 2'], roleId: config.overwatch2RoleId },
+                { keywords: ['apex', 'apex legends'], roleId: config.apexRoleId },
+                { keywords: ['fortnite'], roleId: config.fortniteRoleId },
+                { keywords: ['minecraft'], roleId: config.minecraftRoleId },
+            ];
+
+            // Cek pesan apakah cocok dengan keyword secara penuh
+            for (const trigger of triggers) {
+                if (trigger.keywords.includes(content)) {
+                    const roleId = trigger.roleId;
+                    message.channel.send(`Login ${trigger.keywords[0].toUpperCase()} gak sih <@&${roleId}>`);
+                    return;
+                }
             }
         }
     }

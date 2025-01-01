@@ -3,7 +3,6 @@ const { handleResponses } = require('../commands/responses');
 const { handleLinkChannels } = require('../commands/linkChannels');
 const { handleMusicRequest } = require('../commands/music');
 const { logMessageDelete } = require('../logs/moderationLog');
-const { logChannelChange } = require('../logs/moderationLog');
 const { sendLeaderboard } = require('../logs/sendLeaderboard');
 const { ChannelType, PermissionsBitField } = require('discord.js');
 const { server1, server2, bannedWords} = require('../utils/constants');

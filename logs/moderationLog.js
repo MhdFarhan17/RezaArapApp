@@ -99,7 +99,7 @@ module.exports = {
     async logMemberJoin(client, guildId, userId, userTag) {
         const user = await fetchUser(client, userId);
         const userMention = user ? `<@${userId}>` : userTag;
-
+    
         const createdAt = user?.createdAt || new Date();
         const now = new Date();
         const accountAge = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
@@ -107,7 +107,11 @@ module.exports = {
         const months = Math.floor((accountAge % 365) / 30);
         const days = accountAge % 30;
         const accountAgeFormatted = `${years} years, ${months} months, ${days} days`;
-
+    
+        // Ambil guild untuk mendapatkan nama server
+        const guild = client.guilds.cache.get(guildId);
+        const footerText = guild ? `Welcome to ${guild.name}` : 'Welcome';
+    
         const embed = new EmbedBuilder()
             .setColor(Colors.Green)
             .setAuthor({ name: 'Member Joined', iconURL: user?.displayAvatarURL({ dynamic: true }) || null })
@@ -116,9 +120,9 @@ module.exports = {
                 { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false },
                 { name: '**Account Age**', value: accountAgeFormatted, inline: false }
             )
-            .setFooter({ text: `User ID: ${userId}` })
+            .setFooter({ text: `${footerText} || User ID: ${userId}` })
             .setTimestamp();
-
+    
         sendLog(client, guildId, embed);
     },
 
@@ -133,7 +137,7 @@ module.exports = {
             .addFields(
                 { name: '**User**', value: `${userMention} (${user?.tag || userTag})`, inline: false }
             )
-            .setFooter({ text: `User ID: ${userId}` })
+            .setFooter({ text: `Good Bye || User ID: ${userId}` })
             .setTimestamp();
 
         sendLog(client, guildId, embed);
@@ -185,12 +189,12 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setColor(color)
-            .setTitle(`Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
+            // .setTitle(`Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`)
             .setFooter({ text: `Channel ID: ${channelId}` })
             .setTimestamp();
 
         embed.setAuthor({
-            name: guild.name,
+            name: `Channel ${action.charAt(0).toUpperCase() + action.slice(1)}`,
             iconURL: guild.iconURL({ dynamic: true }) || undefined
         });
 
