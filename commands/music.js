@@ -1,5 +1,3 @@
-const { logMessageDelete } = require('../logs/moderationLog');
-
 // Helper function to validate if a message is a YouTube or Spotify link
 function isMusicLink(content) {
     const youtubePattern = /https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/;
