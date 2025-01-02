@@ -3,13 +3,22 @@ const { VoiceTime } = require('./voiceTimes');
 
 async function resetVoiceTimes() {
     try {
+        // Lakukan reset data dengan validasi jumlah dokumen yang direset
+        const totalDocuments = await VoiceTime.countDocuments(); // Hitung total dokumen di koleksi
         const result = await VoiceTime.updateMany({}, { $set: { totalTime: 0, joinTime: null } });
 
-        console.log(
-            `Data voiceTimes telah direset pada ${moment()
-                .tz("Asia/Jakarta")
-                .format("YYYY-MM-DD HH:mm:ss")} WIB. Dokumen yang diperbarui: ${result.modifiedCount}`
-        );
+        if (result.modifiedCount === totalDocuments) {
+            console.log(
+                `Semua data voiceTimes berhasil direset pada ${moment()
+                    .tz("Asia/Jakarta")
+                    .format("YYYY-MM-DD HH:mm:ss")} WIB. Total dokumen diperbarui: ${result.modifiedCount}`
+            );
+        } else {
+            console.warn(
+                `Hanya ${result.modifiedCount} dari ${totalDocuments} dokumen yang berhasil direset. ` +
+                `Periksa apakah ada dokumen yang bermasalah.`
+            );
+        }
     } catch (error) {
         console.error('Terjadi kesalahan saat mereset data:', error.message);
     }

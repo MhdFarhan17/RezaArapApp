@@ -193,7 +193,6 @@ async function handleSetVoiceChannelName(message) {
     try {
         await voiceChannel.edit({ name: newName });
         message.reply(`Nama Voice Channel berhasil diubah menjadi **${newName}**.`);
-        // logChannelChange(message.client, message.guild.id, 'Renamed', voiceChannel.id, oldName, newName);
     } catch (error) {
         console.error('Error mengubah nama Voice Channel:', error);
         sendWarning(message.channel, 'Gagal mengubah nama Voice Channel.');
@@ -267,7 +266,7 @@ module.exports = {
 
         if (containsBannedWords(content)) {
             await message.delete().catch(console.error);
-            sendWarning(channel, `${message.author} ketikannya dijaga ya kakak, banyak anak kecil disini 😇`);
+            sendWarning(channel, `${message.author} ketikannya mohon dijaga ya kakak 🙏, gaboleh toxic dan ngomong jorok ya 😇`);
             return;
         }
 
