@@ -45,7 +45,7 @@ module.exports = {
     handleQuotes(message) {
         const content = message.content.toLowerCase();
 
-        if (content === "quotes!") {
+        if (content === "quotes") {
             if (quotes.length === 0) {
                 message.channel.send("Maaf, tidak ada quotes yang tersedia saat ini.")
                     .catch(console.error);

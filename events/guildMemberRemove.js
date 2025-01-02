@@ -13,11 +13,9 @@ module.exports = {
         const goodbyeChannel = member.guild.channels.cache.get(goodbyeChannelId);
 
         try {
-            // Log member leave
             const user = await client.users.fetch(member.user.id);
             logMemberLeave(client, guildId, user.id, user.tag);
 
-            // Goodbye message
             if (goodbyeChannel) {
                 goodbyeChannel.send(`Selamat tinggal, ${user.tag}. Kami akan merindukanmu! 😢`)
                     .catch(console.error);

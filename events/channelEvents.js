@@ -6,8 +6,6 @@ module.exports = {
 
     async channelCreate(channel, client) {
         if (!channel.guild) return;
-
-        // Pastikan hanya untuk Server 1 dan Server 2
         if (![server1.guildId, server2.guildId].includes(channel.guild.id)) return;
 
         try {
@@ -21,8 +19,6 @@ module.exports = {
 
     async channelDelete(channel, client) {
         if (!channel.guild) return;
-
-        // Pastikan hanya untuk Server 1 dan Server 2
         if (![server1.guildId, server2.guildId].includes(channel.guild.id)) return;
 
         try {
@@ -36,12 +32,9 @@ module.exports = {
 
     async channelUpdate(oldChannel, newChannel, client) {
         if (!newChannel.guild) return;
-
-        // Pastikan hanya untuk Server 1 dan Server 2
         if (![server1.guildId, server2.guildId].includes(newChannel.guild.id)) return;
 
         try {
-            // Perubahan nama channel
             if (oldChannel.name !== newChannel.name) {
                 const oldName = oldChannel.name || 'Unknown';
                 const newName = newChannel.name || 'Unknown';

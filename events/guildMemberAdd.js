@@ -16,11 +16,9 @@ module.exports = {
         const welcomeChannel = member.guild.channels.cache.get(welcomeChannelId);
 
         try {
-            // Fetch user data to ensure createdAt is available
             const user = await client.users.fetch(member.user.id);
             logMemberJoin(client, guildId, user.id, user.tag);
 
-            // Anti-Raid detection
             joinTimestamps.push(Date.now());
             const recentJoins = joinTimestamps.filter(timestamp => Date.now() - timestamp < 60000);
 
@@ -30,7 +28,6 @@ module.exports = {
                 logRoleChange(client, guildId, user.id, user.tag, 'Anti-Raid', 'Added');
             }
 
-            // Welcome message
             if (welcomeChannel) {
                 welcomeChannel.send(`Selamat datang, ${user.tag}! 🎉 Jangan lupa baca peraturan server.`)
                     .catch(console.error);

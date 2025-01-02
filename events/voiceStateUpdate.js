@@ -40,8 +40,6 @@ module.exports = {
         if (!member || !member.user || excludedBots.includes(member.user.username)) return;
 
         const guildId = member.guild.id;
-
-        // Hanya jalankan jika guild adalah server1
         if (guildId !== server1.guildId) return;
 
         if (!voiceTimes[member.id]) {
@@ -51,13 +49,11 @@ module.exports = {
         const now = Date.now();
         const isMutedOrDeafened = newState.selfMute || newState.selfDeaf;
 
-        // Member joins a voice channel
         if (!oldState.channel && newState.channel) {
             voiceTimes[member.id].joinTime = now;
             console.log(`Started tracking for ${member.user.tag}`);
             logVoiceChannelEvent(client, guildId, 'Joined Voice Channel', member.user.id, null, newState.channel.id);
 
-        // Member leaves a voice channel
         } else if (oldState.channel && !newState.channel) {
             if (voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
@@ -68,7 +64,6 @@ module.exports = {
             }
             logVoiceChannelEvent(client, guildId, 'Left Voice Channel', member.user.id, oldState.channel.id, null);
 
-        // Member switches between voice channels
         } else if (oldState.channel && newState.channel && oldState.channel.id !== newState.channel.id) {
             if (voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;
@@ -81,7 +76,6 @@ module.exports = {
             console.log(`Member ${member.user.tag} moved from ${oldState.channel.name} to ${newState.channel.name}`);
             logVoiceChannelEvent(client, guildId, 'Switched Voice Channels', member.user.id, oldState.channel.id, newState.channel.id);
 
-        // Member mutes or unmutes themselves
         } else if (oldState.selfMute !== newState.selfMute || oldState.selfDeaf !== newState.selfDeaf) {
             if (isMutedOrDeafened && voiceTimes[member.id].joinTime) {
                 const sessionTime = now - voiceTimes[member.id].joinTime;

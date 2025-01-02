@@ -18,7 +18,7 @@ async function loadVoiceTimes() {
         }, {});
     } catch (error) {
         console.error('Error loading voice times:', error.message);
-        return {}; // Kembalikan objek kosong jika terjadi error
+        return {};
     }
 }
 

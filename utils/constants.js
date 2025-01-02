@@ -1,5 +1,4 @@
 module.exports = {
-    // Konfigurasi untuk Server 1
     server1: {
         guildId: '1222531463807762462',
         leaderboardChannelId: '1294689978210582548',
@@ -25,7 +24,6 @@ module.exports = {
         minecraftRoleId: '1236955019379474465',
         pubgmobileRoleId: '1240891424199934002',
     },
-    // Konfigurasi untuk Server 2
     server2: {
         guildId: '1288595563130126346',
         allowedChannelIds: ['1288595563914465325', '1290003287659249705'],
@@ -46,5 +44,5 @@ module.exports = {
     spotifyRegex: /https?:\/\/(open\.spotify\.com)\/.+/,
     tiktokRegex: /https?:\/\/(www\.)?tiktok\.com\/.+/,
     twitchRegex: /https?:\/\/(www\.)?(twitch\.tv)\/.+/,
-    bannedWords: ['kontol', 'memek', 'judi', 'sex', 'ngewe', 'ngentot', 'anjing', 'babi', 'jembut']
+    bannedWords: ['kontol', 'memek', 'judi', 'sex', 'ngewe', 'ngentot', 'anjing', 'babi', 'jembut', 'bangsat', 'titit', 'peju', 'payudara', 'toket']
 };

@@ -12,7 +12,7 @@ const userMessages = {};
 const userWarnings = {};
 const SPAM_TIMEFRAME = 10000;
 const SPAM_THRESHOLD = 2;
-const WARNING_RESET_TIME = 15000;
+const WARNING_RESET_TIME = 20000;
 
 function getServerConfig(guildId) {
     const config = [server1, server2].find(server => server.guildId === guildId);

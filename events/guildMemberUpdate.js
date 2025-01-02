@@ -19,11 +19,9 @@ module.exports = {
 
         if (!boostChannel) return;
 
-        // Ambil daftar role lama dan baru
         const oldRoles = new Set(oldMember.roles.cache.map(role => role.id));
         const newRoles = new Set(newMember.roles.cache.map(role => role.id));
 
-        // Periksa role yang ditambahkan
         for (const roleId of newRoles) {
             if (!oldRoles.has(roleId)) {
                 const role = newMember.guild.roles.cache.get(roleId);
@@ -32,7 +30,6 @@ module.exports = {
             }
         }
 
-        // Periksa role yang dihapus
         for (const roleId of oldRoles) {
             if (!newRoles.has(roleId)) {
                 const role = oldMember.guild.roles.cache.get(roleId);
@@ -44,7 +41,6 @@ module.exports = {
         const wasBoosting = oldMember.premiumSince !== null;
         const isBoosting = newMember.premiumSince !== null;
 
-        // Notifikasi untuk member yang baru boost server
         if (!wasBoosting && isBoosting && !boostedMembersCache.has(newMember.id)) {
             const boostTimestamp = Math.floor(newMember.premiumSince / 1000);
             boostedMembersCache.set(newMember.id, boostTimestamp);
@@ -72,7 +68,6 @@ module.exports = {
             }
         }
 
-        // Notifikasi untuk member yang berhenti boost server
         if (wasBoosting && !isBoosting && boostedMembersCache.has(newMember.id)) {
             boostedMembersCache.delete(newMember.id);
 
@@ -90,7 +85,6 @@ module.exports = {
             boostChannel.send({ embeds: [embed] });
         }
 
-        // Notifikasi untuk member yang memperpanjang atau memulai periode boost baru
         if (isBoosting) {
             const currentBoostTimestamp = Math.floor(newMember.premiumSince / 1000);
             const cachedBoostTimestamp = boostedMembersCache.get(newMember.id);

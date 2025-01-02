@@ -3,7 +3,7 @@ const { server1, server2 } = require('../utils/constants');
 
 const responseCount = {};
 const RESPONSE_LIMIT = 1;
-const RESET_TIME = 7000;
+const RESET_TIME = 10000;
 
 module.exports = {
     handleResponses(message) {
@@ -175,11 +175,6 @@ module.exports = {
                 case 'main':
                     message.channel.send(`Ayo main sih ges, jan diem-diem bae! @everyone`).catch(console.error);
                     break;
-
-                // case 'valo':
-                //     const valoRoleId = '1236564378585661441'; // Ganti dengan ID role yang diinginkan
-                //     message.channel.send(`Ayo main valo ges <@&${valoRoleId}>`).catch(console.error);
-                //     break;
                 
                 default:
                     break;

@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const moment = require('moment-timezone');
 const { VoiceTime } = require('./voiceTimes');
 
@@ -15,10 +14,5 @@ async function resetVoiceTimes() {
         console.error('Terjadi kesalahan saat mereset data:', error.message);
     }
 }
-
-cron.schedule('58 23 1 * *', async () => {
-    console.log('Menjalankan reset voiceTimes pada tanggal 1 pukul 00:30 WIB...');
-    await resetVoiceTimes();
-}, { timezone: "Asia/Jakarta" });
 
 module.exports = { resetVoiceTimes };

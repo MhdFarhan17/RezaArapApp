@@ -77,8 +77,7 @@ async function sendLeaderboard(client) {
         await updateLeaderboardEmbed(client, message, sortedTimes, 1);
 
         const filter = (interaction) => interaction.isButton();
-        const collector = message.createMessageComponentCollector({ filter, time: 600000 }); // 5 minutes
-
+        const collector = message.createMessageComponentCollector({ filter, time: 600000 });
         let currentPage = 1;
 
         collector.on('collect', async (interaction) => {
@@ -88,14 +87,13 @@ async function sendLeaderboard(client) {
             const nextPage = interaction.customId.includes('next') ? page + 1 : page - 1;
 
             if (nextPage >= 1 && nextPage <= Math.ceil(sortedTimes.length / 10)) {
-                currentPage = nextPage; // Save the last viewed page
+                currentPage = nextPage;
                 await updateLeaderboardEmbed(client, message, sortedTimes, currentPage);
             }
         });
 
         collector.on('end', async () => {
             try {
-                // Display the leaderboard with the last viewed page and disable buttons
                 await updateLeaderboardEmbed(client, message, sortedTimes, currentPage, 10, true);
                 console.log('Buttons disabled after timeout.');
             } catch (error) {

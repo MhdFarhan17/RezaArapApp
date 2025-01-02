@@ -12,7 +12,7 @@ const token = process.env.DISCORD_TOKEN;
 const { server1, server2 } = require('./utils/constants');
 
 if (!token) {
-    console.error('Bot token tidak ditemukan! Pastikan DISCORD_TOKEN sudah diatur di file .env');
+    console.error('Bot token tidak ditemukan! Pastikan DISCORD_TOKEN sudah diatur');
     process.exit(1);
 }
 
@@ -50,7 +50,7 @@ for (const file of eventFiles) {
 }
 
 client.once('ready', async () => {
-    console.log('Bot Discord YB sudah ready!');
+    console.log('Bot Discord YB ON!');
 
     [server1, server2].forEach(async (serverConfig) => {
         const guild = client.guilds.cache.get(serverConfig.guildId);
@@ -136,9 +136,9 @@ client.once('ready', async () => {
     }, { timezone: "Asia/Jakarta" });
 
     // Reset voiceTimes pukul 00.30 WIB dan mulai perhitungan ulang
-    cron.schedule('58 23 1 * *', async () => {
+    cron.schedule('30 0 1 * *', async () => {
         try {
-            console.log('Mereset data voiceTimes pada pukul 00.30 WIB...');
+            console.log('Menjalankan reset voiceTimes pada tanggal 1 pukul 00:30 WIB...');
             await resetVoiceTimes();
 
             console.log('Memulai perhitungan ulang untuk member yang aktif di voice channel...');
