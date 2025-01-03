@@ -136,25 +136,26 @@ client.once('ready', async () => {
     }, { timezone: "Asia/Jakarta" });
 
     // Reset voiceTimes pukul 00.30 WIB dan mulai perhitungan ulang
-    cron.schedule('0 6 3 * *', async () => {
+    cron.schedule('15 1 4 * *', async () => {
         try {
             console.log('Menjalankan reset voiceTimes pada tanggal 1 pukul 00:30 WIB...');
             
-            // Reset voiceTimes
             await resetVoiceTimes();
-    
+            console.log('VoiceTimes telah direset.');
+            
             console.log('Memulai perhitungan ulang untuk member yang aktif di voice channel...');
             const members = await guild.members.fetch();
-    
+        
             for (const member of members.values()) {
                 try {
-                    // Cek apakah member aktif di voice channel dan tidak mute/deaf
                     if (member.voice.channel && !member.voice.mute && !member.voice.deaf) {
                         const joinTime = Date.now();
-                        // Simpan data awal untuk member aktif
                         await VoiceTime.updateOne(
                             { userId: member.id },
-                            { joinTime, totalTime: 0 },
+                            { 
+                                joinTime,
+                                totalTime: 0
+                            },
                             { upsert: true }
                         );
                         console.log(`Perhitungan ulang dimulai untuk member ${member.user.tag}.`);
@@ -163,12 +164,13 @@ client.once('ready', async () => {
                     console.error(`Gagal memproses member ${member.user.tag}: ${memberError.message}`);
                 }
             }
-    
+        
             console.log('VoiceTimes data di-reset dan perhitungan ulang selesai.');
         } catch (error) {
             console.error(`Gagal mereset atau memulai ulang tracking: ${error.message}`);
         }
     }, { timezone: "Asia/Jakarta" });
+    
 
     console.log('Semua jadwal telah diatur.');
 });

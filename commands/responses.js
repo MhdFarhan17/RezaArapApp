@@ -27,7 +27,6 @@ module.exports = {
                 }, RESET_TIME);
             }
 
-            // Definisikan logika untuk respon gambar atau teks
             switch (content) {
                 case 'good game':
                 case 'gg':
@@ -193,7 +192,6 @@ module.exports = {
                 { keywords: ['minecraft'], roleId: config.minecraftRoleId },
             ];
 
-            // Cek pesan apakah cocok dengan keyword secara penuh
             for (const trigger of triggers) {
                 if (trigger.keywords.includes(content)) {
                     const roleId = trigger.roleId;

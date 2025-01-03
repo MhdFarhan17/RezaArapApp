@@ -3,8 +3,7 @@ const { VoiceTime } = require('./voiceTimes');
 
 async function resetVoiceTimes() {
     try {
-        // Lakukan reset data dengan validasi jumlah dokumen yang direset
-        const totalDocuments = await VoiceTime.countDocuments(); // Hitung total dokumen di koleksi
+        const totalDocuments = await VoiceTime.countDocuments();
         const result = await VoiceTime.updateMany({}, { $set: { totalTime: 0, joinTime: null } });
 
         if (result.modifiedCount === totalDocuments) {
